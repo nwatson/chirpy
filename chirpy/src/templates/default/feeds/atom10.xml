@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="<TMPL_VAR NAME="CHARACTER_ENCODING">"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<title><TMPL_VAR NAME="FEED_TITLE"></title>
+<subtitle><TMPL_VAR NAME="FEED_SUBTITLE"></subtitle>
+<id><TMPL_VAR NAME="SITE_URL"></id>
+<link href="<TMPL_VAR NAME="SITE_URL">"/>
+<link href="<TMPL_VAR NAME="FEED_URL">" rel="self"/>
+<updated><TMPL_VAR NAME="FEED_DATE_ISO8601"></updated>
+<author>
+<name><TMPL_VAR NAME="WEBMASTER_NAME"></name>
+<email><TMPL_VAR NAME="WEBMASTER_EMAIL"></email>
+</author>
+<generator uri="<TMPL_VAR NAME="CHIRPY_URL">" version="<TMPL_VAR NAME="CHIRPY_VERSION">"><TMPL_VAR NAME="CHIRPY_NAME"></generator>
+<TMPL_LOOP NAME="QUOTES">
+<entry>
+<title type="text">#<TMPL_VAR NAME="QUOTE_ID"></title>
+<link href="<TMPL_VAR NAME="QUOTE_URL">"/>
+<id><TMPL_VAR NAME="QUOTE_URL"></id>
+<published><TMPL_VAR NAME="QUOTE_DATE_ISO8601"></published>
+<updated><TMPL_VAR NAME="QUOTE_DATE_ISO8601"></updated>
+<summary type="text"><TMPL_VAR NAME="QUOTE_RATING"></summary>
+<content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">
+	<p><b><a href="<TMPL_VAR NAME="QUOTE_RATING_DOWN_URL">">[<TMPL_VAR NAME="QUOTE_RATING_DOWN_SHORT_TITLE">]</a>
+	(<TMPL_VAR NAME="QUOTE_RATING">)
+	<a href="<TMPL_VAR NAME="QUOTE_RATING_UP_URL">">[<TMPL_VAR NAME="QUOTE_RATING_UP_SHORT_TITLE">]</a>
+	<a href="<TMPL_VAR NAME="QUOTE_REPORT_URL">">[<TMPL_VAR NAME="QUOTE_REPORT_SHORT_TITLE">]</a></b></p>
+	<p><tt><TMPL_VAR NAME="QUOTE_BODY"></tt></p>
+	<TMPL_IF NAME="QUOTE_NOTES"><p><b><TMPL_VAR NAME="QUOTE_NOTES_TITLE"></b>
+	<TMPL_VAR NAME="QUOTE_NOTES"></p></TMPL_IF>
+</div></content>
+</entry>
+</TMPL_LOOP>
+</feed>

@@ -1,0 +1,95 @@
+<TMPL_INCLUDE NAME="_head.html">
+	<script type="text/javascript">
+		var locale = new Array();
+		locale["processing"] = "<TMPL_VAR NAME="PROCESSING">";
+		locale["error"] = "<TMPL_VAR NAME="ERROR">";
+		locale["timeout_text"] = "<TMPL_VAR NAME="QUOTE_RATING_TIMED_OUT">";
+		locale["already_rated_text"] = "<TMPL_VAR NAME="QUOTE_ALREADY_RATED_TEXT">";
+		locale["limit_exceeded_text"] = "<TMPL_VAR NAME="LIMIT_EXCEEDED_TEXT">";
+		locale["quote_not_found_text"] = "<TMPL_VAR NAME="QUOTE_NOT_FOUND_TEXT">";
+		locale["session_required_text"] = "<TMPL_VAR NAME="SESSION_REQUIRED_TEXT">";
+		locale["flagged"] = "<TMPL_VAR NAME="FLAGGED">";
+	</script>
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/live_rating.js"></script>
+	<TMPL_IF NAME="BROWSER">
+	<div class="quote-browser" id="quote-browser-top">
+		<TMPL_IF NAME="PREVIOUS_URL">
+		<a href="<TMPL_VAR NAME="PREVIOUS_URL">">&larr; <TMPL_VAR NAME="PREVIOUS_PAGE_TITLE"></a>
+		<TMPL_ELSE>
+		<span class="inactive">&larr; <TMPL_VAR NAME="PREVIOUS_PAGE_TITLE"></span>
+		</TMPL_IF>
+		<TMPL_IF NAME="NEXT_URL">
+		<a href="<TMPL_VAR NAME="NEXT_URL">"><TMPL_VAR NAME="NEXT_PAGE_TITLE"> &rarr;</a>
+		<TMPL_ELSE>
+		<span class="inactive"><TMPL_VAR NAME="NEXT_PAGE_TITLE"> &rarr;</span>
+		</TMPL_IF>
+	</div>
+	</TMPL_IF>
+	<h2>
+		<TMPL_VAR NAME="PAGE_TITLE">
+	</h2>
+	<ul class="quote-list">
+	<TMPL_LOOP NAME="QUOTES">
+		<li>
+			<div class="quote-container">
+				<h3 class="quote-header<TMPL_IF NAME="IS_FLAGGED"> flagged</TMPL_IF>" id="quote-header-<TMPL_VAR NAME="ID">">
+					<span id="quote-live-vote-result-<TMPL_VAR NAME="ID">" class="quote-live-vote-result"></span>
+					<a href="<TMPL_VAR NAME="LINK_URL">"
+					title="<TMPL_VAR NAME="LINK_DESCRIPTION">" class="quote-permalink"><span class="quote-id">#<TMPL_VAR NAME="ID"></span></a>
+					<a href="<TMPL_VAR NAME="RATING_UP_URL">" rel="nofollow"
+					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
+					title="<TMPL_VAR NAME="RATING_UP_DESCRIPTION">" class="quote-rating-up"><TMPL_VAR NAME="UP">&uarr;</a>
+					<span id="quote-rating-<TMPL_VAR NAME="ID">" class="quote-rating" title="<TMPL_VAR NAME="RATING_DESCRIPTION">"><TMPL_VAR NAME="RATING_TEXT"></span>
+					<a href="<TMPL_VAR NAME="RATING_DOWN_URL">" rel="nofollow"
+					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
+					title="<TMPL_VAR NAME="RATING_DOWN_DESCRIPTION">" class="quote-rating-down"><TMPL_VAR NAME="DOWN">&darr;</a>
+					<TMPL_IF NAME="IS_FLAGGED">
+					<span class="quote-flagged">[<TMPL_VAR NAME="FLAGGED">]</span>
+					<TMPL_ELSE>
+					<a href="<TMPL_VAR NAME="REPORT_URL">" rel="nofollow"
+					onclick="return sendReport(this, <TMPL_VAR NAME="ID">)"
+					title="<TMPL_VAR NAME="REPORT_DESCRIPTION">" class="quote-report" id="quote-report-<TMPL_VAR NAME="ID">">[<TMPL_VAR NAME="REPORT">]</a>
+					</TMPL_IF>
+					<span class="quote-date" title="<TMPL_VAR NAME="DATE_DESCRIPTION">"><TMPL_VAR NAME="SUBMITTED_TEXT"></span>
+					<TMPL_IF NAME="ALLOW_EDIT">
+					<a href="<TMPL_VAR NAME="EDIT_URL">" class="quote-edit"
+					title="<TMPL_VAR NAME="EDIT_DESCRIPTION">">[<TMPL_VAR NAME="EDIT">]</a>
+					</TMPL_IF>
+					<TMPL_IF NAME="ALLOW_UNFLAG">
+					<a href="<TMPL_VAR NAME="UNFLAG_URL">" class="quote-unflag"
+					title="<TMPL_VAR NAME="UNFLAG_DESCRIPTION">">[<TMPL_VAR NAME="UNFLAG">]</a>
+					</TMPL_IF>
+					<TMPL_IF NAME="ALLOW_REMOVE">
+					<a href="<TMPL_VAR NAME="REMOVE_URL">" class="quote-remove"
+					title="<TMPL_VAR NAME="REMOVE_DESCRIPTION">"
+					onclick="return confirm(&quot;<TMPL_VAR NAME="REMOVAL_CONFIRMATION">&quot;)">[<TMPL_VAR NAME="REMOVE">]</a>
+					</TMPL_IF>
+				</h3>
+				<blockquote class="quote-body">
+					<p><TMPL_VAR NAME="BODY"></p>
+				</blockquote>
+				<TMPL_IF NAME="NOTES">
+				<div class="quote-notes">
+					<p><em class="quote-notes-title"><TMPL_VAR NAME="NOTES_TITLE"></em>
+					<TMPL_VAR NAME="NOTES"></p>
+				</div>
+				</TMPL_IF>
+			</div>
+		</li>
+	</TMPL_LOOP>
+	</ul>
+	<TMPL_IF NAME="BROWSER">
+	<div class="quote-browser" id="quote-browser-bottom">
+		<TMPL_IF NAME="PREVIOUS_URL">
+		<a href="<TMPL_VAR NAME="PREVIOUS_URL">">&larr; <TMPL_VAR NAME="PREVIOUS_PAGE_TITLE"></a>
+		<TMPL_ELSE>
+		<span class="inactive">&larr; <TMPL_VAR NAME="PREVIOUS_PAGE_TITLE"></span>
+		</TMPL_IF>
+		<TMPL_IF NAME="NEXT_URL">
+		<a href="<TMPL_VAR NAME="NEXT_URL">"><TMPL_VAR NAME="NEXT_PAGE_TITLE"> &rarr;</a>
+		<TMPL_ELSE>
+		<span class="inactive"><TMPL_VAR NAME="NEXT_PAGE_TITLE"> &rarr;</span>
+		</TMPL_IF>
+	</div>
+	</TMPL_IF>
+<TMPL_INCLUDE NAME="_foot.html">

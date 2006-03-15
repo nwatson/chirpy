@@ -1,0 +1,36 @@
+ _____________________________________________________________________________
+/                                                                             \
+| Chirpy! v0.2                                                     YYYY.MM.DD |
+\_____________________________________________________________________________/
+
+* Fixed logging of author when editing or removing news items (#1289047)
+* Added on-the-fly gzip compression to Chirpy::UI::WebApp--webapp.enable_gzip=1
+  in your configuration file enables it
+* Added optional captcha image to Chirpy::UI::WebApp's quote submission page
+* Made Atom 1.0 feed valid by adding feed ID and webmaster name. Webmaster name
+  must be configured as webapp.webmaster_name
+* Added quote_count method to Chirpy::DataManager and APPROVED_QUOTE_COUNT,
+  UNAPPROVED_QUOTE_COUNT, and TOTAL_QUOTE_COUNT to templates
+* Added mass quote approval and unflagging to Chirpy::UI::WebApp's
+  administration section
+* Changed Chirpy::DataManager's API so add_* methods return ID of added item
+* Made Chirpy::UI::WebApp replace sequences of whitespaces with &#xA0; instead
+  of &nbsp;, so the Atom feed remains valid
+* Optimized fetching single quote in Chirpy::DataManager::MySQL
+* Fixed US English (and Dutch) locale: quote_submission_thanks_administrator is
+  now quote_submission_thanks_no_approval
+* Extended feed templates with a couple of variables and added rating and
+  report URLs as well as notes to the default templates
+* Replaced feed templates' CSS with legacy HTML
+* Cosmetic fixes to Chirpy::UI::WebApp's live rating system
+* Mentioned Chirpy::UI::WebApp::Session::DataManager in Chirpy::DataManager's
+  documentation
+* Cosmetic fix in Account Manager: space after New Account
+* Added changelog.txt
+
+ _____________________________________________________________________________
+/                                                                             \
+| Chirpy! v0.1                                                     2005.09.12 |
+\_____________________________________________________________________________/
+
+* First official release

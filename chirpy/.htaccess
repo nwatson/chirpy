@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule  ^([0-9]+)$  index.cgi?id=$1  [L]
+RewriteRule  ^(rss|atom)$  index.cgi?action=qotw&output=$1  [L]
+RewriteRule  ^([a-z_]+)(/([a-z_]*))?$  index.cgi?action=$1&admin_action=$3  [L,QSA]
+</IfModule>
+
+<IfModule mod_access.c>
+<Files chirpy.ini>
+order deny,allow
+deny from all
+</Files>
+</IfModule>

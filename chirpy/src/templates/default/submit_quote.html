@@ -1,0 +1,30 @@
+<TMPL_INCLUDE NAME="_head.html">
+	<h2>
+		<TMPL_VAR NAME="PAGE_TITLE">
+	</h2>
+	<div id="submit-form">
+	<TMPL_VAR NAME="SUBMIT_FORM_START">
+		<div id="quote-container">
+			<label for="quote-field"><TMPL_VAR NAME="QUOTE_LABEL"></label>
+			<textarea name="quote" id="quote-field" rows="8" cols="80"></textarea>
+		</div>
+		<div id="notes-container">
+			<label for="notes-field"><TMPL_VAR NAME="NOTES_LABEL"></label>
+			<textarea name="notes" id="notes-field" rows="3" cols="80"></textarea>
+		</div>
+		<TMPL_IF NAME="USE_CAPTCHA">
+		<div id="captcha-container">
+			<input type="hidden" name="captcha_hash" value="<TMPL_VAR NAME="CAPTCHA_HASH">" />
+			<img src="<TMPL_VAR NAME="CAPTCHA_IMAGE_URL">"
+			alt="<TMPL_VAR NAME="CAPTCHA_IMAGE_TEXT">" id="captcha-image"
+			width="<TMPL_VAR NAME="CAPTCHA_IMAGE_WIDTH">" height="<TMPL_VAR NAME="CAPTCHA_IMAGE_HEIGHT">" />
+			<label for="captcha-code-field"><TMPL_VAR NAME="CAPTCHA_CODE_LABEL"></label>
+			<input type="text" name="captcha_code" value="" id="captcha-code-field" maxlength="<TMPL_VAR NAME="CAPTCHA_CODE_LENGTH">" />
+		</div>
+		</TMPL_IF>
+		<div id="submit-container">
+			<input type="submit" value="<TMPL_IF NAME="NO_APPROVAL"><TMPL_VAR NAME="SUBMIT_LABEL_NO_APPROVAL"><TMPL_ELSE><TMPL_VAR NAME="SUBMIT_LABEL"></TMPL_IF>" id="submit-button" />
+		</div>
+	<TMPL_VAR NAME="SUBMIT_FORM_END">
+	</div>
+<TMPL_INCLUDE NAME="_foot.html">

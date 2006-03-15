@@ -1,0 +1,525 @@
+###############################################################################
+# Chirpy! v0.2, a quote management system                                     #
+# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+###############################################################################
+# This program is free software; you can redistribute it and/or modify it     #
+# under the terms of the GNU General Public License as published by the Free  #
+# Software Foundation; either version 2 of the License, or (at your option)   #
+# any later version.                                                          #
+#                                                                             #
+# This program is distributed in the hope that it will be useful, but WITHOUT #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for   #
+# more details.                                                               #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc., 51  #
+# Franklin St, Fifth Floor, Boston, MA  02110-1301  USA                       #
+###############################################################################
+
+###############################################################################
+# INSTALLATION INSTRUCTIONS                                                   #
+###############################################################################
+
+
+CONTENTS
+========
+
+1. INTRODUCTION
+
+2. REQUIREMENTS
+
+3. INSTALLATION
+3.1. Copy files
+3.2. Configure
+3.2.1. The [general] Section
+3.2.2. The [data] Section
+3.2.3. The [ui] Section
+3.3. Setup
+3.4. Import
+
+4. RUN CHIRPY!
+
+5. NEXT STEPS
+5.1. Your Own Theme
+5.2. Your Own Locale
+5.3. Your Own Data Manager
+5.4. Your Own User Interface
+
+
+1. INTRODUCTION
+===============
+
+Thank you for trying this Chirpy! beta version. Note that, while every feature
+contained in this product is functional unless stated otherwise, you may very
+well run into problems here and there. However, in most cases, there's probably
+an easy fix. You may find the following URLs helpful:
+
+* Trackers (Bugs, Support, Feature Requests)
+  http://sourceforge.net/tracker/?group_id=147270
+
+* Chirpy! web site
+  http://chirpy.sourceforge.net/
+
+* API Specification (mainly for developers)
+  http://chirpy.sourceforge.net/pod/
+
+
+2. REQUIREMENTS
+===============
+
+To install Chirpy!, you'll need web space that gives you access to Perl 5.8 and
+a SQL server running MySQL 4.1 or higher. Those version numbers are expected
+to drop a little in an upcoming version.
+
+In addition, you'll need these Perl modules:
+
+Carp                Data::Dumper        HTML::Template
+Digest::MD5         DBD::mysql          HTTP::Date
+Encode              DBI                 URI::Escape
+POSIX               
+
+It seems like a long list, but most of them are common and come with standard
+distributions of Perl. Other modules will need to be installed separately; you
+should probably ask your host about that. If any of these modules are missing,
+Chirpy! will not work.
+
+In addition, Chirpy! uses the CGI::Carp module for verbose error reporting,
+which makes problems easier to trace. While this module is also really common,
+you can drop the dependency by removing statements containing "CGI::Carp" or
+"set_message" from the scripts.
+
+
+3. INSTALLATION
+===============
+
+If all the requirements are met, you are ready to begin the installation of
+Chirpy!. Let's go!
+
+3.1. Copy files
+---------------
+
+Since you're reading this file, we'll assume that you've already extracted the
+entire installation package.
+
+First, we'll take a quick look at the contents of the package. You should have
+the following directories and files in the root:
+
+res/                The resources directory. Resources are public files that
+                    are required by themes, such as images and style sheets.
+src/                The source directory. Contains all the necessary files to
+                    run Chirpy!, including its modules, locales, templates and
+                    configuration file.
+util/               Contains some utilities that you may find useful while
+                    installing or using Chirpy!.
+.htaccess           Has some directives that enable short URLs. Covered later
+                    in this document.
+changelog.txt       All the stuff that's changed between Chirpy! releases.
+index.cgi           The main script. Will be the only URL that is accessed
+                    directly by visitors.
+install.txt         This document.
+license.txt         The GNU General Public License, under which Chirpy! is
+                    distributed.
+
+Now, we're going the copy the files to a public path on the web server. This is
+usually done using an FTP client.
+
+As for the files in the package root directory, the only one you really need is
+index.cgi. Since this is a Perl script, it has to be inside a path where the
+server allows execution of scripts. Most servers these days will allow that
+anywhere, but yours might require that you put it inside a cgi-bin/ directory,
+which may even be outside the document root on the FTP server. This is no
+problem--just make sure it wants to execute it and not display the contents.
+
+The index.cgi file needs some attributes. This is done by issueing a SITE CHMOD
+command on the FTP server. If you use a graphical FTP client, you can probably
+right-click on the file and tick off the necessary attributes. They are:
+
+                    Owner     READ      WRITE     EXECUTE
+                    Group     READ      -         EXECUTE
+                    Others    READ      -         EXECUTE
+
+This translates to the string representation "rwxr-xr-x" or, numerically, 755
+on UNIX systems. On most systems, this step is essential. You will get an error
+page if you fail to change the file's attributes. Also, if you are using an FTP
+client, make sure you have uploaded index.cgi in ASCII (text) mode, not image
+(binary).
+
+You may want to copy the .htaccess file from the package root as well. Make
+sure you don't confuse it with the one in the src/ directory! The one covered
+here allows you to use short URLs, which are easy to remember, using the
+mod_rewrite Apache module. To use that option, you will need to run Chirpy! on
+an Apache web server that has the mod_rewrite module. Note that, while short
+URLs will not work if mod_rewrite is not enabled, it should be safe to have the
+.htaccess file there anyway, since it checks for the module first. Moreover, it
+also attempts to block access to the configuration file, so you might want to
+have it anyway; we will cover that configuration file in a moment.
+
+The res/ directory only holds static files and should reside in a public path
+on the server, like <http://www.yourserver.com/chirpy/res>. You can upload it
+anywhere, even on a different server. We'll need the URL later for the
+configuration.
+
+Next up: the src/ directory. This one does not have to be publicly accessible
+and for security reasons, it really shouldn't be either. Chirpy! takes some
+precautions to disallow access to it by placing a .htaccess file in it, that
+holds code specific to the Apache web server. However, placing the directory
+outside the document root (if possible) is a MUCH safer choice.
+Alternatively, you can keep chirpy.ini, the configuration file, which we will
+cover later in this document, outside the document root and the src/ directory.
+
+The util/ directory should NOT be uploaded. You are however likely to need the
+setup.pl script inside it, but we'll get to that in a moment.
+
+That covers uploading the files--almost. We'll need to upload a configuration
+file at the end of the next step.
+
+3.2. Configure
+--------------
+
+Chirpy! stores its configuration in a standard .INI file, a basic format which
+is common on Windows systems. In this step, we'll create such a configuration
+file.
+
+By default, Chirpy! looks for chirpy.ini in the working directory (which is
+where you put index.cgi) and inside the src/ directory if it is directly inside
+the working directory. Otherwise, you will have to edit index.cgi. As explained
+above, that little bit of editing is recommended, so your configuration file
+resides outside the public domain. After all, it will contain your MySQL server
+password, and we don't want visitors to read that, now, do we?
+
+Right, let's create that chirpy.ini file now. Here is a basic example:
+
+-------------------------------------------------------------------------------
+[general]
+title=My Little QDB
+base_path=./src
+locale=en-US
+rating_limit_count=2
+rating_limit_time=60
+
+[data]
+type=MySQL
+mysql.hostname=localhost
+mysql.port=3306
+mysql.username=my_username
+mysql.password=my_password
+mysql.database=my_database
+mysql.prefix=chirpy_
+
+[ui]
+type=WebApp
+date_time_format=%Y-%m-%d %H:%M GMT
+date_format=%Y-%m-%d
+time_format=%H:%M GMT
+use_gmt=1
+quotes_per_page=10
+top_quotes=10
+bottom_quotes=10
+random_quotes=10
+recent_news_items=3
+webapp.webmaster_name=John Doe
+webapp.webmaster_email=you@yourserver.com
+webapp.site_url=http://www.yourserver.com/cgi-bin/chirpy
+webapp.resources_url=http://www.yourserver.com/chirpy/res
+webapp.theme=default
+webapp.welcome_text_file=welcome.html
+webapp.cookie_domain=yourserver.com
+webapp.cookie_path=/cgi-bin/chirpy
+webapp.session_expiry=+3d
+webapp.enable_short_urls=0
+webapp.enable_feeds=0
+webapp.enable_gzip=0
+webapp.enable_captchas=0
+-------------------------------------------------------------------------------
+
+A lot of the values don't look very interesting right now, but we'll have to
+change some of the others.
+
+3.2.1. The [general] Section
+----------------------------
+
+title               Change this value to the title you want your QDB to have.
+base_path           Enter the absolute or relative path to the src/ directory
+                    here. When using relative paths, this is again relative to
+                    the directory where index.cgi is.
+
+3.2.2. The [data] Section
+-------------------------
+
+mysql.hostname      Enter the name of the MySQL server here. Usually, this will
+                    be "localhost".
+mysql.port          Enter the port the MySQL server uses. The default is 3306.
+mysql.username      Enter your MySQL username. This is not necessarily the same
+                    as your regular username.
+mysql.password      Enter your MySQL password. This is not necessarily the same
+                    as your regular password.
+mysql.database      Enter the name of the MySQL database Chirpy! should use. If
+                    it does not exist, you need to create it first. Do not
+                    create any tables; Chirpy! will do that for you.
+mysql.prefix        If you only have one MySQL database, Chirpy! can make its
+                    tables easy to find by prefixing their names with the text
+                    you enter here. The default "chirpy_" is a wise choice.
+
+3.2.3. The [ui] Section
+-----------------------
+
+webapp.webmaster_name
+                    Your name.
+webapp.webmaster_email
+                    Your e-mail address. You can add spam prevention tricks,
+                    but keep it valid if you are going to be using feeds.
+webapp.site_url     The URL where you put index.cgi.
+webapp.resources_url
+                    The URL where you put the res/ directory.
+webapp.cookie_domain
+                    Essentially the domain name (without the www prefix) from
+                    your site's URL. This will be used to store cookies.
+webapp.cookie_path  The part that comes after the domain in the site URL. This
+                    will also be used to store cookies.
+webapp.enable_short_urls
+                    Change this to 1 to enable the short URLs feature described
+                    above. If you get "Not Found" errors while browsing the QDB
+                    later, you should turn it off.
+webapp.enable_feeds Chirpy! can offer an RSS 2.0 feed and an Atom 1.0 feed of
+                    the Quotes of the Week, so visitors can syndicate them. If
+                    you want to enable those, set this to 1.
+webapp.enable_gzip  Chirpy! can greatly decrease bandwidth usage by compressing
+                    output on the fly if the browser supports it. Set this to 1
+                    to enable that. It requires the Compress::Zlib Perl module.
+webapp.enable_captchas
+                    If you wish to prevent malicious users from spamming the
+                    quote submission page, you will want to use captcha images.
+                    Setting this value to 1 enables them. This feature requires
+                    the Authen::Captcha Perl module.
+
+If you enable the captcha feature, you will need to define some of the following
+values as well. You may want to turn the feature off at first, so you can
+test-drive Chirpy!'s other features before trying captcha support.
+
+webapp.captcha_information_path
+                    The physical path to the directory where captcha information
+                    is to be stored. This directory must not be accessible via
+                    HTTP. Typically, it is "src/captcha". Make sure that the
+                    directory is world-writable, i.e. drwxrwxrwx.
+webapp.captcha_image_path
+                    The physical path to the directory where captcha images are
+                    to be stored. Since visitors will need to view these images,
+                    the directory must be accessible via HTTP. Typically, it is
+                    "res/captcha". Make sure the directory is world-writable,
+                    i.e. drwxrwxrwx.
+webapp.captcha_image_url
+                    The URL to the captcha image path, i.e. where visitors will
+                    access captcha images. Hence, it must be the URL to the
+                    directory you set webapp.captcha_image_path to.
+webapp.captcha_code_length
+                    The number of characters in the captcha code. Defaults to 4.
+webapp.captcha_expiry_time
+                    The number of seconds between the moment when the captcha
+                    image was generated and the moment when its code expires.
+                    Defaults to 300.
+webapp.captcha_source_image_path
+                    The physical path to the source images to be used by the
+                    Authen::Captcha module. Check the Authen::Captcha package
+                    for an examples of this image pack. Defaults to the path of
+                    the images bundled with Authen::Captcha.
+webapp.captcha_character_width
+                    The pixel width of each character in a captcha image. The
+                    total image width will be the number of characters,
+                    multiplied by this value. Defaults to the width of images
+                    bundled with Authen::Captcha.
+webapp.captcha_character_height
+                    The pixel height of each character in a captcha image. The
+                    image height will be equal to this value. Defaults to the
+                    height of images bundled with Authen::Captcha.
+
+That covers the configuration file. Save it as chirpy.ini and, as stressed
+before, try to store it at a location on the server which cannot be accessed
+using a Web browser.
+
+Now, we'll have to modify index.cgi a little to tell it where to find the
+configuration file. Again, it looks for chirpy.ini in the working directory and
+inside src/, but hopefully, it won't be there. So we'll just open index.cgi in
+a text editor and change the line
+
+  chirpy;
+
+to the following:
+
+  chirpy('/path/to/chirpy.ini');
+
+Again, you can use either an absolute path or a path relative to the working
+directory. You'll also need this path in the next step.
+
+While we're editing index.cgi, there are two more things you might have to
+change. The first is the path to the modules/ directory inside src/. This path
+is stored like:
+
+  unshift @INC, 'src/modules';
+
+If you have not placed the src/ directory in the same directory as index.cgi,
+update the path so Perl can find the Chirpy! modules.
+
+The other thing you might have to change is the path to Perl itself. Most
+servers have it at /usr/bin/perl, but if yours doesn't, change the first line
+of index.cgi to "#!" followed by the exact path to Perl.
+
+3.3. Setup
+----------
+
+Now that all the files are there, we'll grab setup.pl from the util/ directory
+and open it in a text editor. Look for the line that reads
+
+  my $ch = new Chirpy();
+
+and change that to
+
+  my $ch = new Chirpy('/path/to/chirpy.ini');
+
+using the same path you entered in index.cgi. In addition, you will have to
+update the path to src/modules/ and Perl itself again, if you had to do so for
+index.cgi.
+
+Now, upload setup.pl to the directory where index.cgi resides and change its
+attributes so they are the same as index.cgi's; as described above, they should
+be rwxr-xr-x (755). Again, since this is a Perl script, upload in ASCII mode!
+
+Now, we're going to call your Web browser into action. Open it and surf to the
+URL where setup.pl should be now, e.g.
+
+  http://www.yourserver.com/cgi-bin/chirpy/setup.pl
+
+That should give you a basic page, welcoming you to the setup procedure. If
+not, let's go over a few common problems ...
+
+- If you get the source code of setup.pl or maybe a download window, the server
+  doesn't allow execution of Perl scripts in that directory. You'll probably
+  need to use the cgi-bin directory instead.
+
+- If you get a Forbidden error, you probably didn't change the script's
+  attributes properly, as described above.
+
+- If you get a fairly verbose error that has line numbers and lots of weird
+  characters and other stuff that confuses you in it, the server executed the
+  script, but it crashed somewhere along the way. Something may have gone wrong
+  with the upload of one or more files; upload them again. If that doesn't do
+  any good, paste the error message at the Support Tracker, to which you can
+  find the URL at the start of this document.
+
+- If you get a generic "Internal Server Error" page, the server most likely
+  failed to execute the script at an earlier stage. Some files may have gotten
+  corrupted in the upload process; try uploading them again. If that doesn't
+  help, go over the text above to see if you didn't miss anything. If problems
+  persist, your host can give you a copy of the server's error log, which may
+  tell you more. If you can get an error message from the log, you can post
+  that at the Support Tracker; without it, the error will be nearly impossible
+  to trace.
+
+Assuming you've reached the setup page now, you get to decide if you want to
+keep your existing installation if any. If you're installing Chirpy! for the
+first time, you should choose to keep data, since it's faster. That should give
+you a page with a basic event log for the setup procedure. If it tells you the
+setup procedure has been completed, you can go to the next step now. If not,
+take a look at the error and see if you can fix things. If not, try the Support
+Tracker for assistance.
+
+3.4. Import
+-----------
+
+This step is optional. It only applies if you have the Rash Quote Management
+System installed and you want to migrate its data to Chirpy!. If you have no
+idea what this is about, just skip this step.
+
+To import Rash's data, grab chirpy_rqms_import.php from the util/ directory.
+Open it in a text editor and edit the configuration values at the start of the
+script. Then place it in the directory where you installed Rash, so it can find 
+config.php. Surf to chirpy_rqms_import.php and everything should be clear from
+there. If anything goes wrong, try the Support Tracker.
+
+
+4. RUN CHIRPY!
+==============
+ _____________________________________________________________________________
+|                                                                             |
+|    !!! DON'T FORGET TO REMOVE THE SETUP SCRIPT FROM THE SERVER FIRST !!!    |
+|_____________________________________________________________________________|
+
+By now, the setup script should have directed you to your brand new Chirpy!
+installation already. If not, append /index.cgi to your site URL and open that
+URL. That should give you a cute little start page. You should be able to leave
+off index.cgi in the URL now--try it. If it doesn't work, you should definitely
+turn short URLs off. If something else goes wrong, you should try the Support
+Tracker.
+
+Now, you're pretty much finished. Except that you should change the default
+password. Surf to the administration section, log in as "superuser" with the
+password "password" (if you didn't poke at setup.pl already) and click on the
+"Manage Accounts" option. Select the "superuser" account and modify it.
+
+That concludes the installation of Chirpy!. I hope you'll enjoy it. If you run
+into a problem or you'd like to see a new feature in the next release, surf to
+the Trackers.
+
+Congratulations on a successful installation!
+
+
+5. NEXT STEPS
+=============
+
+Now that you've got a working Chirpy! installation, you can tweak it to your
+liking. Most of this is done from the configuration file. If you want to change
+the welcome message, you just edit the file welcome.html in the src/ directory,
+which is actually a template.
+
+As Chirpy! is a work in progress, you can expect a lot more documentation on
+customizing it in future releases. In the mean time, if you want to do more
+advanced tweaking, here are a few possible scenarios:
+
+5.1. Your Own Theme
+-------------------
+
+The easiest way to do this is to copy the existing "default" theme and modify
+it, after which you change webapp.theme in the configuration file to use the
+new theme. A theme is nothing but two directories named after it: the one in
+src/themes/ holds the templates for the theme, the one in res/ holds its
+resources. The template filenames are predefined, so you need to keep those
+intact. The templates are parsed by the HTML::Template Perl module, so you will
+probably have to look at its documentation for a second--or you could just
+learn to use it by looking at the default theme's source code. The manual page
+for HTML::Template can be found at
+
+  http://search.cpan.org/dist/HTML-Template/Template.pm
+
+5.2. Your Own Locale
+--------------------
+
+You might want Chirpy! in your own language, and you can have it too. If you
+look in the src/locales/ directory, you'll see that locales are actually just
+INI files. Each locale string, along with some basic instructions for locale
+creation, is documented in the POD, located at the URL at the start of this
+document.
+
+5.3. Your Own Data Manager
+--------------------------
+
+Chirpy! is extremely modular. If you'd rather have it store its data in your
+choice of database, you are free to implement the Chirpy::DataManager class.
+Its API is explained in the POD, which is available at the start of this
+document or by typing "perldoc Chirpy::DataManager" from a console or command
+prompt, if you have Perl installed.
+
+5.4. Your Own User Interface
+----------------------------
+
+Apart from creating a backend, you can also write your own frontend class. This
+class should implement Chirpy::UI. Unfortunately, the API documentation for it
+is not yet available. Note that if your UI would be a web site, you should
+probably just create a Chirpy::UI::WebApp theme as described in 5.1.
+
+If you've created a theme, a locale, a data manager or a UI, please share your
+work with the community! E-mail it to me at ceetee@users.sourceforge.net and it
+might be included in the next Chirpy! release by default. Obviously, you would
+get credit for it.
+
+
+###############################################################################

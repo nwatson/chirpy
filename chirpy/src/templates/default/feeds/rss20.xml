@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="<TMPL_VAR NAME="CHARACTER_ENCODING">"?>
+<rss version="2.0"
+xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+<title><TMPL_VAR NAME="FEED_TITLE"></title>
+<description><TMPL_VAR NAME="FEED_SUBTITLE"></description>
+<link><TMPL_VAR NAME="SITE_URL"></link>
+<lastBuildDate><TMPL_VAR NAME="FEED_DATE_RFC822"></lastBuildDate>
+<managingEditor><TMPL_VAR NAME="WEBMASTER_EMAIL"></managingEditor>
+<generator><TMPL_VAR NAME="CHIRPY_URL"></generator>
+<TMPL_LOOP NAME="QUOTES">
+<item>
+<title>#<TMPL_VAR NAME="QUOTE_ID"></title>
+<link><TMPL_VAR NAME="QUOTE_URL"></link>
+<guid><TMPL_VAR NAME="QUOTE_URL"></guid>
+<pubDate><TMPL_VAR NAME="QUOTE_DATE_RFC822"></pubDate>
+<description><TMPL_VAR NAME="QUOTE_RATING"></description>
+<content:encoded><![CDATA[
+	<p><b><a href="<TMPL_VAR NAME="QUOTE_RATING_DOWN_URL">">[<TMPL_VAR NAME="QUOTE_RATING_DOWN_SHORT_TITLE">]</a>
+	(<TMPL_VAR NAME="QUOTE_RATING">)
+	<a href="<TMPL_VAR NAME="QUOTE_RATING_UP_URL">">[<TMPL_VAR NAME="QUOTE_RATING_UP_SHORT_TITLE">]</a>
+	<a href="<TMPL_VAR NAME="QUOTE_REPORT_URL">">[<TMPL_VAR NAME="QUOTE_REPORT_SHORT_TITLE">]</a></b></p>
+	<p><tt><TMPL_VAR NAME="QUOTE_BODY"></tt></p>
+	<TMPL_IF NAME="QUOTE_NOTES"><p><b><TMPL_VAR NAME="QUOTE_NOTES_TITLE"></b>
+	<TMPL_VAR NAME="QUOTE_NOTES"></p></TMPL_IF>
+]]></content:encoded>
+</item>
+</TMPL_LOOP>
+</channel>
+</rss>

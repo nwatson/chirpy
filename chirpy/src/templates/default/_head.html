@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<link rel="shortcut icon" type="image/x-icon"
+	href="<TMPL_VAR NAME="RESOURCES_URL">/cite.ico" />
+	<link rel="stylesheet" type="text/css"
+	href="<TMPL_VAR NAME="RESOURCES_URL">/css/default.css"/>
+	<link rel="stylesheet" type="text/css" title="Chirpy! Default"
+	href="<TMPL_VAR NAME="RESOURCES_URL">/css/styles/default.css"/>
+	<link rel="alternate stylesheet" type="text/css" title="Spring"
+	href="<TMPL_VAR NAME="RESOURCES_URL">/css/styles/spring.css"/>
+	<link rel="alternate stylesheet" type="text/css" title="Fish Tank"
+	href="<TMPL_VAR NAME="RESOURCES_URL">/css/styles/fish_tank.css"/>
+	<link rel="alternate stylesheet" type="text/css" title="Grayscale"
+	href="<TMPL_VAR NAME="RESOURCES_URL">/css/styles/grayscale.css"/>
+	<TMPL_LOOP NAME="FEEDS">
+	<link rel="alternate" type="<TMPL_VAR NAME="FEED_MIME_TYPE">"
+	title="<TMPL_VAR NAME="FEED_TITLE">" href="<TMPL_VAR NAME="FEED_URL">" />
+	</TMPL_LOOP>
+	<script type="text/javascript">var cookieDomain  = "<TMPL_VAR NAME="COOKIE_DOMAIN">", cookiePath = "<TMPL_VAR NAME="COOKIE_PATH">";</script>
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/style_switcher.js"></script>
+	<title><TMPL_VAR NAME="SITE_TITLE">: <TMPL_VAR NAME="PAGE_TITLE"></title>
+</head>
+<body>
+<h1 id="header">
+	<a href="<TMPL_VAR NAME="SITE_URL">"><TMPL_VAR NAME="SITE_TITLE"></a>
+</h1>
+<ul id="navigation"><li><a
+	href="<TMPL_VAR NAME="START_PAGE_URL">" title="<TMPL_VAR NAME="START_PAGE_DESCRIPTION">"><TMPL_VAR NAME="START_PAGE_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="QUOTE_BROWSER_URL">" title="<TMPL_VAR NAME="QUOTE_BROWSER_DESCRIPTION">"><TMPL_VAR NAME="QUOTE_BROWSER_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="RANDOM_QUOTES_URL">" title="<TMPL_VAR NAME="RANDOM_QUOTES_DESCRIPTION">"><TMPL_VAR NAME="RANDOM_QUOTES_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="TOP_QUOTES_URL">" title="<TMPL_VAR NAME="TOP_QUOTES_DESCRIPTION">"><TMPL_VAR NAME="TOP_QUOTES_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="BOTTOM_QUOTES_URL">" title="<TMPL_VAR NAME="BOTTOM_QUOTES_DESCRIPTION">"><TMPL_VAR NAME="BOTTOM_QUOTES_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="QUOTES_OF_THE_WEEK_URL">" title="<TMPL_VAR NAME="QUOTES_OF_THE_WEEK_DESCRIPTION">"><TMPL_VAR NAME="QUOTES_OF_THE_WEEK_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="QUOTE_SEARCH_URL">" title="<TMPL_VAR NAME="QUOTE_SEARCH_DESCRIPTION">"><TMPL_VAR NAME="QUOTE_SEARCH_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="SUBMIT_QUOTE_URL">" title="<TMPL_VAR NAME="SUBMIT_QUOTE_DESCRIPTION">"><TMPL_VAR NAME="SUBMIT_QUOTE_SHORT_TITLE"></a></li><TMPL_IF NAME="LOGGED_IN"><li><a
+	href="<TMPL_VAR NAME="ADMINISTRATION_URL">" title="<TMPL_VAR NAME="ADMINISTRATION_DESCRIPTION">"><TMPL_VAR NAME="ADMINISTRATION_SHORT_TITLE"></a></li><li><a
+	href="<TMPL_VAR NAME="LOGOUT_URL">" title="<TMPL_VAR NAME="LOGOUT_DESCRIPTION">"><TMPL_VAR NAME="LOGOUT_SHORT_TITLE"></a></li><TMPL_ELSE><li><a
+	href="<TMPL_VAR NAME="LOGIN_URL">" title="<TMPL_VAR NAME="LOGIN_DESCRIPTION">"><TMPL_VAR NAME="LOGIN_SHORT_TITLE"></a></li></TMPL_IF></ul>
+<div id="content">

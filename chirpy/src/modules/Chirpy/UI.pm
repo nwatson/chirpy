@@ -1,0 +1,1041 @@
+###############################################################################
+# Chirpy! v0.2, a quote management system                                     #
+# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+###############################################################################
+# This program is free software; you can redistribute it and/or modify it     #
+# under the terms of the GNU General Public License as published by the Free  #
+# Software Foundation; either version 2 of the License, or (at your option)   #
+# any later version.                                                          #
+#                                                                             #
+# This program is distributed in the hope that it will be useful, but WITHOUT #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for   #
+# more details.                                                               #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc., 51  #
+# Franklin St, Fifth Floor, Boston, MA  02110-1301  USA                       #
+###############################################################################
+
+=head1 NAME
+
+Chirpy::UI - Abstract user interface class
+
+=head1 TODO
+
+A detailed description of this module's API will be available in a future
+release. If you want to write your own user interface implementation, you could
+try analyzing the source code of this module and its only implementation so
+far, L<Chirpy::UI::WebApp>. I apologize for the inconvenience.
+
+=head1 AUTHOR
+
+Tim De Pauw E<lt>ceetee@users.sourceforge.netE<gt>
+
+=head1 SEE ALSO
+
+L<Chirpy::UI::WebApp>,  L<Chirpy>,
+L<http://chirpy.sourceforge.net/>
+
+=head1 COPYRIGHT
+
+Copyright 2005 Tim De Pauw. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+=cut
+
+package Chirpy::UI;
+
+use strict;
+use warnings;
+use Carp qw(confess);
+
+use vars qw($VERSION);
+
+$VERSION = '0.2';
+
+use Chirpy::Util 0.2;
+
+use constant START_PAGE               =>  1;
+use constant QUOTE_BROWSER            =>  2;
+use constant SINGLE_QUOTE             =>  3;
+use constant RANDOM_QUOTES            =>  4;
+use constant TOP_QUOTES               =>  5;
+use constant BOTTOM_QUOTES            =>  6;
+use constant QUOTES_OF_THE_WEEK       =>  7;
+use constant QUOTE_SEARCH             =>  8;
+use constant SUBMIT_QUOTE             =>  9;
+use constant QUOTE_RATING_UP          => 10;
+use constant QUOTE_RATING_DOWN        => 11;
+use constant REPORT_QUOTE             => 12;
+use constant LOGIN                    => 13;
+use constant LOGOUT                   => 14;
+use constant ADMINISTRATION           => 15;
+
+use constant CHANGE_PASSWORD          => 100;
+use constant MANAGE_UNAPPROVED_QUOTES => 110;
+use constant MANAGE_FLAGGED_QUOTES    => 120;
+use constant EDIT_QUOTE               => 130;
+use constant REMOVE_QUOTE             => 131;
+use constant ADD_NEWS                 => 140;
+use constant EDIT_NEWS                => 141;
+use constant REMOVE_NEWS              => 142;
+use constant ADD_ACCOUNT              => 150;
+use constant EDIT_ACCOUNT             => 151;
+use constant REMOVE_ACCOUNT           => 152;
+
+use constant CURRENT_PASSWORD_INVALID => -1;
+use constant NEW_PASSWORD_INVALID     => -2;
+use constant PASSWORDS_DIFFER         => -3;
+
+# TODO: make this easily configurable one day
+use constant ADMIN_PERMISSIONS => {
+	SUBMIT_QUOTE() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	MANAGE_UNAPPROVED_QUOTES() => {
+		Chirpy::Account::USER_LEVEL_3 => 1,
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	MANAGE_FLAGGED_QUOTES() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	EDIT_QUOTE() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	REMOVE_QUOTE() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	ADD_NEWS() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	EDIT_NEWS() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	REMOVE_NEWS() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	ADD_ACCOUNT() => {
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	EDIT_ACCOUNT() => {
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	REMOVE_ACCOUNT() => {
+		Chirpy::Account::USER_LEVEL_9 => 1
+	}
+};
+
+sub new {
+	my ($class, $parent, $params) = @_;
+	return bless {
+		'parent' => $parent,
+		'params' => $params
+	}, $class;
+}
+
+sub run {
+	my $self = shift;
+	my $page = $self->get_current_page();
+	my $start = $self->get_first_quote_index();
+	if ($page == START_PAGE) {
+		$self->welcome_user(
+			$self->parent()->get_latest_news_items()
+		);
+	}
+	elsif ($page == QUOTE_BROWSER) {
+		$self->_browse_quotes_segmented(
+			$page,
+			$start,
+			$self->parent()->get_quotes($start)
+		);
+	}
+	elsif ($page == QUOTES_OF_THE_WEEK) {
+		$self->_browse_quotes_segmented(
+			$page,
+			$start,
+			$self->parent()->get_quotes_of_the_week($start),
+		);
+	}
+	elsif ($page == QUOTE_SEARCH) {
+		my $query = $self->get_search_query();
+		if (defined $query && $query) {
+			$self->_browse_quotes_segmented(
+				$page,
+				$start,
+				$self->parent()->get_matching_quotes($start, $query)
+			);
+		}
+		else {
+			$self->provide_quote_search_interface();
+		}
+	}
+	elsif ($page == SINGLE_QUOTE) {
+		my $quote = $self->parent()->get_quote(
+			$self->get_selected_quote_id());
+		if (defined $quote) {
+			$self->browse_quotes([ $quote ], $page);
+		}
+		else {
+			$self->report_inexistent_quote();
+		}
+	}
+	elsif ($page == RANDOM_QUOTES) {
+		my $quotes = $self->parent()->get_random_quotes();
+		(defined $quotes
+			? $self->browse_quotes($quotes, $page)
+			: $self->report_no_quotes_to_display($page));
+	}
+	elsif ($page == TOP_QUOTES) {
+		my $quotes = $self->parent()->get_top_quotes();
+		(defined $quotes
+			? $self->browse_quotes($quotes, $page)
+			: $self->report_no_quotes_to_display($page));
+	}
+	elsif ($page == BOTTOM_QUOTES) {
+		my $quotes = $self->parent()->get_bottom_quotes();
+		(defined $quotes
+			? $self->browse_quotes($quotes, $page)
+			: $self->report_no_quotes_to_display($page));
+	}
+	elsif ($page == SUBMIT_QUOTE) {
+		my ($body, $notes) = $self->get_submitted_quote();
+		if (defined $body && $body) {
+			my $approved
+				= $self->administration_allowed(Chirpy::UI::SUBMIT_QUOTE);
+			$body = Chirpy::Util::clean_up_submission($body);
+			$notes = (defined $notes
+				? Chirpy::Util::clean_up_submission($notes)
+				: undef);
+			my $id = $self->parent()->add_quote(
+				$body,
+				$notes,
+				$approved
+			);
+			$self->confirm_quote_submission($approved);
+			$self->_log_event(Chirpy::Event::ADD_QUOTE, {
+				'id' => $id,
+				'body' => $body,
+				'notes' => $notes,
+				'approved' => $approved
+			});
+		}
+		else {
+			$self->provide_quote_submission_interface();
+		}
+	}
+	elsif ($page == QUOTE_RATING_UP) {
+		my $id = $self->get_selected_quote_id();
+		if (defined $self->parent()->get_quote($id)) {
+			if ($self->_already_rated($id)) {
+				$self->report_quote_already_rated($id);
+			}
+			elsif ($self->_update_rating_history()) {
+				my $new_rating = $self->parent()->increase_quote_rating($id);
+				$self->confirm_quote_rating(
+					1,
+					$new_rating);
+				$self->_add_to_rated_quotes($id);
+				$self->_log_event(Chirpy::Event::QUOTE_RATING_UP,
+					{ 'quote' => 'id', 'new_rating' => $new_rating });
+			}
+			else {
+				$self->report_quote_rating_limit_excess();
+			}
+		}
+		else {
+			$self->report_rated_quote_not_found(1);
+		}
+	}
+	elsif ($page == QUOTE_RATING_DOWN) {
+		my $id = $self->get_selected_quote_id();
+		if (defined $self->parent()->get_quote($id)) {
+			if ($self->_already_rated($id)) {
+				$self->report_quote_already_rated($id);
+			}
+			elsif ($self->_update_rating_history()) {
+				my $new_rating = $self->parent()->decrease_quote_rating($id);
+				$self->confirm_quote_rating(
+					0,
+					$new_rating);
+				$self->_add_to_rated_quotes($id);
+				$self->_log_event(Chirpy::Event::QUOTE_RATING_DOWN,
+					{ 'id' => $id, 'new_rating' => $new_rating });
+			}
+			else {
+				$self->report_quote_rating_limit_excess();
+			}
+		}
+		else {
+			$self->report_rated_quote_not_found(0);
+		}
+	}
+	elsif ($page == REPORT_QUOTE) {
+		my $id = $self->get_selected_quote_id();
+		if (defined $self->parent()->get_quote($id)) {
+			$self->parent()->flag_quotes($id);
+			$self->confirm_quote_report($id);
+			$self->_log_event(Chirpy::Event::REPORT_QUOTE, { 'id' => $id });
+		}
+		else {
+			$self->report_reported_quote_not_found();
+		}
+	}
+	elsif ($page == LOGIN) {
+		if ($self->attempting_login()) {
+			my ($username, $password)
+				= $self->get_supplied_username_and_password();
+			my $account = $self->parent()
+				->attempt_login($username, $password);
+			if (defined $account) {
+				$self->set_logged_in_user($account->get_id());
+				$self->confirm_login();
+				$self->_log_event(Chirpy::Event::LOGIN_SUCCESS);
+			}
+			else {
+				$self->report_invalid_login();
+				$self->_log_event(Chirpy::Event::LOGIN_FAILURE,
+					{ 'username' => $username });
+			}
+		}
+		else {
+			$self->provide_login_interface();
+		}
+	}
+	elsif ($page == LOGOUT) {
+		$self->set_logged_in_user(undef);
+		$self->confirm_logout();
+	}
+	elsif ($page == ADMINISTRATION) {
+		if (defined $self->get_logged_in_user_account()) {
+			$self->_provide_administration_interface()
+		}
+		else {
+			$self->provide_login_interface();
+		}
+	}
+	else {
+		$self->report_unknown_action();
+	}
+}
+
+sub _provide_administration_interface {
+	my $self = shift;
+	my $page = $self->get_current_administration_page() || 0;
+	if ($page == CHANGE_PASSWORD) {
+		my $user = $self->get_logged_in_user_account();
+		if ($self->attempting_password_change()) {
+			my ($current_password, $new_password, $repeat_password)
+				= $self->get_supplied_passwords();
+			if (!defined $self->parent()
+				->attempt_login(
+					$user->get_username(), $current_password)) {
+						$self->provide_password_change_interface(
+							CURRENT_PASSWORD_INVALID);
+			}
+			elsif (!Chirpy::Util::valid_password($new_password)) {
+				$self->provide_password_change_interface(
+					NEW_PASSWORD_INVALID);
+			}
+			elsif ($new_password ne $repeat_password) {
+				$self->provide_password_change_interface(
+					PASSWORDS_DIFFER);
+			}
+			else {
+				$self->parent()->modify_account(
+					$user, undef, $new_password);
+				$self->confirm_password_change();
+				$self->_log_event(Chirpy::Event::CHANGE_PASSWORD);
+			}
+		}
+		else {
+			$self->provide_password_change_interface();
+		}
+	}
+	elsif ($page == MANAGE_UNAPPROVED_QUOTES) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my ($approve, $remove) = $self->get_quote_approval_result();
+			my @approve = (defined $approve && ref $approve eq 'ARRAY'
+				? @$approve : ());
+			my @remove = (defined $remove && ref $remove eq 'ARRAY'
+				? @$remove : ());
+			if (@approve) {
+				$self->parent()->approve_quotes(@approve);
+				foreach my $id (@approve) {
+					$self->_log_event(Chirpy::Event::APPROVE_QUOTE,
+						{ 'id' => $id });
+				}
+			}
+			if (@remove) {
+				$self->parent()->remove_quotes(@remove);
+				foreach my $id (@remove) {
+					$self->_log_event(Chirpy::Event::REMOVE_QUOTE,
+						{ 'id' => $id });
+				}
+			}
+			$self->provide_quote_approval_interface(
+				@approve ? \@approve : undef,
+				@remove ? \@remove : undef);
+		}
+	}
+	elsif ($page == MANAGE_FLAGGED_QUOTES) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my ($unflag, $remove) = $self->get_quote_flag_management_result();
+			my @unflag = (defined $unflag && ref $unflag eq 'ARRAY'
+				? @$unflag : ());
+			my @remove = (defined $remove && ref $remove eq 'ARRAY'
+				? @$remove : ());
+			if (@unflag) {
+				$self->parent()->unflag_quotes(@unflag);
+				foreach my $id (@unflag) {
+					$self->_log_event(Chirpy::Event::UNFLAG_QUOTE,
+						{ 'id' => $id });
+				}
+			}
+			if (@remove) {
+				$self->parent()->remove_quotes(@remove);
+				foreach my $id (@remove) {
+					$self->_log_event(Chirpy::Event::REMOVE_QUOTE,
+						{ 'id' => $id });
+				}
+			}
+			$self->provide_quote_flag_management_interface(
+				@unflag ? \@unflag : undef,
+				@remove ? \@remove : undef);
+		}
+	}
+	elsif ($page == EDIT_QUOTE) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my $id = $self->get_quote_to_edit();
+			if ($id) {
+				my $quote = $self->parent()->get_quote($id);
+				if (defined $quote) {
+					my ($body, $notes) = $self->get_modified_quote_information();
+					if ($body) {
+						$body = Chirpy::Util::clean_up_submission($body);
+						$notes = Chirpy::Util::clean_up_submission($notes);
+						my $old_body = $quote->get_body();
+						my $old_notes = $quote->get_notes();
+						$self->parent()->modify_quote($quote, $body, $notes);
+						$self->confirm_quote_modification($quote);
+						$self->_log_event(Chirpy::Event::EDIT_QUOTE, {
+							'id' => $id,
+							'old_body' => $old_body,
+							'old_notes' => $old_notes,
+							'new_body' => $body,
+							'new_notes' => $notes
+						});
+					}
+					else {
+						$self->provide_quote_editing_interface($quote);
+					}
+				}
+				else {
+					$self->report_quote_to_edit_not_found();
+				}
+			}
+			else {
+				$self->provide_quote_selection_for_modification_interface();
+			}
+		}
+	}
+	elsif ($page == REMOVE_QUOTE) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my $id = $self->get_quote_to_remove();
+			if ($id) {
+				my $quote = $self->parent()->get_quote($id);
+				if (defined $quote) {
+					my $body = $quote->get_body();
+					my $notes = $quote->get_notes();
+					$self->parent()->remove_quotes($id);
+					$self->confirm_quote_removal();
+					$self->_log_event(Chirpy::Event::REMOVE_QUOTE, {
+						'id' => $id,
+						'body' => $body, 'notes' => $notes
+					});
+				}
+				else {
+					$self->report_quote_to_remove_not_found();
+				}
+			}
+			else {
+				$self->provide_quote_selection_for_removal_interface();
+			}
+		}
+	}
+	elsif ($page == ADD_NEWS) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			if (my $news = $self->get_news_item_to_add()) {
+				my $news = Chirpy::Util::clean_up_submission($news);
+				my $id = $self->parent()->add_news_item(
+					$news,
+					$self->get_logged_in_user_account()
+				);
+				$self->confirm_news_submission($news);
+				$self->_log_event(Chirpy::Event::ADD_NEWS, {
+					'id' => $id, 'body' => $news
+				});
+			}
+			else {
+				$self->provide_news_submission_interface();
+			}
+		}
+	}
+	elsif ($page == EDIT_NEWS) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my $id = $self->get_news_item_to_edit();
+			if ($id) {
+				my $item = $self->parent()->get_news_item($id);
+				if (defined $item) {
+					my ($text, $poster_id) = $self->get_modified_news_item();
+					if ($text) {
+						my $old_body = $item->get_body();
+						my $old_poster = $item->get_poster();
+						$text = Chirpy::Util::clean_up_submission($text);
+						$self->parent()->modify_news_item(
+							$item,
+							$text,
+							$self->parent()->get_account_by_id($poster_id)
+						);
+						$self->confirm_news_item_modification();
+						$self->_log_event(Chirpy::Event::EDIT_NEWS, {
+							'id' => $id,
+							'old_body' => $old_body,
+							'new_body' => $text,
+							'old_poster' => (defined $old_poster
+								? $old_poster->get_id() : undef),
+							'new_poster' => $poster_id
+						});
+					}
+					else {
+						$self->provide_news_item_editing_interface($item);
+					}
+				}
+				else {
+					$self->report_news_item_to_edit_not_found();
+				}
+			}
+			else {
+				$self->provide_news_item_selection_for_modification_interface();
+			}
+		}
+	}
+	elsif ($page == REMOVE_NEWS) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my $id = $self->get_news_item_to_remove();
+			if ($id) {
+				my $item = $self->parent()->get_news_item($id);
+				if (defined $item) {
+					my $body = $item->get_body();
+					my $poster = $item->get_poster();
+					$self->parent()->remove_news_items($id);
+					$self->confirm_news_item_removal();
+					$self->_log_event(Chirpy::Event::REMOVE_NEWS, {
+						'id' => $id, 'body' => $body,
+						'poster' => (defined $poster
+							? $poster->get_id() : undef)
+					});
+				}
+				else {
+					$self->report_news_item_to_remove_not_found();
+				}
+			}
+			else {
+				$self->provide_news_item_selection_for_removal_interface();
+			}
+		}
+	}
+	elsif ($page == ADD_ACCOUNT) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my ($username, $password, $repeat_password, $level)
+				= $self->get_account_information_to_add();
+			if (defined $username) {
+				if (!Chirpy::Util::valid_username($username)) {
+					$self->report_invalid_new_username();
+				}
+				elsif ($self->parent()->username_exists($username)) {
+					$self->report_new_username_exists();
+				}
+				elsif (!Chirpy::Util::valid_password($password)) {
+					$self->report_invalid_new_password();
+				}
+				elsif ($password ne $repeat_password) {
+					$self->report_different_new_passwords();
+				}
+				elsif ($level <= 0) {
+					$self->report_invalid_new_user_level();
+				}
+				else {
+					my $id = $self->parent()->add_account(
+						$username, $password, $level);
+					$self->confirm_account_creation();
+					$self->_log_event(Chirpy::Event::ADD_ACCOUNT, {
+						'id' => $id,
+						'username' => $username,
+						'level' => $level
+					});
+				}
+			}
+			else {
+				$self->provide_account_creation_interface();
+			}
+		}
+	}
+	elsif ($page == EDIT_ACCOUNT) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my $id = $self->get_account_to_modify();
+			if (defined $id) {
+				my $account = $self->parent()->get_account_by_id($id);
+				if (defined $account) {
+					my ($username, $password, $repeat_password, $level)
+						= $self->get_modified_account_information();
+					if (defined $username
+						&& !Chirpy::Util::valid_username($username)) {
+							$self->report_invalid_modified_username();
+					}
+					elsif ($self->parent()->username_exists($username)) {
+						$self->report_modified_username_exists();
+					}
+					elsif (defined $password
+						&& !Chirpy::Util::valid_password($password)) {
+							$self->report_invalid_modified_password();
+					}
+					elsif (defined $password
+						&& $password ne $repeat_password) {
+							$self->report_different_modified_passwords();
+					}
+					elsif (defined $level && $level <= 0) {
+						$self->report_invalid_modified_user_level();
+					}
+					elsif (!defined $username && !defined $password
+						&& !defined $level) {
+							$self->report_modified_account_information_required();
+					}
+					else {
+						my $old_username = $account->get_username();
+						my $old_password = $account->get_password();
+						my $old_level = $account->get_level();
+						$self->parent()->modify_account(
+							$account, $username, $password, $level);
+						$self->confirm_account_modification();
+						$self->_log_event(Chirpy::Event::EDIT_ACCOUNT, {
+							'id' => $id,
+							'old_username' => $old_username,
+							'old_level' => $old_level,
+							'new_username' => $account->get_username(),
+							'new_level' => $account->get_level(),
+							'password_changed'
+								=> ($account->get_password() ne $old_password)
+						});
+					}
+				}
+				else {
+					$self->report_account_to_modify_not_found();
+				}
+			}
+			else {
+				$self->provide_account_selection_for_modification_interface();
+			}
+		}
+	}
+	elsif ($page == REMOVE_ACCOUNT) {
+		if (!$self->administration_allowed($page)) {
+			$self->report_administration_user_level_insufficient($page);
+		}
+		else {
+			my $parent = $self->parent();
+			if ($parent->account_count() > 1) {
+				my $id = $self->get_account_to_remove();
+				if (defined $id) {
+					my $account = $self->parent()->get_account_by_id($id);
+					my $level = Chirpy::Account::USER_LEVEL_9;
+					if ($account->get_level() == $level
+						&& $parent->account_count_by_level($level) <= 1) {
+							$self->report_last_owner_account_removal_error();
+					}
+					elsif (defined $account) {
+						if ($account->get_id()
+							== $self->get_logged_in_user_account()->get_id()) {
+								$self->set_logged_in_user(undef);
+						}
+						my $username = $account->get_username();
+						my $level = $account->get_level();
+						$parent->remove_accounts($id);
+						$self->confirm_account_removal();
+						$self->_log_event(Chirpy::Event::REMOVE_ACCOUNT, {
+							'id' => $id,
+							'username' => $username,
+							'level' => $level
+						});
+					}
+					else {
+						$self->report_account_to_remove_not_found();
+					}
+				}
+				else {
+					$self->provide_account_selection_for_removal_interface();
+				}
+			}
+			else {
+				$self->report_last_owner_account_removal_error();
+			}
+		}
+	}
+	else {
+		$self->welcome_administrator();
+	}
+}
+
+sub _browse_quotes_segmented {
+	my ($self, $page, $start, $quotes, $leading, $trailing) = @_;
+	if (defined $quotes) {
+		my $per_page = $self->parent()->quotes_per_page();
+		my ($previous, $next);
+		if ($leading) {
+			$previous = $start - $per_page;
+			$previous = 0 if ($previous < 0);
+		}
+		if ($trailing) {
+			$next = $start + $per_page;
+		}
+		$self->browse_quotes($quotes, $page, $previous, $next);
+	}
+	elsif ($page == QUOTE_SEARCH) {
+		$self->report_no_search_results();
+	}
+	else {
+		$self->report_no_quotes_to_display($page);
+	}
+}
+
+sub _already_rated {
+	my ($self, $id) = @_;
+	my @list = $self->get_rated_quotes();
+	foreach my $i (@list) {
+		return 1 if ($i == $id);
+	}
+	return 0;
+}
+
+sub _add_to_rated_quotes {
+	my ($self, $id) = @_;
+	$self->set_rated_quotes($self->get_rated_quotes(), $id);
+}
+
+sub _update_rating_history {
+	my $self = shift;
+	my $conf = $self->parent()->configuration();
+	my $max_time = $conf->get('general', 'rating_limit_time');
+	my $max_size = $conf->get('general', 'rating_limit_count');
+	return 1 if ($max_time <= 0 || $max_size <= 0);
+	my $time = time;
+	my $since = $time - $max_time;
+	my @history = $self->get_rating_history();
+	shift @history
+		while (@history && $history[0] < $since);
+	if (@history < $max_size) {
+		$self->set_rating_history(@history, $time);
+		return 1;
+	}
+	return 0;
+}
+
+sub _log_event {
+	my ($self, $code, $params) = @_;
+	$self->parent()->log_event(
+		$code,
+		$self->get_logged_in_user_account(),
+		{
+			'user' => $self->get_user_information(),
+			(defined $params
+				? ('parameters' => $params)
+				: ())
+		}
+	);
+}
+
+sub get_news_posters {
+	my $self = shift;
+	return $self->parent()->get_accounts_by_level(
+		keys %{ADMIN_PERMISSIONS->{ADD_NEWS()}});
+}
+
+sub get_logged_in_user_account {
+	my $self = shift;
+	my $id = $self->get_logged_in_user();
+	return (defined $id
+		? $self->parent()->get_account_by_id($id)
+		: undef);
+}
+
+sub administration_allowed {
+	my ($self, $action) = @_;
+	return 0 unless exists ADMIN_PERMISSIONS->{$action};
+	my $user = $self->get_logged_in_user_account();
+	return 0 unless defined $user;
+	my $level = $user->get_level();
+	return ADMIN_PERMISSIONS->{$action}{$level};
+}
+
+sub format_date_time {
+	my ($self, $timestamp) = @_;
+	return Chirpy::Util::format_date_time($timestamp,
+		$self->configuration()->get('ui', 'date_time_format'),
+		$self->configuration()->get('ui', 'use_gmt'));
+}
+
+sub locale {
+	my $self = shift;
+	return $self->parent()->locale();
+}
+
+sub configuration {
+	my $self = shift;
+	return $self->parent()->configuration();
+}
+
+sub parent {
+	my $self = shift;
+	return $self->{'parent'};
+}
+
+sub param {
+	my ($self, $name) = @_;
+	return defined $self->{'params'} ? $self->{'params'}{$name} : undef;
+}
+
+*get_target_version = \&Chirpy::Util::abstract_method;
+
+*get_current_page = \&Chirpy::Util::abstract_method;
+
+*get_selected_quote_id = \&Chirpy::Util::abstract_method;
+
+*get_first_quote_index = \&Chirpy::Util::abstract_method;
+
+*get_search_query = \&Chirpy::Util::abstract_method;
+
+*get_submitted_quote = \&Chirpy::Util::abstract_method;
+
+*attempting_login = \&Chirpy::Util::abstract_method;
+
+*get_supplied_username_and_password = \&Chirpy::Util::abstract_method;
+
+*get_rating_history = \&Chirpy::Util::abstract_method;
+
+*set_rating_history = \&Chirpy::Util::abstract_method;
+
+*get_rated_quotes = \&Chirpy::Util::abstract_method;
+
+*set_rated_quotes = \&Chirpy::Util::abstract_method;
+
+*get_logged_in_user = \&Chirpy::Util::abstract_method;
+
+*set_logged_in_user = \&Chirpy::Util::abstract_method;
+
+*report_no_quotes_to_display = \&Chirpy::Util::abstract_method;
+
+*report_unknown_action = \&Chirpy::Util::abstract_method;
+
+*welcome_user = \&Chirpy::Util::abstract_method;
+
+*browse_quotes = \&Chirpy::Util::abstract_method;
+
+*provide_quote_search_interface = \&Chirpy::Util::abstract_method;
+
+*report_no_search_results = \&Chirpy::Util::abstract_method;
+
+*report_inexistent_quote = \&Chirpy::Util::abstract_method;
+
+*provide_quote_submission_interface = \&Chirpy::Util::abstract_method;
+
+*confirm_quote_submission = \&Chirpy::Util::abstract_method;
+
+*confirm_quote_rating = \&Chirpy::Util::abstract_method;
+
+*report_rated_quote_not_found = \&Chirpy::Util::abstract_method;
+
+*report_quote_already_rated = \&Chirpy::Util::abstract_method;
+
+*report_quote_rating_limit_excess = \&Chirpy::Util::abstract_method;
+
+*confirm_quote_report = \&Chirpy::Util::abstract_method;
+
+*report_reported_quote_not_found = \&Chirpy::Util::abstract_method;
+
+*provide_login_interface = \&Chirpy::Util::abstract_method;
+
+*report_invalid_login = \&Chirpy::Util::abstract_method;
+
+*attempting_password_change = \&Chirpy::Util::abstract_method;
+
+*get_supplied_passwords = \&Chirpy::Util::abstract_method;
+
+*provide_password_change_interface = \&Chirpy::Util::abstract_method;
+
+*confirm_password_change = \&Chirpy::Util::abstract_method;
+
+*confirm_login = \&Chirpy::Util::abstract_method;
+
+*confirm_logout = \&Chirpy::Util::abstract_method;
+
+*get_current_administration_page = \&Chirpy::Util::abstract_method;
+
+*welcome_administrator = \&Chirpy::Util::abstract_method;
+
+*get_quote_to_remove = \&Chirpy::Util::abstract_method;
+
+*confirm_quote_removal = \&Chirpy::Util::abstract_method;
+
+*report_quote_to_remove_not_found = \&Chirpy::Util::abstract_method;
+
+*provide_quote_selection_for_removal_interface
+	= \&Chirpy::Util::abstract_method;
+
+*get_quote_to_edit = \&Chirpy::Util::abstract_method;
+
+*get_modified_quote_information = \&Chirpy::Util::abstract_method;
+
+*confirm_quote_modification = \&Chirpy::Util::abstract_method;
+
+*provide_quote_editing_interface = \&Chirpy::Util::abstract_method;
+
+*report_quote_to_edit_not_found = \&Chirpy::Util::abstract_method;
+
+*provide_quote_selection_for_modification_interface
+	= \&Chirpy::Util::abstract_method;
+
+*provide_quote_approval_interface = \&Chirpy::Util::abstract_method;
+
+*get_quote_approval_result = \&Chirpy::Util::abstract_method;
+
+*provide_quote_flag_management_interface = \&Chirpy::Util::abstract_method;
+
+*get_quote_flag_management_result = \&Chirpy::Util::abstract_method;
+
+*get_news_item_to_add = \&Chirpy::Util::abstract_method;
+
+*confirm_news_submission = \&Chirpy::Util::abstract_method;
+
+*provide_news_submission_interface = \&Chirpy::Util::abstract_method;
+
+*get_news_item_to_edit = \&Chirpy::Util::abstract_method;
+
+*get_modified_news_item = \&Chirpy::Util::abstract_method;
+
+*confirm_news_item_modification = \&Chirpy::Util::abstract_method;
+
+*report_news_item_to_edit_not_found = \&Chirpy::Util::abstract_method;
+
+*provide_news_item_editing_interface = \&Chirpy::Util::abstract_method;
+
+*provide_news_item_selection_for_modification_interface
+	= \&Chirpy::Util::abstract_method;
+
+*get_news_item_to_remove = \&Chirpy::Util::abstract_method;
+
+*confirm_news_item_removal = \&Chirpy::Util::abstract_method;
+
+*report_news_item_to_remove_not_found = \&Chirpy::Util::abstract_method;
+
+*provide_quote_selection_for_removal_interface
+	= \&Chirpy::Util::abstract_method;
+
+*get_account_information_to_add = \&Chirpy::Util::abstract_method;
+
+*report_invalid_new_username = \&Chirpy::Util::abstract_method;
+
+*report_new_username_exists = \&Chirpy::Util::abstract_method;
+
+*report_invalid_new_password = \&Chirpy::Util::abstract_method;
+
+*report_different_new_passwords = \&Chirpy::Util::abstract_method;
+
+*report_invalid_new_user_level = \&Chirpy::Util::abstract_method;
+
+*confirm_account_creation = \&Chirpy::Util::abstract_method;
+
+*provide_account_creation_interface = \&Chirpy::Util::abstract_method;
+
+*get_account_to_modify = \&Chirpy::Util::abstract_method;
+
+*get_modified_account_information = \&Chirpy::Util::abstract_method;
+
+*report_invalid_modified_username = \&Chirpy::Util::abstract_method;
+
+*report_modified_username_exists = \&Chirpy::Util::abstract_method;
+
+*report_invalid_modified_password = \&Chirpy::Util::abstract_method;
+
+*report_different_modified_passwords = \&Chirpy::Util::abstract_method;
+
+*report_invalid_modified_user_level = \&Chirpy::Util::abstract_method;
+
+*confirm_account_modification = \&Chirpy::Util::abstract_method;
+
+*report_account_to_modify_not_found = \&Chirpy::Util::abstract_method;
+
+*report_modified_account_information_required
+	= \&Chirpy::Util::abstract_method;
+
+*provide_account_selection_for_modification_interface
+	= \&Chirpy::Util::abstract_method;
+
+*get_account_to_remove = \&Chirpy::Util::abstract_method;
+
+*confirm_account_removal = \&Chirpy::Util::abstract_method;
+
+*report_account_to_remove_not_found = \&Chirpy::Util::abstract_method;
+
+*provide_account_selection_for_removal_interface
+	= \&Chirpy::Util::abstract_method;
+
+*report_last_owner_account_removal_error = \&Chirpy::Util::abstract_method;
+
+*get_user_information = \&Chirpy::Util::abstract_method;
+
+1;
+
+###############################################################################

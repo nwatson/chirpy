@@ -1,0 +1,22 @@
+<p>Welcome to <em><TMPL_VAR NAME="SITE_TITLE"></em>!</p>
+<p>This web site is a collection of quotes from the Internet Relay Chat
+network. Currently, the database contains a total of <TMPL_VAR NAME="APPROVED_QUOTE_COUNT"> quote(s).
+We also have <TMPL_VAR NAME="UNAPPROVED_QUOTE_COUNT"> quote(s) awaiting moderation.</p>
+<p>Feel free to look around! Don&rsquo;t forget to vote for the quotes
+you love by clicking on the <em>Up&uarr;</em> link. Give the ones you hate the
+old thumbs down using the <em>Down&darr;</em> link. If you feel any of the
+quotes should not be in the collection, use the <em>Report</em> link to
+request removal. If you wish to contact the administrator of this web site,
+you can do so by sending an e-mail to <a
+href="mailto:<TMPL_VAR NAME="WEBMASTER_EMAIL">"><TMPL_VAR NAME="WEBMASTER_EMAIL"></a>.</p>
+<p><TMPL_VAR NAME="SITE_TITLE">
+is powered by
+<TMPL_VAR NAME="CHIRPY_LINK">,
+a rather fabulous and freely available quote management system.</p>
+<form method="get" action="<TMPL_VAR NAME="SITE_URL">">
+<div id="jump-to-quote-form">
+	<label for="jump-to-id-field">Jump to Quote:</label>
+	<input name="id" id="jump-to-id-field"/>
+	<input type="submit" value="&rarr;" id="jump-to-quote-submit-button"/>
+</div>
+</form>

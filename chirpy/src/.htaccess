@@ -1,0 +1,4 @@
+<IfModule mod_access.c>
+order deny,allow
+deny from all
+</IfModule>

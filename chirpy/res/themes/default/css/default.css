@@ -1,0 +1,617 @@
+/*
+###############################################################################
+# Chirpy! v0.2, a quote management system                                     #
+# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+###############################################################################
+# This program is free software; you can redistribute it and/or modify it     #
+# under the terms of the GNU General Public License as published by the Free  #
+# Software Foundation; either version 2 of the License, or (at your option)   #
+# any later version.                                                          #
+#                                                                             #
+# This program is distributed in the hope that it will be useful, but WITHOUT #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for   #
+# more details.                                                               #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc., 51  #
+# Franklin St, Fifth Floor, Boston, MA  02110-1301  USA                       #
+###############################################################################
+
+###############################################################################
+# default.css                                                                 #
+# The default theme, without color theme-specific style                       #
+###############################################################################
+*/
+
+html {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin: 0;
+	padding: 2em 5em;
+	background: #FBFBFB;
+	color: black;
+	font-size: 12px;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+a:link, a:visited {
+	text-decoration: none;
+	color: #555;
+}
+
+a:hover, a:active {
+	text-decoration: underline;
+}
+
+.news-text strong {
+	font-weight: bold;
+	font-style: normal;
+	text-decoration: none;
+}
+
+.news-text em {
+	font-weight: normal;
+	font-style: normal;
+	text-decoration: none;
+	border-bottom: 1px solid #999;
+}
+
+h1, h2, h3 {
+	font-family: Trebuchet MS, Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	margin: 0 0 1em 0;
+}
+
+h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 275%;
+}
+
+h1 a, h1 a:visited {
+	-moz-border-radius: 1em;
+	border-radius: 1em;
+	margin: 0;
+	padding: 0.1em 0.5em;
+	border-top: 0.25em solid;
+	border-bottom: 0.25em solid;
+	color: black;
+	text-decoration: none;
+	display: block;
+}
+
+h1 a:hover, h1 a:active {
+	text-decoration: underline;
+	color: black;
+}
+
+h2 {
+	font-size: 175%;
+}
+
+h3 {
+	font-size: 120%;
+}
+
+p {
+	margin: 0 0 1em 0;
+}
+
+form {
+	display: inline;
+}
+
+table {
+	border-collapse: collapse;
+	margin: 0;
+	padding: 0;
+}
+
+thead, tbody, tr, td {
+	margin: 0;
+	padding: 0;
+}
+
+input, select, textarea {
+	border: 1px solid #CCC;
+	background: white;
+	color: #666;
+	margin: 0.1em;
+	padding: 0.25em;
+	-moz-border-radius: 0.5em;
+	border-radius: 0.5em;
+}
+
+select option {
+	padding: 0.1em;
+	margin: 0.1em;
+	background: #F9F9F9;
+}
+
+input[type=radio], input[type=checkbox] {
+	border: none;
+	vertical-align: middle;
+}
+
+input, select {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+textarea {
+	font-family: Consolas, Monaco, Courier New, monospace;
+	font-size: 12px;
+	line-height: 1.5em;
+}
+
+input:focus, select:focus, textarea:focus {
+	color: black;
+	border-color: #999;
+}
+
+input[type=submit], input[type=reset], input[type=button] {
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+input[type=submit]:hover, input[type=reset]:hover, input[type=button]:hover {
+	color: black;
+	cursor: pointer;
+}
+
+label:hover {
+	border-bottom: 1px dotted #CCC;
+	cursor: pointer;
+}
+
+ul#navigation {
+	-moz-border-radius: 0 0 1em 1em;
+	border-radius: 0 0 1em 1em;
+	margin: 0 4em 3em 0;
+	padding: 0.2em 0;
+	list-style-type: none;
+	font-size: 90%;
+	text-align: right;
+	text-transform: uppercase;
+	white-space: nowrap;
+	letter-spacing: 0.1em;
+}
+
+ul#navigation li {
+	display: inline;
+	margin: 0;
+	padding: 0 0 0 0.5em;
+}
+
+ul#navigation li a, ul#navigation li a:visited {
+	-moz-border-radius: 0 0 1em 1em;
+	border-radius: 0 0 1em 1em;
+	background: #EEE;
+	margin: 0;
+	padding: 0.2em 1em 0.3em 1em;
+	color: black;
+	text-decoration: none;
+	border-bottom: 0.2em solid #E0E0E0;
+}
+
+#footer {
+	float: right;
+	font-size: 75%;
+	text-align: right;
+	border-top: 1px solid black;
+	margin: 2.5em 0 0 0;
+	padding: 0.75em 1em 0 10em;
+	line-height: 1.75em;
+}
+
+#content {
+	padding: 1.5em 2.5em;
+	-moz-border-radius: 2.5em;
+	border-radius: 2.5em;
+	background: white;
+	min-height: 15em;
+	line-height: 1.75em;
+}
+
+ul.quote-list {
+	list-style-type: none;
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+
+ul.quote-list li {
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+
+ul.quote-list .quote-container {
+	background: #FCFCFC;
+	-moz-border-radius: 1em 1em 2em 0.5em;
+	border-radius: 1em 1em 2em 0.5em;
+}
+
+ul.quote-list li h3.quote-header {
+	margin: 0;
+	padding: 0.25em 0.75em;
+	border: 1px #F4F4F4 solid;
+	background: #F7F7F7;
+	-moz-border-radius: 0.5em 0.5em 0 0;
+	border-radius: 0.5em 0.5em 0 0;
+}
+
+ul.quote-list li h3.flagged {
+	border: 1px #E9E9E9 solid;
+	background: #ECECEC;
+}
+
+ul.quote-list li h3.quote-header * {
+	margin: 0 0.125em;
+	padding: 0;
+}
+
+ul.quote-list li blockquote.quote-body {
+	margin: 0.5em 0.75em;
+	padding: 0;
+	font-family: Consolas, Monaco, Courier New, monospace;
+	font-size: 12px;
+}
+
+ul.quote-list li blockquote.quote-body p {
+	margin: 0;
+	padding: 0;
+}
+
+ul.quote-list li .quote-notes {
+	margin: 0.25em 0.75em;
+	padding: 0;
+	border-top: 1px dashed #EEE;
+	color: #999;
+}
+
+ul.quote-list li .quote-notes p {
+	font-size: 80%;
+	margin: 0;
+	padding: 0 0 0 2.5ex;
+	text-indent: -2.5ex;
+}
+
+ul.quote-list li .quote-notes .quote-notes-title {
+	font-size: 80%;
+	text-transform: uppercase;
+	font-style: normal;
+	font-weight: normal;
+}
+
+ul.quote-list h3.quote-header .quote-date,
+ul.quote-list h3.quote-header .quote-edit,
+ul.quote-list h3.quote-header .quote-remove,
+ul.quote-list h3.quote-header .quote-unflag,
+ul.quote-list h3.quote-header .quote-live-vote-result {
+	font-size: 80%;
+}
+
+ul.quote-list h3.quote-header .quote-live-vote-result {
+	float: right;
+	text-transform: uppercase;
+}
+
+.flag-options label, .approval-options label {
+	margin-right: 0.25em;
+}
+
+table.vertical-split {
+	width: 100%;
+}
+
+table.vertical-split td {
+	width: 50%;
+	vertical-align: top;
+}
+
+table.vertical-split td.first-half {
+	padding-right: 1.25em;
+}
+
+table.vertical-split td.second-half {
+	padding-left: 1.25em;
+}
+
+ul#news-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+ul#news-list .news-text {
+	margin-bottom: 0.5em;
+}
+
+ul#news-list .news-footer {
+	font-weight: bold;
+	margin-bottom: 1.5em;
+}
+
+ul#news-list .news-footer .news-edit, ul#news-list .news-footer .news-remove {
+	font-size: 80%;
+}
+
+.quote-browser {
+	margin: 0;
+	padding: 0;
+}
+
+#quote-browser-top {
+	float: right;
+	margin-top: 0.25em;
+}
+
+#quote-browser-bottom {
+	text-align: right;
+	margin-bottom: 0.25em;
+}
+
+.quote-browser * {
+	margin: 0 0 0 0.1em;
+	padding: 0.25em 0.5em;
+	background: #F9F9F9;
+	-moz-border-radius: 0 0.5em 2em 0.5em;
+	border-radius: 0 0.5em 2em 0.5em;
+}
+
+.quote-browser .inactive {
+	color: #C9C9C9;
+}
+
+#search-haiku {
+	font-family: Trebuchet MS, Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-style: italic;
+	font-size: 14px;
+	color: #DDD;
+	letter-spacing: 0.5ex;
+	line-height: 2.25em;
+	text-align: right;
+	margin: -3em 0 1em 0;
+	padding: 0 2em;
+	cursor: default;
+}
+
+#search-haiku del {
+	display: none;
+}
+
+#search-haiku:hover {
+	letter-spacing: 0.4ex;
+}
+
+/* IE hates cool CSS */
+* html #search-haiku {
+	display: none;
+}
+
+#search-haiku:hover del {
+	display: inline;
+	text-decoration: none;
+	color: #AAA;
+}
+
+#search-form {
+	white-space: nowrap;
+}
+
+#search-form #query-container, #search-form #submit-container {
+	display: inline;
+}
+
+#search-form #query-field {
+	width: 33%;
+}
+
+#submit-form #quote-field, #edit-quote-form #quote-field,
+#submit-form #notes-field, #edit-quote-form #notes-field,
+#edit-news-item-form #news-item-field {
+	width: 95%;
+	height: 12em;
+	display: block;
+}
+
+#submit-form #notes-field, #edit-quote-form #notes-field {
+	height: 6em;
+}
+
+#submit-form #quote-container, #submit-form #notes-container, #submit-form #captcha-container,
+#edit-quote-form #quote-container, #edit-quote-form #notes-container {
+	margin-bottom: 1em;
+}
+
+#submit-form #captcha-image {
+	vertical-align: middle;
+	padding: 0;
+	margin: 0.1em 1ex 0.1em 0.1em;
+}
+
+#submit-form #captcha-code-field {
+	width: 16ex;
+}
+
+#jump-to-quote-form #jump-to-id-field {
+	width: 8ex;
+}
+
+#jump-to-quote-form #jump-to-quote-submit-button {
+	padding: 0.1em 0.5em;
+}
+
+ul.tabbed-pane-header {
+	list-style-type: none;
+	margin: 0 0 0 1.5em;
+	padding: 0;
+	line-height: 2em;
+	white-space: nowrap;
+}
+
+ul.tabbed-pane-header li {
+	display: inline;
+	margin: 0 0.25em 0 0;
+	padding: 0;
+}
+
+ul.tabbed-pane-header li a, ul.tabbed-pane-header li a:visited {
+	padding: 0.25em 0.75em 0.5em 0.75em;
+	background: #F0F0F0;
+	border-top: 0.2em solid #ECECEC;
+	color: black;
+	text-decoration: none;
+	-moz-border-radius: 0.5em 0.5em 0 0;
+	border-radius: 0.5em 0.5em 0 0;
+	cursor: pointer;
+}
+
+ul.tabbed-pane-contents {
+	list-style-type: none;
+	margin: 0;
+	padding: 1em;
+	-moz-border-radius: 1em;
+	border-radius: 1em;
+}
+
+ul.tabbed-pane-contents > li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	min-height: 15em;
+}
+
+.tabbed-pane-contents .tab-title {
+	display: none;
+}
+
+#post-news-form {
+	margin-bottom: 1em;
+}
+
+#post-news-form #news-field {
+	width: 95%;
+	height: 12em;
+	display: block;
+}
+
+#quick-manage-quote-form #quick-manage-quote-id-container,
+#quick-manage-quote-form #quick-manage-quote-options,
+#quick-manage-quote-form #quick-manage-quote-submit {
+	display: inline;
+	margin-right: 0.5em;
+}
+
+#quick-manage-quote-form #quick-manage-quote-id-field {
+	width: 8ex;
+}
+
+#manage-accounts-table {
+	width: 100%;
+}
+
+#manage-accounts-table td {
+	text-align: right;
+	vertical-align: top;
+	padding-left: 2.5em;
+}
+
+#manage-accounts-table #username-select-container {
+	text-align: right;
+}
+
+#manage-accounts-table #username-select {
+	width: 95%;
+	height: 18em;
+}
+
+#manage-accounts-table #username-select #username-new-user {
+	font-weight: bold;
+}
+
+#manage-accounts-table #username-select .user-level-9,
+#manage-accounts-table #level-select .user-level-9,
+#edit-news-item-form #news-item-poster-select .user-level-9 {
+	background: #FFF0F9;
+}
+
+#manage-accounts-table #username-select .user-level-6,
+#manage-accounts-table #level-select .user-level-6,
+#edit-news-item-form #news-item-poster-select .user-level-6  {
+	background: #FFF9F0;
+}
+
+#manage-accounts-table #username-select .user-level-3,
+#manage-accounts-table #level-select .user-level-3,
+#edit-news-item-form #news-item-poster-select .user-level-3  {
+	background: #F0FFE9;
+}
+
+#manage-accounts-table #username-container,
+#manage-accounts-table #password-container,
+#manage-accounts-table #repeat-password-container,
+#manage-accounts-table #account-submit-container {
+	text-align: right;
+}
+
+#manage-accounts-table #username-field,
+#manage-accounts-table #password-field,
+#manage-accounts-table #repeat-password-field {
+	width: 40%;
+}
+
+#manage-accounts-table #username-select-container,
+#manage-accounts-table #username-container,
+#manage-accounts-table #repeat-password-container,
+#manage-accounts-table #level-container {
+	margin-bottom: 0.75em;
+}
+
+#manage-accounts-table #manage-accounts-result {
+	margin: 2em 0 0 15%;
+	padding: 0.25em 0 0 5%;
+	width: 80%;
+	text-align: right;
+	font-weight: bold;
+	border-top: 1px solid #EEE;
+}
+
+#edit-news-item-form #news-item-poster-container,
+#edit-news-item-form #edit-news-item-submit-container {
+	display: inline;
+}
+
+#post-news-form #news-container, #edit-news-item-form #news-item-container {
+	margin-bottom: 0.75em;
+}
+
+#login-form #user-name-container,
+#login-form #password-container,
+#login-form #submit-container,
+#change-password-form #current-password-container,
+#change-password-form #new-password-container,
+#change-password-form #repeat-new-password-container,
+#change-password-form #submit-container {
+	display: inline;
+	margin-right: 0.5em;
+	white-space: nowrap;
+}
+
+#login-form #user-name-field,
+#login-form #password-field {
+	width: 25ex;
+}
+
+#change-password-form #current-password-field,
+#change-password-form #new-password-field,
+#change-password-form #repeat-new-password-field {
+	width: 20ex;
+}
+
+#mass-approve-container, #mass-unflag-container {
+	display: inline;
+}
