@@ -1,7 +1,10 @@
 <p>Welcome to <em><TMPL_VAR NAME="SITE_TITLE"></em>!</p>
 <p>This web site is a collection of quotes from the Internet Relay Chat
 network. Currently, the database contains a total of <TMPL_VAR NAME="APPROVED_QUOTE_COUNT"> quote(s).
-We also have <TMPL_VAR NAME="UNAPPROVED_QUOTE_COUNT"> quote(s) awaiting moderation.</p>
+<TMPL_IF NAME="UNAPPROVED_QUOTE_COUNT">
+We also have <TMPL_VAR NAME="UNAPPROVED_QUOTE_COUNT"> quote(s) awaiting moderation.
+</TMPL_IF>
+</p>
 <p>Feel free to look around! Don&rsquo;t forget to vote for the quotes
 you love by clicking on the <em>Up&uarr;</em> link. Give the ones you hate the
 old thumbs down using the <em>Down&darr;</em> link. If you feel any of the
