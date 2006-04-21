@@ -1,6 +1,6 @@
 ###############################################################################
 # Chirpy! v0.2, a quote management system                                     #
-# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+# Copyright (C) 2005 Tim De Pauw <ceetee@users.sourceforge.net>               #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
 # under the terms of the GNU General Public License as published by the Free  #
@@ -231,6 +231,7 @@ webapp.enable_short_urls=0
 webapp.enable_feeds=0
 webapp.enable_gzip=0
 webapp.enable_captchas=0
+webapp.enable_autolink=0
 -------------------------------------------------------------------------------
 
 A lot of the values don't look very interesting right now, but we'll have to
@@ -292,6 +293,10 @@ webapp.enable_captchas
                     quote submission page, you will want to use captcha images.
                     Setting this value to 1 enables them. This feature requires
                     the Authen::Captcha Perl module.
+webapp.enable_autolink
+                    Change this to 1 to automatically turn URLs and e-mail
+                    addresses in quote bodies into hyperlinks. This feature is
+                    still sort of experimental, but should work fine.
 
 If you enable the captcha feature, you will need to define some of the following
 values as well. You may want to turn the feature off at first, so you can

@@ -1,6 +1,6 @@
 ###############################################################################
 # Chirpy! v0.2, a quote management system                                     #
-# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+# Copyright (C) 2005 Tim De Pauw <ceetee@users.sourceforge.net>               #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
 # under the terms of the GNU General Public License as published by the Free  #
@@ -538,6 +538,7 @@ sub _generate_feed {
 		'die_on_bad_params' => 0);
 	my @quotes = ();
 	my $date;
+	my $auto_link = $conf->get('ui', 'webapp.enable_autolink');
 	foreach my $quote (@$quotes) {
 		my $id = $quote->get_id();
 		my $d = $quote->get_date_submitted();
@@ -548,10 +549,12 @@ sub _generate_feed {
 			undef, 'id' => $id);
 		my $report_url = $self->_url(ACTIONS->{'REPORT_QUOTE'},
 			undef, 'id' => $id);
+		my $body = &_text_to_xhtml($quote->get_body());
+		$body = &_auto_link($body) if ($auto_link);
 		push @quotes, {
 			'QUOTE_ID' => $id,
 			'QUOTE_URL' => &_text_to_xhtml($self->_quote_url($id)),
-			'QUOTE_BODY' => &_text_to_xhtml($quote->get_body()),
+			'QUOTE_BODY' => $body,
 			'QUOTE_NOTES' => &_text_to_xhtml($quote->get_notes()),
 			'QUOTE_NOTES_TITLE' => &_text_to_xhtml(
 				$locale->get_string('quote_notes_title')),
@@ -686,6 +689,7 @@ sub _generate_xhtml {
 		'FLAGGED' => $flagged,
 		'NOTES_TITLE' => $notes_title
 	);
+	my $auto_link = $self->configuration()->get('ui', 'webapp.enable_autolink');
 	my @quotes_tmpl = ();
 	foreach my $quote (@$quotes) {
 		my $up_url = $self->_url(
@@ -700,9 +704,11 @@ sub _generate_xhtml {
 			ACTIONS->{'REPORT_QUOTE'},
 			undef,
 			'id' => $quote->get_id());
+		my $body = &_text_to_xhtml($quote->get_body());
+		$body = &_auto_link($body) if ($auto_link);
 		push @quotes_tmpl, {
 			'ID' => $quote->get_id(),
-			'BODY' => &_text_to_xhtml($quote->get_body()),
+			'BODY' => $body,
 			'NOTES' => &_text_to_xhtml($quote->get_notes()),
 			'RATING_NUMBER' => $quote->get_rating(),
 			'RATING_TEXT'
@@ -2345,6 +2351,21 @@ sub _format_date_time_iso8601 {
 	return sprintf('%04d-%02d-%02dT%02d:%02d:%02dZ',
 		1900 + $time[5], $time[4] + 1, $time[3],
 		$time[2], $time[1], $time[0]);
+}
+
+sub _auto_link {
+	my $html = shift;
+	$html =~ s{
+		(\S+://.+?)(?=\s|&(?!amp);|<)
+	}{
+		'<a href="'.$1.'">'.$1.'</a>'
+	}xeig;
+	$html =~ s{
+		(?:mailto:)?([\w\.\+]+\@[\w.]+\.\w+)
+	}{
+		'<a href="mailto:'.$1.'">'.$1.'</a>'
+	}xeig;
+	return $html;
 }
 
 sub _format_news_body {
