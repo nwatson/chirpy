@@ -2356,15 +2356,12 @@ sub _format_date_time_iso8601 {
 sub _auto_link {
 	my $html = shift;
 	$html =~ s{
-		(\S+://.+?)(?=\s|&(?!amp);|<)
+		((?:http|https|ftp)://.+?)(?=\s|&(?!amp;)[^;]+;|<)
+		|((?:mailto:)?([\w\.\+]+\@\S+\.\w+))
 	}{
-		'<a href="'.$1.'">'.$1.'</a>'
-	}xeig;
-	$html =~ s{
-		(?:mailto:)?([\w\.\+]+\@[\w.]+\.\w+)
-	}{
-		'<a href="mailto:'.$1.'">'.$1.'</a>'
-	}xeig;
+		'<a href="' . (defined $1 ? $1 : 'mailto:' . $2) . '">'
+			. (defined $1 ? $1 : $2) . '</a>'
+	}eigx;
 	return $html;
 }
 
