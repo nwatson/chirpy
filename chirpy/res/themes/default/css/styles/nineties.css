@@ -19,39 +19,39 @@
 ###############################################################################
 
 ###############################################################################
-# grayscale.css                                                               #
-# "Grayscale" color theme for the default theme                               #
+# nineties.css                                                                #
+# "Nineties" color theme for the default theme                                #
 ###############################################################################
 */
 
 a:hover, a:active {
-	color: #999;
+	color: #69C;
 }
 
 h1 a, h1 a:visited {
-	background: #ECECEC;
-	border-top-color: #F3F3F3;
-	border-bottom-color: #E9E9E9;
+	background: #CEF;
+	border-top-color: #D6F6FF;
+	border-bottom-color: #C9E9F9;
 }
 
 ul#navigation li a:hover, ul#navigation li a:active,
 ul.tabbed-pane-header li a:hover, ul.tabbed-pane-header li a:active {
-	background: #F3F3F3;
-	border-color: #ECECEC;
+	background: #FDA;
+	border-color: #F0D0A0;
 }
 
 ul.quote-list li:hover h3.quote-header {
-	background: #F6F6F6;
-	border-color: #F0F0F0;
+	background: #CEF;
+	border-color: #C9E9FF;
 }
 
 ul.quote-list li:hover .quote-container {
-	background: #FCFCFC;
+	background: #ECFCFF;
 }
 
 ul.quote-list li:hover .quote-notes {
-	color: #BBB;
-	border-color: #F0F0F0;
+	color: #9AB;
+	border-color: #C9E9FF;
 }
 
 ul.tabbed-pane-header li a.active-tab {

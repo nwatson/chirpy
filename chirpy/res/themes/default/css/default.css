@@ -199,6 +199,7 @@ ul#navigation li a, ul#navigation li a:visited {
 }
 
 #footer {
+	clear: both;
 	float: right;
 	font-size: 75%;
 	text-align: right;
@@ -303,21 +304,26 @@ ul.quote-list h3.quote-header .quote-live-vote-result {
 	margin-right: 0.25em;
 }
 
-table.vertical-split {
-	width: 100%;
-}
-
-table.vertical-split td {
+#welcome-message-container {
 	width: 50%;
-	vertical-align: top;
+	float: left;
 }
 
-table.vertical-split td.first-half {
+#welcome-message {
 	padding-right: 1.25em;
 }
 
-table.vertical-split td.second-half {
+#news-display-container {
+	width: 50%;
+	float: right;
+}
+
+#news-display {
 	padding-left: 1.25em;
+}
+
+#start-page-end {
+	clear: both;
 }
 
 ul#news-list {

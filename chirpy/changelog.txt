@@ -14,6 +14,8 @@
 * Added mass quote approval and unflagging to Chirpy::UI::WebApp's
   administration section
 * Changed Chirpy::DataManager's API so add_* methods return ID of added item
+* Added option to automatically turn URLs and e-mail addresses in quotes into
+  hyperlinks
 * Made Chirpy::UI::WebApp replace sequences of whitespaces with &#xA0; instead
   of &nbsp;, so the Atom feed remains valid
 * Optimized fetching single quote in Chirpy::DataManager::MySQL
@@ -26,6 +28,9 @@
 * Mentioned Chirpy::UI::WebApp::Session::DataManager in Chirpy::DataManager's
   documentation
 * Cosmetic fix in Account Manager: space after New Account
+* Replaced table for vertical split on start page with divs
+* No longer overriding old onunload function in style switcher
+* Added some debugging features
 * Added changelog.txt
 
  _____________________________________________________________________________

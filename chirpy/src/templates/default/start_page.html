@@ -1,36 +1,35 @@
 <TMPL_INCLUDE NAME="_head.html">
-	<table class="vertical-split" id="start-page">
-		<tbody>
-			<tr>
-				<td class="first-half">
-					<h2>
-						<TMPL_VAR NAME="PAGE_TITLE">
-					</h2>
-					<TMPL_VAR NAME="MOTD">
-				</td>
-				<td class="second-half">
-					<h2>
-						<TMPL_VAR NAME="NEWS_TITLE">
-					</h2>
-					<ul id="news-list">
-					<TMPL_LOOP NAME="NEWS">
-						<li>
-							<p class="news-text"><TMPL_VAR NAME="BODY"></p>
-							<p class="news-footer"><TMPL_IF NAME="AUTHOR">&mdash;<TMPL_VAR NAME="AUTHOR">,</TMPL_IF>
-							<TMPL_VAR NAME="DATE">
-							<TMPL_IF NAME="ALLOW_EDIT">
-							<a href="<TMPL_VAR NAME="EDIT_URL">" class="news-edit">[<TMPL_VAR NAME="EDIT">]</a>
-							</TMPL_IF>
-							<TMPL_IF NAME="ALLOW_REMOVE">
-							<a href="<TMPL_VAR NAME="REMOVE_URL">" class="news-remove"
-							onclick="return confirm(&quot;<TMPL_VAR NAME="REMOVAL_CONFIRMATION">&quot;)">[<TMPL_VAR NAME="REMOVE">]</a>
-							</TMPL_IF>
-							</p>
-						</li>
-					</TMPL_LOOP>
-					</ul>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+	<div id="welcome-message-container">
+		<div id="welcome-message">
+			<h2>
+				<TMPL_VAR NAME="PAGE_TITLE">
+			</h2>
+			<TMPL_VAR NAME="MOTD">
+		</div>
+	</div>
+	<div id="news-display-container">
+		<div id="news-display">
+			<h2>
+				<TMPL_VAR NAME="NEWS_TITLE">
+			</h2>
+			<ul id="news-list">
+			<TMPL_LOOP NAME="NEWS">
+				<li>
+					<p class="news-text"><TMPL_VAR NAME="BODY"></p>
+					<p class="news-footer"><TMPL_IF NAME="AUTHOR">&mdash;<TMPL_VAR NAME="AUTHOR">,</TMPL_IF>
+					<TMPL_VAR NAME="DATE">
+					<TMPL_IF NAME="ALLOW_EDIT">
+					<a href="<TMPL_VAR NAME="EDIT_URL">" class="news-edit">[<TMPL_VAR NAME="EDIT">]</a>
+					</TMPL_IF>
+					<TMPL_IF NAME="ALLOW_REMOVE">
+					<a href="<TMPL_VAR NAME="REMOVE_URL">" class="news-remove"
+					onclick="return confirm(&quot;<TMPL_VAR NAME="REMOVAL_CONFIRMATION">&quot;)">[<TMPL_VAR NAME="REMOVE">]</a>
+					</TMPL_IF>
+					</p>
+				</li>
+			</TMPL_LOOP>
+			</ul>
+		</div>
+	</div>
+	<div id="start-page-end"></div>
 <TMPL_INCLUDE NAME="_foot.html">

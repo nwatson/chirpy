@@ -142,6 +142,10 @@ The pixel width of each character in a captcha image.
 
 The pixel height of each character in a captcha image.
 
+=item webapp.enable_autolink
+
+Automatically turn hyperlinks and e-mail addresses in quotes into hyperlinks.
+
 =back
 
 =head1 LOCALE STRINGS
@@ -2385,8 +2389,15 @@ sub _auto_link {
 		((?:http|https|ftp)://.+?)(?=\s|&(?!amp;)[^;]+;|<)
 		|((?:mailto:)?([\w\.\+]+\@\S+\.\w+))
 	}{
-		'<a href="' . (defined $1 ? $1 : 'mailto:' . $2) . '">'
-			. (defined $1 ? $1 : $2) . '</a>'
+		my ($href, $text);
+		if (defined $2) {
+			($text = $2) =~ s/\@/&#x40;/;
+			$href = 'mailto:' . $text;
+		}
+		else {
+			$text = $href = $1;
+		}
+		'<a href="' . $href . '">' . $text . '</a>';
 	}eigx;
 	return $html;
 }
