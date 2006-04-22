@@ -34,7 +34,7 @@ Tim De Pauw E<lt>ceetee@users.sourceforge.netE<gt>
 
 =head1 SEE ALSO
 
-L<Chirpy::UI::WebApp>,  L<Chirpy>,
+L<Chirpy::UI::WebApp>, L<Chirpy>,
 L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
@@ -56,7 +56,6 @@ package Chirpy::UI;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use vars qw($VERSION);
 

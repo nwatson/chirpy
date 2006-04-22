@@ -276,7 +276,6 @@ require 5.008;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 require Exporter;
 
 BEGIN {
@@ -287,6 +286,8 @@ BEGIN {
 	eval 'use Time::HiRes qw//';
 	$hires_timing = 1 unless ($@);
 }
+
+use constant DEBUG => 0;
 
 use constant PRODUCT_NAME => 'Chirpy!';
 use constant VERSION_STRING => 'v0.2a1';
@@ -316,7 +317,7 @@ sub new {
 			$configuration_file = $file;
 			last;
 		}
-		confess 'No valid configuration file found'
+		Chirpy::die('No valid configuration file found')
 			unless (defined $configuration_file);
 	}
 	my $configuration = new Chirpy::Configuration(
@@ -324,8 +325,8 @@ sub new {
 	my $locale = new Chirpy::Locale($configuration->get('general', 'base_path')
 		. '/locales/' . $configuration->get('general', 'locale') . '.ini');
 	my $locale_version = $locale->get_target_version();
-	confess 'Locale outdated: wanted target version ' . $Chirpy::VERSION
-		. ', got ' . $locale_version
+	Chirpy::die('Locale outdated: wanted target version ' . $Chirpy::VERSION
+		. ', got ' . $locale_version)
 			unless ($locale_version ge $Chirpy::VERSION);
 	my $dm_type = defined $dm_override
 		? $dm_override : $configuration->get('data', 'type');
@@ -492,7 +493,8 @@ sub add_quote {
 
 sub modify_quote {
 	my ($self, $quote, $text, $notes) = @_;
-	confess 'Not a Chirpy::Quote' unless (ref $quote eq 'Chirpy::Quote');
+	Chirpy::die('Not a Chirpy::Quote')
+		unless (ref $quote eq 'Chirpy::Quote');
 	$quote->set_body(Chirpy::Util::clean_up_submission($text));
 	$quote->set_notes($notes
 		? Chirpy::Util::clean_up_submission($notes)
@@ -556,7 +558,8 @@ sub add_news_item {
 
 sub modify_news_item {
 	my ($self, $item, $text, $poster) = @_;
-	confess 'Not a Chirpy::NewsItem' unless (ref $item eq 'Chirpy::NewsItem');
+	Chirpy::die('Not a Chirpy::NewsItem')
+		unless (ref $item eq 'Chirpy::NewsItem');
 	$item->set_body($text);
 	$item->set_poster($poster);
 	return $self->_data_manager()->modify_news_item($item);
@@ -620,13 +623,16 @@ sub add_account {
 
 sub modify_account {
 	my ($self, $account, $username, $password, $level) = @_;
-	confess 'Not a Chirpy::Account' unless (ref $account eq 'Chirpy::Account');
+	Chirpy::die('Not a Chirpy::Account')
+		unless (ref $account eq 'Chirpy::Account');
 	if (defined $username) {
-		Chirpy::Util::valid_username($username) or confess 'Invalid username';
+		Chirpy::Util::valid_username($username)
+			or Chirpy::die('Invalid username');
 		$account->set_username($username);
 	}
 	if (defined $password) {
-		Chirpy::Util::valid_password($password) or confess 'Invalid password';
+		Chirpy::Util::valid_password($password)
+			or Chirpy::die('Invalid password');
 		$account->set_password(Chirpy::Util::encrypt($password));
 	}
 	if (defined $level) {
@@ -686,6 +692,17 @@ sub remove {
 	$self->_data_manager()->remove();
 }
 
+sub die {
+	my $message = shift;
+	require Carp;
+	if (DEBUG) {
+		Carp::confess($message);
+	}
+	else {
+		Carp::croak($message);
+	}
+}
+
 sub _data_manager {
 	my $self = shift;
 	return $self->{'data_manager'};
@@ -698,7 +715,7 @@ sub _create_data_manager {
 		use Chirpy::DataManager::$type;
 		\$dm = new Chirpy::DataManager::$type(\$params);
 	};
-	confess 'Failed to load data manager "' . $type . '": ' . $@
+	Chirpy::die('Failed to load data manager "' . $type . '": ' . $@)
 		if ($@ || !defined $dm);
 	&_check_version($dm);
 	return $dm;
@@ -711,7 +728,8 @@ sub _create_ui {
 		use Chirpy::UI::$type;
 		\$ui = new Chirpy::UI::$type(\$parent, \$params);
 	};
-	confess 'Failed to load UI "' . $type . '": ' . $@ if ($@ || !defined $ui);
+	Chirpy::die('Failed to load UI "' . $type . '": ' . $@)
+		if ($@ || !defined $ui);
 	&_check_version($ui);
 	return $ui;
 }
@@ -719,8 +737,8 @@ sub _create_ui {
 sub _check_version {
 	my $obj = shift;
 	my $version = (defined $obj ? $obj->get_target_version() : undef);
-	confess ref($obj) . ' incompatible: wanted target version '
-		. $Chirpy::VERSION . ', got ' . $version
+	Chirpy::die(ref($obj) . ' incompatible: wanted target version '
+		. $Chirpy::VERSION . ', got ' . $version)
 			unless ($version eq $Chirpy::VERSION);
 }
 

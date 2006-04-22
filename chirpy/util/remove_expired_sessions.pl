@@ -47,10 +47,10 @@ if (UNIVERSAL::isa('Chirpy::UI::WebApp::Session::DataManager', $dm)) {
 }
 else {
 	my @removed = $dm->remove_expired_sessions();
-	print (@removed
+	print @removed
 		? 'The following expired sessions were removed from the database:'
 			. $/ x 2 . join($/, map { '- ' . $_ } @removed)
-		: 'None of the sessions in the database have expired.');
+		: 'None of the sessions in the database have expired.';
 }
 
 ###############################################################################

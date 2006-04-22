@@ -49,19 +49,20 @@ package Chirpy::UI::WebApp::Session;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use vars qw($VERSION $NAME);
 
 $VERSION = '0.2';
 $NAME = 'sid';
 
+use Chirpy 0.2;
+
 sub new {
 	my ($class, $parent, $create) = @_;
 
 	my $dm = $parent->parent()->_data_manager();
 	my $class_name = 'Chirpy::UI::WebApp::Session::DataManager';
-	confess 'Data manager must implement ' . $class_name
+	Chirpy::die('Data manager must implement ' . $class_name)
 		unless (UNIVERSAL::isa($dm, $class_name));
 	my $self = bless { 'data_manager' => $dm }, $class;
 
@@ -112,7 +113,8 @@ sub DESTROY {
 sub param {
 	my ($self, %params) = @_;
 	my $name;
-	confess 'Parameter name required' unless ($name = $params{'-name'});
+	Chirpy::die('Parameter name required')
+		unless ($name = $params{'-name'});
 	return (exists $params{'-value'}
 		? ($self->{'data'}->{$name} = $params{'-value'})
 		: $self->{'data'}->{$name});

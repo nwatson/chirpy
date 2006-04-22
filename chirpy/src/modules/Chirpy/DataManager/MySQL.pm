@@ -103,7 +103,6 @@ package Chirpy::DataManager::MySQL;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use vars qw($VERSION $TARGET_VERSION @ISA);
 
@@ -111,6 +110,8 @@ $VERSION = '0.2';
 @ISA = qw(Chirpy::DataManager Chirpy::UI::WebApp::Session::DataManager);
 
 $TARGET_VERSION = 0.2;
+
+use Chirpy 0.2;
 
 use Chirpy::DataManager 0.2;
 use Chirpy::UI::WebApp::Session::DataManager 0.2;
@@ -134,7 +135,7 @@ sub new {
 			: '')
 		. ($self->param('port') ? ';port=' . $self->param('port') : ''),
 		$self->param('username'), $self->param('password'))
-			or confess 'Failed to connect to database: ' . DBI->errstr();
+			or Chirpy::die('Failed to connect to database: ' . DBI->errstr());
 	$dbh->do('SET NAMES utf8');
 	$self->{'dbh'} = $dbh;
 	$self->{'prefix'} = $self->param('prefix');
@@ -165,7 +166,7 @@ sub set_up {
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `username` (`username`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or confess 'Cannot create account table: ' . DBI->errstr();
+		|) or Chirpy::die('Cannot create account table: ' . DBI->errstr());
 	$handle->do(q|
 			CREATE TABLE `| . $prefix . q|news` (
 				`id` int unsigned NOT NULL auto_increment,
@@ -174,7 +175,7 @@ sub set_up {
 				`date` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or confess 'Cannot create news table: ' . DBI->errstr();
+		|) or Chirpy::die('Cannot create news table: ' . DBI->errstr());
 	$handle->do(q|
 			CREATE TABLE `| . $prefix . q|quotes` (
 				`id` int unsigned NOT NULL auto_increment,
@@ -186,7 +187,7 @@ sub set_up {
 				`flagged` tinyint(1) unsigned NOT NULL,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or confess 'Cannot create quote table: ' . DBI->errstr();
+		|) or Chirpy::die('Cannot create quote table: ' . DBI->errstr());
 	$handle->do(q|
 			CREATE TABLE `| . $prefix . q|log` (
 				`id` int unsigned NOT NULL auto_increment,
@@ -196,14 +197,14 @@ sub set_up {
 				`data` text,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or confess 'Cannot create log table: ' . DBI->errstr();
+		|) or Chirpy::die('Cannot create log table: ' . DBI->errstr());
 	$handle->do(q|
 			CREATE TABLE `| . $prefix . q|sessions` (
 				`id` varchar(32) NOT NULL,
 				`data` text NOT NULL,
 				UNIQUE KEY `id` (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or confess 'Cannot create session table: ' . DBI->errstr();
+		|) or Chirpy::die('Cannot create session table: ' . DBI->errstr());
 	if (defined $accounts) {
 		foreach my $account (@$accounts) {
 			$self->add_account($account);
@@ -226,15 +227,15 @@ sub remove {
 	my $prefix = $self->table_name_prefix();
 	my $handle = $self->handle();
 	$handle->do('DROP TABLE ' . $prefix . 'accounts')
-		or confess 'Cannot remove account table: ' . DBI->errstr();
+		or Chirpy::die('Cannot remove account table: ' . DBI->errstr());
 	$handle->do('DROP TABLE ' . $prefix . 'news')
-		or confess 'Cannot remove news table: ' . DBI->errstr();
+		or Chirpy::die('Cannot remove news table: ' . DBI->errstr());
 	$handle->do('DROP TABLE ' . $prefix . 'quotes')
-		or confess 'Cannot remove quote table: ' . DBI->errstr();
+		or Chirpy::die('Cannot remove quote table: ' . DBI->errstr());
 	$handle->do('DROP TABLE ' . $prefix . 'log')
-		or confess 'Cannot remove log table: ' . DBI->errstr();
+		or Chirpy::die('Cannot remove log table: ' . DBI->errstr());
 	$handle->do('DROP TABLE ' . $prefix . 'sessions')
-		or confess 'Cannot remove session table: ' . DBI->errstr();
+		or Chirpy::die('Cannot remove session table: ' . DBI->errstr());
 }
 
 sub get_quotes {
@@ -294,8 +295,8 @@ sub get_quotes {
 		$per_page = $params->{'count'};
 	}
 	my $sth = $self->handle()->prepare($query)
-		or confess $self->handle()->errstr();
-	$sth->execute(@par) or confess $self->handle()->errstr();
+		or Chirpy::die($self->handle()->errstr());
+	$sth->execute(@par) or Chirpy::die($self->handle()->errstr());
 	my $trailing;
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -338,7 +339,7 @@ sub add_quote {
 
 sub modify_quote {
 	my ($self, $quote) = @_;
-	confess 'Not a Chirpy::Quote'
+	Chirpy::die('Not a Chirpy::Quote')
 		unless (ref $quote eq 'Chirpy::Quote');
 	return $self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
 		. ' SET `body` = ?, `notes` = ? WHERE `id` = ?',
@@ -387,7 +388,7 @@ sub unflag_quotes {
 
 sub remove_quote {
 	my ($self, $quote) = @_;
-	confess 'Not a Chirpy::Quote'
+	Chirpy::die('Not a Chirpy::Quote')
 		unless (ref $quote eq 'Chirpy::Quote');
 	return $self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quotes`'
 		. ' WHERE `id` = ' . quote->get_id()
@@ -416,8 +417,8 @@ sub get_news_items {
 	$query .= ' ORDER BY `date` DESC';
 	$query .= ' LIMIT ' . $params->{'count'} if ($params->{'count'});
 	my $sth = $self->handle()->prepare($query)
-		or confess $self->handle()->errstr();
-	$sth->execute() or confess $self->handle()->errstr(); 
+		or Chirpy::die($self->handle()->errstr());
+	$sth->execute() or Chirpy::die($self->handle()->errstr()); 
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		my $item = new Chirpy::NewsItem(
@@ -434,7 +435,7 @@ sub get_news_items {
 
 sub add_news_item {
 	my ($self, $news) = @_;
-	confess 'Not a Chirpy::NewsItem'
+	Chirpy::die('Not a Chirpy::NewsItem')
 		unless (ref $news eq 'Chirpy::NewsItem');
 	my $poster = $news->get_poster();
 	$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'news`'
@@ -448,7 +449,7 @@ sub add_news_item {
 
 sub modify_news_item {
 	my ($self, $item) = @_;
-	confess 'Not a Chirpy::NewsItem'
+	Chirpy::die('Not a Chirpy::NewsItem')
 		unless (ref $item eq 'Chirpy::NewsItem');
 	my $poster = $item->get_poster();
 	return $self->_do('UPDATE `' . $self->table_name_prefix() . 'news`'
@@ -459,7 +460,7 @@ sub modify_news_item {
 
 sub remove_news_item {
 	my ($self, $item) = @_;
-	confess 'Not a Chirpy::NewsItem'
+	Chirpy::die('Not a Chirpy::NewsItem')
 		unless (ref $item eq 'Chirpy::NewsItem');
 	return $self->_do('DELETE FROM `' . $self->table_name_prefix() . 'news`'
 		. ' WHERE `id` = ' . $item->get_id()
@@ -496,8 +497,8 @@ sub get_accounts {
 	}
 	$query .= ' ORDER BY `level` DESC, `username`';
 	my $sth = $self->handle()->prepare($query)
-		or confess $self->handle()->errstr();
-	$sth->execute(@par) or confess $self->handle()->errstr();
+		or Chirpy::die($self->handle()->errstr());
+	$sth->execute(@par) or Chirpy::die($self->handle()->errstr());
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @result, new Chirpy::Account(
@@ -519,7 +520,7 @@ sub add_account {
 
 sub modify_account {
 	my ($self, $account) = @_;
-	confess 'Not a Chirpy::Account'
+	Chirpy::die('Not a Chirpy::Account')
 		unless (ref $account eq 'Chirpy::Account');
 	return $self->_do('UPDATE `' . $self->table_name_prefix() . 'accounts`'
 		. ' SET `username` = ?, `password` = ?, `level` = ?'
@@ -530,7 +531,7 @@ sub modify_account {
 
 sub remove_account {
 	my ($self, $account) = @_;
-	confess 'Not a Chirpy::Account'
+	Chirpy::die('Not a Chirpy::Account')
 		unless (ref $account eq 'Chirpy::Account');
 	$self->_do('UPDATE `' . $self->table_name_prefix()
 		. 'news` SET `poster` = NULL WHERE `poster` = ' . $account->get_id()
@@ -570,7 +571,7 @@ sub account_count {
 
 sub log_event {
 	my ($self, $event) = @_;
-	confess 'Not a Chirpy::Event'
+	Chirpy::die('Not a Chirpy::Event')
 		unless (ref $event eq 'Chirpy::Event');
 	my $user = $event->get_user();
 	$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'log`'
@@ -589,7 +590,7 @@ sub add_session {
 	$self->handle()->do('INSERT INTO `' . $self->table_name_prefix()
 		. 'sessions` (`id`, `data`) VALUES (?, ?)',
 		undef, $id, &_serialize($data))
-			or confess $self->handle()->errstr();
+			or Chirpy::die($self->handle()->errstr());
 }
 
 sub get_sessions {
@@ -599,8 +600,8 @@ sub get_sessions {
 	$query .= ' WHERE `id` IN (?' . (',?' x (scalar(@ids) - 1)) . ')'
 		. ' LIMIT ' . scalar(@ids) if (@ids);
 	my $sth = $self->handle()->prepare($query)
-		or confess $self->handle()->errstr();
-	$sth->execute(@ids) or confess $self->handle()->errstr();
+		or Chirpy::die($self->handle()->errstr());
+	$sth->execute(@ids) or Chirpy::die($self->handle()->errstr());
 	my @results = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @results, &_unserialize($row->{'data'});
@@ -614,7 +615,7 @@ sub modify_session {
 	return $self->handle()->do('UPDATE `' . $self->table_name_prefix()
 		. 'sessions` SET `data` = ?'
 		. ' WHERE `id` = ? LIMIT 1', undef, $string, $id)
-			or confess $self->handle()->errstr();
+			or Chirpy::die($self->handle()->errstr());
 }
 
 sub remove_sessions {
@@ -640,8 +641,8 @@ sub _get_quote_rating {
 	my $sth = $self->handle()->prepare('SELECT `rating`'
 		. ' FROM `' . $self->table_name_prefix() . 'quotes`'
 		. ' WHERE `id` = ' . $id . ' LIMIT 1')
-			or confess $self->handle()->errstr();
-	$sth->execute() or confess $self->handle()->errstr();
+			or Chirpy::die($self->handle()->errstr());
+	$sth->execute() or Chirpy::die($self->handle()->errstr());
 	my @row = $sth->fetchrow_array();
 	return $row[0];
 }
@@ -649,15 +650,15 @@ sub _get_quote_rating {
 sub _do {
 	my ($self, $query, @params) = @_;
 	my $rows = $self->handle()->do($query, undef, @params)
-		or confess $self->handle()->errstr();
+		or Chirpy::die($self->handle()->errstr());
 	return ($rows eq '0E0' ? 0 : $rows);
 }
 
 sub _execute_scalar {
 	my ($self, $query, @params) = @_;
 	my $sth = $self->handle()->prepare($query)
-		or confess $self->handle()->errstr();
-	$sth->execute(@params) or confess $self->handle()->errstr();
+		or Chirpy::die($self->handle()->errstr());
+	$sth->execute(@params) or Chirpy::die($self->handle()->errstr());
 	return ($sth->fetchrow_array())[0];
 }
 

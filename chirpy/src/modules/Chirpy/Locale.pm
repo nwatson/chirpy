@@ -812,7 +812,6 @@ package Chirpy::Locale;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use vars qw($VERSION @ISA);
 

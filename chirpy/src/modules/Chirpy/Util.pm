@@ -120,11 +120,12 @@ package Chirpy::Util;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use vars qw($VERSION);
 
 $VERSION = '0.2';
+
+use Chirpy 0.2;
 
 use POSIX qw(strftime);
 
@@ -180,7 +181,7 @@ sub decode_utf8 {
 }
 
 sub abstract_method {
-	confess 'Abstract method must be implemented';
+	Chirpy::die('Abstract method must be implemented');
 }
 
 1;

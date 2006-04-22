@@ -101,7 +101,6 @@ package Chirpy::Account;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use constant USER_LEVEL_3 => 3;
 use constant USER_LEVEL_6 => 6;

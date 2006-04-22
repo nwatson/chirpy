@@ -118,7 +118,6 @@ package Chirpy::Event;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use constant LOGIN_SUCCESS     => 100;
 use constant LOGIN_FAILURE     => 101;

@@ -248,7 +248,6 @@ package Chirpy::UI::WebApp;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 
 use vars qw($VERSION $TARGET_VERSION @ISA);
 
@@ -257,6 +256,7 @@ $VERSION = '0.2';
 
 $TARGET_VERSION = 0.2;
 
+use Chirpy 0.2;
 use Chirpy::UI 0.2;
 use Chirpy::UI::WebApp::Session 0.2;
 
@@ -523,13 +523,12 @@ sub browse_quotes {
 
 sub _generate_feed {
 	my ($self, $quotes, $type, $page) = @_;
-	my $name = &_get_page_name($page);
 	my $locale = $self->locale();
 	my $conf = $self->configuration();
 	my $site_title = &_text_to_xhtml(
 			$conf->get('general', 'title'));
 	my $page_title = &_text_to_xhtml(
-		$self->locale()->get_string($name));
+		$self->locale()->get_string(&_get_page_name($page)));
 	my $name = &_text_to_xhtml($self->param('webmaster_name'));
 	my $email = &_text_to_xhtml($self->param('webmaster_email'));
 	my $template = new HTML::Template(
@@ -2165,7 +2164,7 @@ sub _load_template {
 	my $template = new HTML::Template(
 		'filename' => $self->{'templates_path'} . '/' . $name . '.html',
 		'die_on_bad_params' => 0
-	) or confess 'Failed to load template: ' . $!;
+	) or Chirpy::die('Failed to load template: ' . $!);
 	return $template;
 }
 
