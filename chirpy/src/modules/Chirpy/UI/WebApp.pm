@@ -610,6 +610,7 @@ sub _generate_feed {
 
 sub _generate_xhtml {
 	my ($self, $quotes, $page, $previous, $next) = @_;
+	$self->parent()->mark_debug_event('Build quote browser');
 	my $name = &_get_page_name($page);
 	my $locale = $self->locale();
 	my $page_title = &_text_to_xhtml(
@@ -690,6 +691,7 @@ sub _generate_xhtml {
 	);
 	my $auto_link = $self->configuration()->get('ui', 'webapp.enable_autolink');
 	my @quotes_tmpl = ();
+	$self->parent()->mark_debug_event('Parse quotes for template');
 	foreach my $quote (@$quotes) {
 		my $up_url = $self->_url(
 			ACTIONS->{'QUOTE_RATING_UP'},
@@ -703,8 +705,10 @@ sub _generate_xhtml {
 			ACTIONS->{'REPORT_QUOTE'},
 			undef,
 			'id' => $quote->get_id());
+		$self->parent()->mark_debug_event('Parse quote body');
 		my $body = &_text_to_xhtml($quote->get_body());
 		$body = &_auto_link($body) if ($auto_link);
+		$self->parent()->mark_debug_event('Quote body parsed');
 		push @quotes_tmpl, {
 			'ID' => $quote->get_id(),
 			'BODY' => $body,
@@ -717,7 +721,7 @@ sub _generate_xhtml {
 			'IS_APPROVED' => $quote->get_approved(),
 			'IS_FLAGGED' => $quote->get_flagged(),
 			'LINK_URL' => &_text_to_xhtml(
-					$self->_quote_url($quote->get_id())),
+				$self->_quote_url($quote->get_id())),
 			'RATING_UP_URL' => $up_url,
 			'RATING_DOWN_URL' => $down_url,
 			'REPORT_URL' => $report_url,
@@ -745,6 +749,7 @@ sub _generate_xhtml {
 			%static_strings
 		};
 	}
+	$self->parent()->mark_debug_event('Quotes parsed');
 	$template->param('QUOTES' => \@quotes_tmpl);
 	if (defined $previous || defined $next) {
 		my $query = $self->get_search_query();
@@ -764,6 +769,27 @@ sub _generate_xhtml {
 			)) if (defined $next);
 	}
 	$self->_output_template($template);
+	$self->parent()->mark_debug_event('Quote browser displayed');
+	my $dbg = $self->parent()->debug_events();
+	if (defined $dbg) {
+		print "$/$/<!-- ";
+		my $line = '=' x 80;
+		print $/, $line;
+		printf "$/%6s\t%6s\t%s", 'Time', 'Total', 'Event';
+		print $/, $line;
+		my $last_time = $self->parent()->start_time();
+		my $total = 0;
+		foreach my $event (@$dbg) {
+			my $time = $event->[0] - $last_time;
+			$total += $time;
+			printf "$/%6.0f\t%6.0f\t%s",
+				$time * 1000,
+				$total * 1000,
+				$event->[1];
+			$last_time = $event->[0];
+		}
+		print "$/$line$/-->";
+	}
 }
 
 sub provide_quote_search_interface {
@@ -2185,7 +2211,8 @@ sub _output_template {
 
 sub _maybe_gzip {
 	my ($self, $content, $ctype, %headers) = @_;
-	if ($self->param('enable_gzip')
+	if (!defined $self->parent()->debug_events()
+	&& $self->param('enable_gzip')
 	&& $self->{'cgi'}->http('Accept-Encoding') =~ /\bgzip\b/i) {
 		require Compress::Zlib;
 		$self->_print_http_header($ctype,

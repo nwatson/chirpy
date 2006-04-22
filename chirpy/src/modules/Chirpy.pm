@@ -311,6 +311,9 @@ use constant USER_LEVELS => [
 sub new {
 	my ($class, $configuration_file, $dm_override) = @_;
 	my $st = ($hires_timing ? Time::HiRes::time() : undef);
+	my $self = bless {}, $class;
+	$self->{'start_time'} = $st;
+	$self->{'debug_events'} = [] if (DEBUG && $hires_timing);
 	unless (defined $configuration_file) {
 		foreach my $file (qw(src/chirpy.ini chirpy.ini)) {
 			next unless (-f $file);
@@ -320,28 +323,31 @@ sub new {
 		Chirpy::die('No valid configuration file found')
 			unless (defined $configuration_file);
 	}
+	$self->mark_debug_event('Load configuration');
 	my $configuration = new Chirpy::Configuration(
 		defined $configuration_file ? $configuration_file : 'chirpy.ini');
+	$self->mark_debug_event('Configuration loaded');
+	$self->{'configuration'} = $configuration;
+	$self->mark_debug_event('Load locale');
 	my $locale = new Chirpy::Locale($configuration->get('general', 'base_path')
 		. '/locales/' . $configuration->get('general', 'locale') . '.ini');
+	$self->mark_debug_event('Locale loaded');
+	$self->{'locale'} = $locale;
 	my $locale_version = $locale->get_target_version();
 	Chirpy::die('Locale outdated: wanted target version ' . $Chirpy::VERSION
 		. ', got ' . $locale_version)
 			unless ($locale_version ge $Chirpy::VERSION);
 	my $dm_type = defined $dm_override
 		? $dm_override : $configuration->get('data', 'type');
+	$self->{'data_manager_type'} = $dm_type;
 	my $dm_params = $configuration->get_parameter_hash('data', $dm_type);
+	$self->mark_debug_event('Create data manager');
 	my $dm = &_create_data_manager($dm_type, $dm_params);
+	$self->mark_debug_event('Data manager created');
+	$self->{'data_manager'} = $dm;
 	my $ui_type = $configuration->get('ui', 'type');
-	my $self = {
-		'configuration' => $configuration,
-		'data_manager_type' => $dm_type,
-		'ui_type' => $ui_type,
-		'locale' => $locale,
-		'data_manager' => $dm,
-		'start_time' => $st
-	};
-	return bless($self, $class);
+	$self->{'ui_type'} = $ui_type;
+	return $self;
 }
 
 sub run {
@@ -378,6 +384,7 @@ sub user_levels {
 
 sub get_quotes {
 	my ($self, $start) = @_;
+	$self->mark_debug_event('Request quotes');
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
 		'sort'     => [ [ 'id', 1 ] ],
@@ -675,6 +682,11 @@ sub timing_enabled {
 	return $hires_timing;
 }
 
+sub start_time {
+	my $self = shift;
+	return $self->{'start_time'};
+}
+
 sub total_time {
 	my $self = shift;
 	return ($hires_timing
@@ -701,6 +713,19 @@ sub die {
 	else {
 		Carp::croak($message);
 	}
+}
+
+sub mark_debug_event {
+	my ($self, $event) = @_;
+	if (exists $self->{'debug_events'}) {
+		my $now = Time::HiRes::time();
+		push @{$self->{'debug_events'}}, [ $now, $event ];
+	}
+}
+
+sub debug_events {
+	my $self = shift;
+	return $self->{'debug_events'};
 }
 
 sub _data_manager {
