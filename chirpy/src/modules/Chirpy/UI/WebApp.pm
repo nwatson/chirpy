@@ -361,7 +361,7 @@ sub get_search_query {
 
 sub get_submitted_quote {
 	my $self = shift;
-	if ($self->param('enable_captchas')) {
+	if ($self->_requires_captcha()) {
 		my $captcha = $self->_captcha();
 		my $result = $captcha->check_code(
 			$self->_cgi_param('captcha_code'),
@@ -850,7 +850,7 @@ sub provide_quote_submission_interface {
 		'SUBMIT_LABEL_NO_APPROVAL' => &_text_to_xhtml(
 			$locale->get_string('submit_button_label_no_approval'))
 	);
-	if ($self->param('enable_captchas')) {
+	if ($self->_requires_captcha()) {
 		my $captcha = $self->_captcha();
 		my $length = $self->param('captcha_code_length') || 4;
 		my $imgpath = $self->param('captcha_source_image_path');
@@ -2552,6 +2552,12 @@ sub _requires_session {
 		|| $page == Chirpy::UI::LOGIN
 		|| $page == Chirpy::UI::LOGOUT
 		|| $page == Chirpy::UI::ADMINISTRATION);
+}
+
+sub _requires_captcha {
+	my $self = shift;
+	return ($self->param('enable_captchas')
+		&& !defined $self->get_logged_in_user_account());
 }
 
 1;
