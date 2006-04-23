@@ -566,7 +566,8 @@ sub account_count {
 	return $self->_execute_scalar('SELECT COUNT(*) FROM `'
 		. $self->table_name_prefix() . 'accounts`'
 		. (defined $params->{'levels'}
-			? ' WHERE `level` IN (' . join(',', @{$params->{'level'}}) : ')'));
+			? ' WHERE `level` IN (' . join(',', @{$params->{'levels'}}) . ')'
+			: ''));
 }
 
 sub log_event {
