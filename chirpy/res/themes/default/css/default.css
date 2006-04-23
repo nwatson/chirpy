@@ -570,9 +570,10 @@ ul.tabbed-pane-contents > li {
 }
 
 #manage-accounts #manage-accounts-result {
-	margin: 2em 0 0 15%;
-	padding: 0.25em 0 0 5%;
-	width: 80%;
+	margin: 2em 0 0 0;
+	padding: 0.25em 0 0 0;
+	width: 45%;
+	float: right;
 	text-align: right;
 	font-weight: bold;
 	border-top: 1px solid #EEE;
