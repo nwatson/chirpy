@@ -142,18 +142,29 @@ function ratingRequestCompleted (req, result) {
 }
 
 function reportRequestCompleted (req, result) {
-	if (result && result["status"] == 1) {
-		req.setResult("");
-		document.getElementById('quote-header-' + req.id).className
-			+= " flagged";
-		var rep = document.getElementById('quote-report-' + req.id);
-		var el = document.createElement("span");
-		var at = document.createAttribute("class");
-		at.value = "quote-flagged";
-		el.setAttributeNode(at);
-		el.appendChild(document.createTextNode(
-			"[" + locale["flagged"] + "]"));
-		rep.parentNode.replaceChild(el, rep);
+	if (result) {
+		switch (result["status"]) {
+			case "1":
+				req.setResult("");
+				document.getElementById('quote-header-' + req.id).className
+					+= " flagged";
+				var rep = document.getElementById('quote-report-' + req.id);
+				var el = document.createElement("span");
+				var at = document.createAttribute("class");
+				at.value = "quote-flagged";
+				el.setAttributeNode(at);
+				el.appendChild(document.createTextNode(
+					"[" + locale["flagged"] + "]"));
+				rep.parentNode.replaceChild(el, rep);
+				break;
+			case "5":
+				req.setResult(locale["error"], false, errorTimeout);
+				if (req.verbose) alert(locale["session_required_text"]);
+				break;
+			default:
+				req.setResult(locale["error"], false, errorTimeout);
+				break;
+		}
 	}
 	else
 		req.setResult(locale["error"], false, errorTimeout);

@@ -235,7 +235,7 @@ L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
-Copyright 2005 Tim De Pauw. All rights reserved.
+Copyright 2005-2006 Tim De Pauw. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -2582,6 +2582,7 @@ sub _requires_session {
 	my $page = shift;
 	return ($page == Chirpy::UI::QUOTE_RATING_UP
 		|| $page == Chirpy::UI::QUOTE_RATING_DOWN
+		|| $page == Chirpy::UI::REPORT_QUOTE
 		|| $page == Chirpy::UI::LOGIN
 		|| $page == Chirpy::UI::LOGOUT
 		|| $page == Chirpy::UI::ADMINISTRATION);
