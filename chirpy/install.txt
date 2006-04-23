@@ -265,8 +265,8 @@ mysql.prefix        If you only have one MySQL database, Chirpy! can make its
 webapp.webmaster_name
                     Your name.
 webapp.webmaster_email
-                    Your e-mail address. You can add spam prevention tricks,
-                    but keep it valid if you are going to be using feeds.
+                    Your e-mail address. Don't worry about spam, Chirpy! will
+                    use some fancy tricks to hide it.
 webapp.site_url     The URL where you put index.cgi.
 webapp.resources_url
                     The URL where you put the res/ directory.

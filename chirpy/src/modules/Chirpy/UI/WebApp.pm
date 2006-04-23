@@ -534,7 +534,7 @@ sub _generate_feed {
 	my $page_title = &_text_to_xhtml(
 		$self->locale()->get_string(&_get_page_name($page)));
 	my $name = &_text_to_xhtml($self->param('webmaster_name'));
-	my $email = &_text_to_xhtml($self->param('webmaster_email'));
+	my $email = &_hide_email($self->param('webmaster_email'));
 	my $template = new HTML::Template(
 		'filename' => $self->{'templates_path'}
 			. '/feeds/' . ($type eq 'atom' ? 'atom10' : 'rss20') . '.xml',
@@ -557,6 +557,10 @@ sub _generate_feed {
 		if ($auto_link) {
 			$body = &_auto_link($body);
 			$notes = &_auto_link($notes);
+		}
+		else {
+			$body = &_spam_protect_email_addresses($body);
+			$notes = &_spam_protect_email_addresses($notes);
 		}
 		push @quotes, {
 			'QUOTE_ID' => $id,
@@ -719,6 +723,10 @@ sub _generate_xhtml {
 		if ($auto_link) {
 			$body = &_auto_link($body);
 			$notes = &_auto_link($notes);
+		}
+		else {
+			$body = &_spam_protect_email_addresses($body);
+			$notes = &_spam_protect_email_addresses($notes);
 		}
 		$self->parent()->mark_debug_event('Quote body parsed');
 		push @quotes_tmpl, {
@@ -2260,8 +2268,8 @@ sub _process_template {
 		=> &_text_to_xhtml($self->configuration()
 			->get('general', 'title')));
 	$template->param('SITE_URL' => $self->_url());
-	$template->param('WEBMASTER_EMAIL' => &_text_to_xhtml(
-		$self->param('webmaster_email')));
+	$template->param('WEBMASTER_EMAIL'
+		=> &_hide_email($self->param('webmaster_email')));
 	my $qt = $locale->get_string('quotes_of_the_week');
 	$template->param('FEEDS' => [
 		{
@@ -2392,7 +2400,7 @@ sub _format_date_time_iso8601 {
 }
 
 sub _auto_link {
-	my $html = shift;
+	my ($html, $no_antispam) = @_;
 	# &amp; is the only entity we allow in URLs, so we temporarily replace all
 	# of them with null bytes
 	$html =~ s/&amp;/\0/ig;
@@ -2403,7 +2411,7 @@ sub _auto_link {
 	}{
 		my ($href, $text);
 		if (defined $2) {
-			($text = $2) =~ s/\@/&#x40;/;
+			$text = ($no_antispam ? $2 : &_hide_email($2));
 			$href = 'mailto:' . $text;
 		}
 		else {
@@ -2413,6 +2421,18 @@ sub _auto_link {
 	}eigx;
 	$html =~ s/\0/&amp;/g;
 	return $html;
+}
+
+sub _spam_protect_email_addresses {
+	my $html = shift;
+	$html =~ s/((?:mailto:)?([\w\.\+]+\@\S+\.\w+))/&_hide_email($1)/eig;
+	return $html;
+}
+
+sub _hide_email {
+	my $email = shift;
+	$email =~ s/(.)/'&#'.ord($1).';'/eg;
+	return $email;
 }
 
 sub _format_news_body {

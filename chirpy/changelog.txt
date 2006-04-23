@@ -19,6 +19,7 @@
 * Changed Chirpy::DataManager's API so add_* methods return ID of added item
 * Added option to automatically turn URLs and e-mail addresses in quotes into
   hyperlinks
+* Made Chirpy::UI::WebApp escape all e-mail addresses to prevent spam
 * Made Chirpy::UI::WebApp replace sequences of whitespaces with &#xA0; instead
   of &nbsp;, so the Atom feed remains valid
 * Optimized fetching single quote in Chirpy::DataManager::MySQL
