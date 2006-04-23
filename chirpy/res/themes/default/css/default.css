@@ -516,12 +516,6 @@ ul.tabbed-pane-contents > li {
 	width: 8ex;
 }
 
-#manage-accounts td {
-	text-align: right;
-	vertical-align: top;
-	padding-left: 2.5em;
-}
-
 #manage-accounts #username-select-container {
 	width: 40%;
 	float: left;
