@@ -29,7 +29,6 @@ var confirmationTimeout = 3000;
 var errorTimeout = 10000;
 var connectionTimeout = 30000;
 var pollingInterval = 1000;
-var c = 2713;
 var okText = String.fromCharCode(0x2713);
 
 var ajaxMethods = new Array(
