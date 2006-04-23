@@ -2398,7 +2398,7 @@ sub _auto_link {
 	$html =~ s/&amp;/\0/ig;
 	$html =~ s{
 		\b
-		((?:http|https|ftp)://[^\s<&]+)
+		((?:https?|ftp|irc)://[^\s&<>()\[\]\{\}"]+)
 		|((?:mailto:)?([\w\.\+]+\@\S+\.\w+))
 		\b
 	}{
