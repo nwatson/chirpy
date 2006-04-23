@@ -553,12 +553,16 @@ sub _generate_feed {
 		my $report_url = $self->_url(ACTIONS->{'REPORT_QUOTE'},
 			undef, 'id' => $id);
 		my $body = &_text_to_xhtml($quote->get_body());
-		$body = &_auto_link($body) if ($auto_link);
+		my $notes = &_text_to_xhtml($quote->get_notes());
+		if ($auto_link) {
+			$body = &_auto_link($body);
+			$notes = &_auto_link($notes);
+		}
 		push @quotes, {
 			'QUOTE_ID' => $id,
 			'QUOTE_URL' => &_text_to_xhtml($self->_quote_url($id)),
 			'QUOTE_BODY' => $body,
-			'QUOTE_NOTES' => &_text_to_xhtml($quote->get_notes()),
+			'QUOTE_NOTES' => $notes,
 			'QUOTE_NOTES_TITLE' => &_text_to_xhtml(
 				$locale->get_string('quote_notes_title')),
 			'QUOTE_RATING'
@@ -711,12 +715,16 @@ sub _generate_xhtml {
 			'id' => $quote->get_id());
 		$self->parent()->mark_debug_event('Parse quote body');
 		my $body = &_text_to_xhtml($quote->get_body());
-		$body = &_auto_link($body) if ($auto_link);
+		my $notes = &_text_to_xhtml($quote->get_notes());
+		if ($auto_link) {
+			$body = &_auto_link($body);
+			$notes = &_auto_link($notes);
+		}
 		$self->parent()->mark_debug_event('Quote body parsed');
 		push @quotes_tmpl, {
 			'ID' => $quote->get_id(),
 			'BODY' => $body,
-			'NOTES' => &_text_to_xhtml($quote->get_notes()),
+			'NOTES' => $notes,
 			'RATING_NUMBER' => $quote->get_rating(),
 			'RATING_TEXT'
 				=> Chirpy::Util::format_quote_rating($quote->get_rating()),
@@ -2385,9 +2393,14 @@ sub _format_date_time_iso8601 {
 
 sub _auto_link {
 	my $html = shift;
+	# &amp; is the only entity we allow in URLs, so we temporarily replace all
+	# of them with null bytes
+	$html =~ s/&amp;/\0/ig;
 	$html =~ s{
-		((?:http|https|ftp)://.+?)(?=\s|&(?!amp;)[^;]+;|<)
+		\b
+		((?:http|https|ftp)://[^\s<&]+)
 		|((?:mailto:)?([\w\.\+]+\@\S+\.\w+))
+		\b
 	}{
 		my ($href, $text);
 		if (defined $2) {
@@ -2399,6 +2412,7 @@ sub _auto_link {
 		}
 		'<a href="' . $href . '">' . $text . '</a>';
 	}eigx;
+	$html =~ s/\0/&amp;/g;
 	return $html;
 }
 
