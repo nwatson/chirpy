@@ -219,21 +219,7 @@ Greenwich Mean Time. For GMT, set it to 1.
 
 =item quotes_per_page
 
-The maximum number of quotes to display per page. This only applies to pages
-that don't have a fixed number of quotes, i.e. I<Quote Browser>, I<Quotes of
-the Week> and I<Search Results>.
-
-=item top_quotes
-
-How many quotes to display on the I<Top Quotes> page.
-
-=item bottom_quotes
-
-How many quotes to display on the I<Bottom Quotes> page.
-
-=item random_quotes
-
-How many quotes to display on the I<Random Quotes> page.
+The maximum number of quotes to display per page.
 
 =item recent_news_items
 
@@ -444,26 +430,28 @@ sub get_random_quotes {
 	my $self = shift;
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
-		'count'    => $self->configuration()->get('ui', 'random_quotes'),
+		'count'    => $self->quotes_per_page(),
 		'random'   => 1
 	});
 }
 
 sub get_top_quotes {
-	my $self = shift;
+	my ($self, $start) = @_;
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
 		'sort'     => [ [ 'rating', 1 ], [ 'id', 1 ] ],
-		'count'    => $self->configuration()->get('ui', 'top_quotes')
+		'first'    => $start,
+		'count'    => $self->quotes_per_page()
 	});
 }
 
 sub get_bottom_quotes {
-	my $self = shift;
+	my ($self, $start) = @_;
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
 		'sort'     => [ [ 'rating', 0 ], [ 'id', 1 ] ],
-		'count'    => $self->configuration()->get('ui', 'top_quotes')
+		'first'    => $start,
+		'count'    => $self->quotes_per_page()
 	});
 }
 

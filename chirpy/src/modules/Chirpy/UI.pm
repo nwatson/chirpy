@@ -202,16 +202,18 @@ sub run {
 			: $self->report_no_quotes_to_display($page));
 	}
 	elsif ($page == TOP_QUOTES) {
-		my $quotes = $self->parent()->get_top_quotes();
-		(defined $quotes
-			? $self->browse_quotes($quotes, $page)
-			: $self->report_no_quotes_to_display($page));
+		$self->_browse_quotes_segmented(
+			$page,
+			$start,
+			$self->parent()->get_top_quotes($start),
+		);
 	}
 	elsif ($page == BOTTOM_QUOTES) {
-		my $quotes = $self->parent()->get_bottom_quotes();
-		(defined $quotes
-			? $self->browse_quotes($quotes, $page)
-			: $self->report_no_quotes_to_display($page));
+		$self->_browse_quotes_segmented(
+			$page,
+			$start,
+			$self->parent()->get_bottom_quotes($start),
+		);
 	}
 	elsif ($page == SUBMIT_QUOTE) {
 		my ($body, $notes) = $self->get_submitted_quote();
