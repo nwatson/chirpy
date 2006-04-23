@@ -2400,7 +2400,6 @@ sub _auto_link {
 		\b
 		((?:https?|ftp|irc)://[^\s&<>()\[\]\{\}"]+)
 		|((?:mailto:)?([\w\.\+]+\@\S+\.\w+))
-		\b
 	}{
 		my ($href, $text);
 		if (defined $2) {
