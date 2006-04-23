@@ -29,6 +29,8 @@ var confirmationTimeout = 3000;
 var errorTimeout = 10000;
 var connectionTimeout = 30000;
 var pollingInterval = 1000;
+var c = 2713;
+var okText = String.fromCharCode(0x2713);
 
 var ajaxMethods = new Array(
 	function() { return new ActiveXObject("Msxml2.XMLHTTP") },
@@ -114,7 +116,7 @@ function ratingRequestCompleted (req, result) {
 				req.setResult("");
 				setText(document.getElementById('quote-rating-' + req.id),
 					result["rating"]);
-				req.setResult("✓", false, confirmationTimeout);
+				req.setResult(okText, false, confirmationTimeout);
 				break;
 			case "2":
 				req.setResult(locale["error"], false, errorTimeout);
@@ -156,6 +158,7 @@ function reportRequestCompleted (req, result) {
 				el.appendChild(document.createTextNode(
 					"[" + locale["flagged"] + "]"));
 				rep.parentNode.replaceChild(el, rep);
+				req.setResult(okText, false, confirmationTimeout);
 				break;
 			case "5":
 				req.setResult(locale["error"], false, errorTimeout);
