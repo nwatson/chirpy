@@ -516,6 +516,11 @@ ul.tabbed-pane-contents > li {
 	width: 8ex;
 }
 
+#manage-accounts {
+	text-align: right;
+	padding: 0 1em;
+}
+
 #manage-accounts #username-select-container {
 	width: 40%;
 	float: left;
@@ -523,7 +528,7 @@ ul.tabbed-pane-contents > li {
 
 #manage-accounts #username-select {
 	width: 100%;
-	height: 16em;
+	height: 18em;
 }
 
 #manage-accounts #username-select #username-new-user {
@@ -548,12 +553,8 @@ ul.tabbed-pane-contents > li {
 	background: #F0FFE9;
 }
 
-#manage-accounts #username-container,
-#manage-accounts #password-container,
-#manage-accounts #repeat-password-container,
-#manage-accounts #level-container,
-#manage-accounts #account-submit-container {
-	text-align: right;
+#manage-accounts #username-field {
+	margin-top: 2em;
 }
 
 #manage-accounts #username-field,
@@ -574,7 +575,6 @@ ul.tabbed-pane-contents > li {
 	padding: 0.25em 0 0 0;
 	width: 45%;
 	float: right;
-	text-align: right;
 	font-weight: bold;
 	border-top: 1px solid #EEE;
 }
