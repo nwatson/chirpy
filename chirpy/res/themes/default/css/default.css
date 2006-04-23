@@ -516,68 +516,66 @@ ul.tabbed-pane-contents > li {
 	width: 8ex;
 }
 
-#manage-accounts-table {
-	width: 100%;
-}
-
-#manage-accounts-table td {
+#manage-accounts td {
 	text-align: right;
 	vertical-align: top;
 	padding-left: 2.5em;
 }
 
-#manage-accounts-table #username-select-container {
-	text-align: right;
+#manage-accounts #username-select-container {
+	width: 40%;
+	float: left;
 }
 
-#manage-accounts-table #username-select {
-	width: 95%;
-	height: 18em;
+#manage-accounts #username-select {
+	width: 100%;
+	height: 16em;
 }
 
-#manage-accounts-table #username-select #username-new-user {
+#manage-accounts #username-select #username-new-user {
 	font-weight: bold;
 }
 
-#manage-accounts-table #username-select .user-level-9,
-#manage-accounts-table #level-select .user-level-9,
+#manage-accounts #username-select .user-level-9,
+#manage-accounts #level-select .user-level-9,
 #edit-news-item-form #news-item-poster-select .user-level-9 {
 	background: #FFF0F9;
 }
 
-#manage-accounts-table #username-select .user-level-6,
-#manage-accounts-table #level-select .user-level-6,
+#manage-accounts #username-select .user-level-6,
+#manage-accounts #level-select .user-level-6,
 #edit-news-item-form #news-item-poster-select .user-level-6  {
 	background: #FFF9F0;
 }
 
-#manage-accounts-table #username-select .user-level-3,
-#manage-accounts-table #level-select .user-level-3,
+#manage-accounts #username-select .user-level-3,
+#manage-accounts #level-select .user-level-3,
 #edit-news-item-form #news-item-poster-select .user-level-3  {
 	background: #F0FFE9;
 }
 
-#manage-accounts-table #username-container,
-#manage-accounts-table #password-container,
-#manage-accounts-table #repeat-password-container,
-#manage-accounts-table #account-submit-container {
+#manage-accounts #username-container,
+#manage-accounts #password-container,
+#manage-accounts #repeat-password-container,
+#manage-accounts #level-container,
+#manage-accounts #account-submit-container {
 	text-align: right;
 }
 
-#manage-accounts-table #username-field,
-#manage-accounts-table #password-field,
-#manage-accounts-table #repeat-password-field {
+#manage-accounts #username-field,
+#manage-accounts #password-field,
+#manage-accounts #repeat-password-field {
 	width: 40%;
 }
 
-#manage-accounts-table #username-select-container,
-#manage-accounts-table #username-container,
-#manage-accounts-table #repeat-password-container,
-#manage-accounts-table #level-container {
+#manage-accounts #username-select-container,
+#manage-accounts #username-container,
+#manage-accounts #repeat-password-container,
+#manage-accounts #level-container {
 	margin-bottom: 0.75em;
 }
 
-#manage-accounts-table #manage-accounts-result {
+#manage-accounts #manage-accounts-result {
 	margin: 2em 0 0 15%;
 	padding: 0.25em 0 0 5%;
 	width: 80%;

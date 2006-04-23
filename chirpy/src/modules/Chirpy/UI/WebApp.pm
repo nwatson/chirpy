@@ -1955,8 +1955,7 @@ sub _get_manage_accounts_html {
 			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'ADD_ACCOUNT'},
 			1
 		) . '">' . $/
-		. '<table class="vertical-split" id="manage-accounts-table">' . $/
-		. '<tbody><tr><td class="first-half">' . $/
+		. '<div id="manage-accounts">' . $/
 		. '<div id="username-select-container">' . $/
 		. '<select name="id" id="username-select" size="16">' . $/
 		. '<option value="-1" id="username-new-user" selected="selected">'
@@ -1976,7 +1975,6 @@ sub _get_manage_accounts_html {
 	}
 	$html .= '</select>' . $/
 		. '</div>' . $/
-		. '</td><td class="second-half">' . $/
 		. '<div id="username-container">' . $/
 		. '<label for="username-field">'
 		. &_text_to_xhtml(
@@ -2035,7 +2033,9 @@ sub _get_manage_accounts_html {
 				. &_text_to_xhtml($status_message)
 				. $/ . '</div>' . $/
 			: '')
-		. '</td></tr></tbody></table></form>' . $/;
+		. '</div>' . $/
+		. '<div style="clear: both;"></div>' . $/
+		. '</form>' . $/;
 	return $html;
 }
 
