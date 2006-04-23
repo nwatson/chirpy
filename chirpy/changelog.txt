@@ -22,6 +22,8 @@
 * Made Chirpy::UI::WebApp escape all e-mail addresses to prevent spam
 * Made Chirpy::UI::WebApp replace sequences of whitespaces with &#xA0; instead
   of &nbsp;, so the Atom feed remains valid
+* Made quote reporting require session information to prevent false positives
+  from crawlers
 * Optimized fetching single quote in Chirpy::DataManager::MySQL
 * Fixed US English (and Dutch) locale: quote_submission_thanks_administrator is
   now quote_submission_thanks_no_approval

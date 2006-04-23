@@ -101,7 +101,7 @@ L<Chirpy>, L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
-Copyright 2005 Tim De Pauw. All rights reserved.
+Copyright 2005-2006 Tim De Pauw. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
