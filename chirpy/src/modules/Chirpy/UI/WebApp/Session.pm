@@ -64,12 +64,15 @@ sub new {
 	my $class_name = 'Chirpy::UI::WebApp::Session::DataManager';
 	Chirpy::die('Data manager must implement ' . $class_name)
 		unless (UNIVERSAL::isa($dm, $class_name));
+
+	$dm->remove_expired_sessions_if_necessary();
+
 	my $self = bless { 'data_manager' => $dm }, $class;
 
 	my $time = time();
 	my $expire = $parent->param('session_expiry');
 	$expire = ($expire ? &_parse_time($expire) : 0);
-
+	
 	my $cgi = $parent->{'cgi'};
 	my $ip = $cgi->remote_addr();
 	if ($create) {

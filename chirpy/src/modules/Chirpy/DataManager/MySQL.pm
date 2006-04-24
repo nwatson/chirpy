@@ -205,6 +205,13 @@ sub set_up {
 				UNIQUE KEY `id` (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
 		|) or Chirpy::die('Cannot create session table: ' . DBI->errstr());
+	$handle->do(q|
+			CREATE TABLE `| . $prefix . q|vars` (
+				`name` VARCHAR(32) NOT NULL,
+				`value` VARCHAR(255) NOT NULL,
+				PRIMARY KEY (`name`)
+			) TYPE=MyISAM DEFAULT CHARSET=utf8
+		|) or Chirpy::die('Cannot create variable table: ' . DBI->errstr());
 	if (defined $accounts) {
 		foreach my $account (@$accounts) {
 			$self->add_account($account);
@@ -627,6 +634,24 @@ sub remove_sessions {
 		. ' LIMIT ' . scalar(@ids), @ids);
 }
 
+sub last_session_cleanup {
+	my ($self, $timestamp) = @_;
+	unless (defined $timestamp) {
+		return $self->_execute_scalar('SELECT `value` FROM `'
+			. $self->table_name_prefix() . 'vars`'
+			. ' WHERE `name` = ?', 'last_session_cleanup');
+	}
+	my $res = $self->_do('UPDATE `' . $self->table_name_prefix() . 'vars`'
+		. ' SET `value` = ?'
+		. ' WHERE `name` = ? LIMIT 1',
+			$timestamp, 'last_session_cleanup');
+	unless ($res) {
+		$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'vars`'
+			. ' (`name`, `value`) VALUES (?, ?)',
+			'last_session_cleanup', $timestamp);
+	}
+}
+
 sub handle {
 	my $self = shift;
 	return $self->{'dbh'};
@@ -660,7 +685,8 @@ sub _execute_scalar {
 	my $sth = $self->handle()->prepare($query)
 		or Chirpy::die($self->handle()->errstr());
 	$sth->execute(@params) or Chirpy::die($self->handle()->errstr());
-	return ($sth->fetchrow_array())[0];
+	my @row = $sth->fetchrow_array();
+	return (scalar(@row) ? $row[0] : undef);
 }
 
 sub _serialize {

@@ -27,6 +27,9 @@
 * Fixed sub account_count in Chirpy::DataManager::MySQL; removing accounts now
   works again
 * Optimized fetching single quote in Chirpy::DataManager::MySQL
+* Made Chirpy::UI::WebApp::Session automatically remove expired sessions every
+  24 hours; util/remove_expired_sessions.pl is now obsolete, but you need to
+  create a new database table, as described in install.txt
 * Fixed US English (and Dutch) locale: quote_submission_thanks_administrator is
   now quote_submission_thanks_no_approval
 * Extended feed templates with a couple of variables and added rating and

@@ -38,13 +38,15 @@ CONTENTS
 3.3. Setup
 3.4. Import
 
-4. RUN CHIRPY!
+4. UPGRADING
 
-5. NEXT STEPS
-5.1. Your Own Theme
-5.2. Your Own Locale
-5.3. Your Own Data Manager
-5.4. Your Own User Interface
+5. RUN CHIRPY!
+
+6. NEXT STEPS
+6.1. Your Own Theme
+6.2. Your Own Locale
+6.3. Your Own Data Manager
+6.4. Your Own User Interface
 
 
 1. INTRODUCTION
@@ -439,7 +441,32 @@ config.php. Surf to chirpy_rqms_import.php and everything should be clear from
 there. If anything goes wrong, try the Support Tracker.
 
 
-4. RUN CHIRPY!
+4. UPGRADING
+============
+
+If you are upgrading from Chirpy! 0.1, you will have to create an extra MySQL
+table (or, if you are using your own data manager, implement the
+"last_session_cleanup" method). The easiest way to create the table is to surf
+to your installation of phpMyAdmin, which most hosts offer, and create a new
+table on your database. Name it "vars", prefixed with the table name prefix
+from your configuration file. It should contain two columns:
+ _______________________ ___________________ _____________ ___________________
+|                       |                   |             |                   |
+| Field                 | Type              | Length      | Attributes        |
+|_______________________|___________________|_____________|___________________|
+|                       |                   |             |                   |
+| name                  | VARCHAR           | 32          | Primary           |
+| value                 | VARCHAR           | 255         | -                 |
+|_______________________|___________________|_____________|___________________|
+
+"Primary" means you should click the radio button under the key icon. Also,
+under "Collation" at the bottom of the form, you should pick "utf8_unicode_ci".
+After creating the table, just upload the new files, perhaps take a look at the
+other new features so you can update your configuration file, and enjoy your
+upgraded Chirpy! installation!
+
+
+5. RUN CHIRPY!
 ==============
  _____________________________________________________________________________
 |                                                                             |
@@ -465,7 +492,7 @@ the Trackers.
 Congratulations on a successful installation!
 
 
-5. NEXT STEPS
+6. NEXT STEPS
 =============
 
 Now that you've got a working Chirpy! installation, you can tweak it to your
@@ -477,7 +504,7 @@ As Chirpy! is a work in progress, you can expect a lot more documentation on
 customizing it in future releases. In the mean time, if you want to do more
 advanced tweaking, here are a few possible scenarios:
 
-5.1. Your Own Theme
+6.1. Your Own Theme
 -------------------
 
 The easiest way to do this is to copy the existing "default" theme and modify
@@ -492,7 +519,7 @@ for HTML::Template can be found at
 
   http://search.cpan.org/dist/HTML-Template/Template.pm
 
-5.2. Your Own Locale
+6.2. Your Own Locale
 --------------------
 
 You might want Chirpy! in your own language, and you can have it too. If you
@@ -501,7 +528,7 @@ INI files. Each locale string, along with some basic instructions for locale
 creation, is documented in the POD, located at the URL at the start of this
 document.
 
-5.3. Your Own Data Manager
+6.3. Your Own Data Manager
 --------------------------
 
 Chirpy! is extremely modular. If you'd rather have it store its data in your
@@ -510,7 +537,7 @@ Its API is explained in the POD, which is available at the start of this
 document or by typing "perldoc Chirpy::DataManager" from a console or command
 prompt, if you have Perl installed.
 
-5.4. Your Own User Interface
+6.4. Your Own User Interface
 ----------------------------
 
 Apart from creating a backend, you can also write your own frontend class. This

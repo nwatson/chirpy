@@ -32,11 +32,11 @@ If you wish to create an implementation of this class, the easiest way is to
 extend an existing L<Chirpy::DataManager|Chirpy::DataManager> implementation
 with this class's methods.
 
-The class also has one non-abstract object method, namely
-C<remove_expired_sessions()>. When invoked, it retrieves all session
-information, goes over it to find sessions that have expired and removes them.
-It then returns a list containing the IDs of the sessions that have been
-removed.
+The class also has two non-abstract object method, namely
+C<remove_expired_sessions()> and C<remove_expired_sessions_if_necessary()>. The
+former returns a list containing the IDs of the sessions that have expired and
+have consequently been removed. The latter does the same, but only every 24
+hours; otherwise, it returns C<undef>.
 
 =head1 IMPLEMENTATION
 
@@ -71,6 +71,10 @@ referred to by C<$data>.
 Removes all sessions with an ID contained in C<@ids> from the system. Returns
 the number of removed sessions.
 
+=item last_session_cleanup($timestamp)
+
+Gets or sets the date when the last session cleanup occurred.
+
 =back
 
 =head1 AUTHOR
@@ -104,6 +108,8 @@ use warnings;
 
 use vars qw($VERSION);
 
+use constant CLEANUP_INTERVAL => 24 * 60 * 60;
+
 $VERSION = '0.2';
 
 use Chirpy::Util 0.2;
@@ -126,6 +132,16 @@ sub remove_expired_sessions {
 	return @remove;
 }
 
+sub remove_expired_sessions_if_necessary {
+	my $self = shift;
+	my $now = time();
+	if ($self->last_session_cleanup() + CLEANUP_INTERVAL < $now) {
+		$self->last_session_cleanup($now);
+		return $self->remove_expired_sessions();
+	}
+	return undef;
+}
+
 *add_session = \&Chirpy::Util::abstract_method;
 
 *get_sessions = \&Chirpy::Util::abstract_method;
@@ -133,3 +149,5 @@ sub remove_expired_sessions {
 *modify_session = \&Chirpy::Util::abstract_method;
 
 *remove_sessions = \&Chirpy::Util::abstract_method;
+
+*last_session_cleanup = \&Chirpy::Util::abstract_method;
