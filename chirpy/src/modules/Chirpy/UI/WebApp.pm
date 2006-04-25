@@ -327,21 +327,22 @@ sub get_target_version {
 
 sub get_current_page {
 	my $self = shift;
-	$self->_provide_session_if_necessary();
 	my $action = $self->_action();
+	my $page;
 	if (defined $action && $action) {
 		while (my ($n, $v) = each %{ACTIONS()}) {
 			if ($v eq $action) {
-				my $page = eval 'Chirpy::UI::' . $n;
-				return $page;
+				$page = eval 'Chirpy::UI::' . $n;
+				last;
 			}
 		}
 	}
 	else {
-		return ($self->_id()
+		$page = ($self->_id()
 			? Chirpy::UI::SINGLE_QUOTE : Chirpy::UI::START_PAGE);
 	}
-	return undef;
+	$self->_provide_session_if_necessary($page);
+	return $page;
 }
 
 sub get_selected_quote_id {
@@ -2105,51 +2106,69 @@ sub _get_change_password_html {
 		. '</div>';
 }
 
-sub _provide_session_if_necessary {
+sub _provide_session {
 	my $self = shift;
+	my $session = new Chirpy::UI::WebApp::Session($self, 1);
+	$self->_set_cookie($Chirpy::UI::WebApp::Session::NAME,
+		$session->id(), $self->param('session_expiry'));
+	return $session;
+}
+
+sub _provide_session_if_necessary {
+	my ($self, $page) = @_;
 	return if (defined $self->_session());
+	my $force = &_requires_session($page);
 	my $st = $self->_url_param('session_test');
-	if ($st == 2) {
+	$st = 0 unless (defined $st);
+	if ($force) {
 		if ($self->_wants_xml()) {
 			$self->_output_xml('result',
 				'status' => STATUS_SESSION_REQUIRED);
 		}
-		else {
+		elsif ($st == 2) {
 			$self->_report_error($self->locale()
 				->get_string('webapp.session_required'));
 		}
+		else {
+			if ($st == 1) {
+				$self->_provide_session();
+				$st = 2;
+			}
+			else {
+				$st = 1;
+			}
+			my $cgi = $self->{'cgi'};
+			my $uri = $cgi->url(-path_info => 1) . '?session_test=' . $st;
+			my @params = $self->_url_params();
+			if ($self->param('enable_short_urls')) {
+				@params = grep
+					!/^(?:(?:admin_)?action|session_test)$/,
+					@params;
+			}
+			else {
+				@params = grep
+					{ $_ ne 'session_test' }
+					@params;
+			}
+			if (@params) {
+				require URI::Escape;
+				foreach my $p (@params) {
+					$uri .= '&'
+						. URI::Escape::uri_escape($p)
+						. '='
+						. URI::Escape::uri_escape($self->_url_param($p));
+				}
+			}
+			print $cgi->header(
+				-location => $uri,
+				-cookie => $self->{'cookies'}
+			);
+		}
+		exit;
 	}
 	else {
-		my $cgi = $self->{'cgi'};
-		my $uri = $cgi->url(-path_info => 1);
-		my @params = $self->_url_params();
-		if ($self->param('enable_short_urls')) {
-			@params = grep !/^(?:(?:admin_)?action|session_test)$/, @params;
-		}
-		else {
-			@params = grep { $_ ne 'session_test' } @params;
-		}
-		if ($st == 1) {
-			$self->{'session'} = new Chirpy::UI::WebApp::Session($self, 1);
-			$self->_set_cookie($Chirpy::UI::WebApp::Session::NAME,
-				$self->_session()->id(), $self->param('session_expiry'));
-			$st = 2;
-		}
-		else {
-			$st = 1;
-		}
-		$uri .= '?session_test=' . $st;
-		if (@params) {
-			require URI::Escape;
-			$uri .= '&' . join('&', map {
-					$_ . '=' . URI::Escape::uri_escape($self->_url_param($_))
-				} @params);
-		}
-		print $cgi->header(
-			-location => $uri,
-			-cookie => $self->{'cookies'});
+		$self->_provide_session();
 	}
-	exit;
 }
 
 sub _get_page_name {
