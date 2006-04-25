@@ -316,7 +316,7 @@ sub new {
 	if (defined $session) {
 		$self->{'session'} = $session;
 		$self->_set_cookie($Chirpy::UI::WebApp::Session::NAME,
-			$self->{'session'}->id(), $self->param('session_expiry'));
+			$session->id(), $self->param('session_expiry'));
 	}
 	return bless($self, $class);
 }
@@ -327,12 +327,12 @@ sub get_target_version {
 
 sub get_current_page {
 	my $self = shift;
+	$self->_provide_session_if_necessary();
 	my $action = $self->_action();
 	if (defined $action && $action) {
 		while (my ($n, $v) = each %{ACTIONS()}) {
 			if ($v eq $action) {
 				my $page = eval 'Chirpy::UI::' . $n;
-				$self->_provide_session_if_necessary($page);
 				return $page;
 			}
 		}
@@ -2106,8 +2106,8 @@ sub _get_change_password_html {
 }
 
 sub _provide_session_if_necessary {
-	my ($self, $page) = @_;
-	return unless (&_requires_session($page) && !defined $self->{'session'});
+	my $self = shift;
+	return if (defined $self->_session());
 	my $st = $self->_url_param('session_test');
 	if ($st == 2) {
 		if ($self->_wants_xml()) {
@@ -2132,7 +2132,7 @@ sub _provide_session_if_necessary {
 		if ($st == 1) {
 			$self->{'session'} = new Chirpy::UI::WebApp::Session($self, 1);
 			$self->_set_cookie($Chirpy::UI::WebApp::Session::NAME,
-				$self->{'session'}->id(), $self->param('session_expiry'));
+				$self->_session()->id(), $self->param('session_expiry'));
 			$st = 2;
 		}
 		else {
