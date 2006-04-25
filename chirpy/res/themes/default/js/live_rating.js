@@ -190,8 +190,9 @@ function getAjaxObject (req) {
 }
 
 function processXML (xml) {
-	if (!xml || !xml.childNodes || !xml.firstChild
-		|| xml.firstChild.nodeName != "result") return null;
+	if (!xml || !xml.childNodes
+	|| xml.childNodes[xml.childNodes.length - 1].nodeName != "result")
+		return null;
 	var a = new Array();
 	var root = xml.childNodes[xml.childNodes.length - 1];
 	for (var i = 0; i < root.childNodes.length; i++) {
