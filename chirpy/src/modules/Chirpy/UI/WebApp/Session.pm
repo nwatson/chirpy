@@ -59,7 +59,9 @@ use Chirpy 0.2;
 
 sub new {
 	my ($class, $parent, $create) = @_;
-
+	
+	$create = 0 unless (defined $create);
+	
 	my $dm = $parent->parent()->_data_manager();
 	my $class_name = 'Chirpy::UI::WebApp::Session::DataManager';
 	Chirpy::die('Data manager must implement ' . $class_name)
@@ -67,7 +69,12 @@ sub new {
 
 	$dm->remove_expired_sessions_if_necessary();
 
-	my $self = bless { 'data_manager' => $dm }, $class;
+	my $self = {
+		'dm' => $dm,
+		'data' => undef,
+		'ro' => 0
+	};
+	bless $self, $class;
 
 	my $time = time();
 	my $expire = $parent->param('session_expiry');
@@ -89,44 +96,42 @@ sub new {
 	}
 	else {
 		my $sid = $cgi->cookie(-name => $NAME);
-		return undef unless (&_valid_id($sid));
-		my @result = $dm->get_sessions($sid);
-		$self->{'data'} = $result[0] if (@result);
-		if ($self->id()) {
-			my $exp = $self->expire();
-			if ($exp && $self->atime() + $exp < $time) {
-				$self->delete();
-				return undef;
+		if (&_valid_id($sid)) {
+			my @result = $dm->get_sessions($sid);
+			$self->{'data'} = $result[0] if (@result);
+			if ($self->id()) {
+				my $exp = $self->expire();
+				if ($exp && $self->atime() + $exp < $time) {
+					$self->delete();
+				}
+				elsif ($self->remote_addr() eq $ip) {
+					return $self;
+				}
 			}
-			return ($self->remote_addr() eq $ip ? $self : undef);
-		}
-		else {
-			return undef;
 		}
 	}
+	return undef;
 }
 
 sub DESTROY {
 	my $self = shift;
-	return unless (defined $self && $self->id());
-	$self->atime(time());
-	$self->{'data_manager'}->modify_session($self->id(), $self->data());
+	$self->update() unless ($self->read_only());
 }
 
 sub param {
 	my ($self, %params) = @_;
 	my $name;
-	Chirpy::die('Parameter name required')
-		unless ($name = $params{'-name'});
-	return (exists $params{'-value'}
-		? ($self->{'data'}->{$name} = $params{'-value'})
-		: $self->{'data'}->{$name});
+	Chirpy::die('Parameter name required') unless ($name = $params{'-name'});
+	if (exists $params{'-value'}) {
+		$self->{'data'}->{$name} = $params{'-value'};
+	}
+	return $self->{'data'}->{$name};
 }
 
 sub delete {
 	my $self = shift;
 	my $id = $self->id();
-	$self->{'data_manager'}->remove_sessions($self->id());
+	$self->{'dm'}->remove_sessions($self->id());
 	$self->{'data'} = {};
 }
 
@@ -162,6 +167,19 @@ sub expire {
 sub remote_addr {
 	my $self = shift;
 	return $self->param(-name => '_SESSION_REMOTE_ADDR');
+}
+
+sub update {
+	my $self = shift;
+	$self->{'dm'}->modify_session($self->id(), $self->data());
+}
+
+sub read_only {
+	my ($self, $value) = @_;
+	if (defined $value) {
+		$self->{'ro'} = $value;
+	}
+	return $self->{'ro'};
 }
 
 sub _generate_id {

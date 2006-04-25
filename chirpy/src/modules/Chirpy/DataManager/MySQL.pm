@@ -134,8 +134,9 @@ sub new {
 			? ';host=' . $self->param('hostname')
 			: '')
 		. ($self->param('port') ? ';port=' . $self->param('port') : ''),
-		$self->param('username'), $self->param('password'))
-			or Chirpy::die('Failed to connect to database: ' . DBI->errstr());
+		$self->param('username'), $self->param('password'));
+	Chirpy::die('Failed to connect to database: ' . DBI->errstr())
+		unless (defined $dbh);
 	$dbh->do('SET NAMES utf8');
 	$self->{'dbh'} = $dbh;
 	$self->{'prefix'} = $self->param('prefix');
@@ -301,9 +302,10 @@ sub get_quotes {
 		$query .= $params->{'count'} + 1;
 		$per_page = $params->{'count'};
 	}
-	my $sth = $self->handle()->prepare($query)
-		or Chirpy::die($self->handle()->errstr());
-	$sth->execute(@par) or Chirpy::die($self->handle()->errstr());
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute(@par);
+	$self->_db_error() unless (defined $rows);
 	my $trailing;
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -423,9 +425,10 @@ sub get_news_items {
 	}
 	$query .= ' ORDER BY `date` DESC';
 	$query .= ' LIMIT ' . $params->{'count'} if ($params->{'count'});
-	my $sth = $self->handle()->prepare($query)
-		or Chirpy::die($self->handle()->errstr());
-	$sth->execute() or Chirpy::die($self->handle()->errstr()); 
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		my $item = new Chirpy::NewsItem(
@@ -503,9 +506,10 @@ sub get_accounts {
 		$query .= ' WHERE ' . join(' AND ', @cond);
 	}
 	$query .= ' ORDER BY `level` DESC, `username`';
-	my $sth = $self->handle()->prepare($query)
-		or Chirpy::die($self->handle()->errstr());
-	$sth->execute(@par) or Chirpy::die($self->handle()->errstr());
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute(@par);
+	$self->_db_error() unless (defined $rows);
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @result, new Chirpy::Account(
@@ -595,10 +599,9 @@ sub log_event {
 
 sub add_session {
 	my ($self, $id, $data) = @_;
-	$self->handle()->do('INSERT INTO `' . $self->table_name_prefix()
-		. 'sessions` (`id`, `data`) VALUES (?, ?)',
-		undef, $id, &_serialize($data))
-			or Chirpy::die($self->handle()->errstr());
+	my $string = &_serialize($data);
+	$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'sessions`'
+		. ' (`id`, `data`) VALUES (?, ?)', $id, $string);
 }
 
 sub get_sessions {
@@ -607,9 +610,10 @@ sub get_sessions {
 		. 'sessions`';
 	$query .= ' WHERE `id` IN (?' . (',?' x (scalar(@ids) - 1)) . ')'
 		. ' LIMIT ' . scalar(@ids) if (@ids);
-	my $sth = $self->handle()->prepare($query)
-		or Chirpy::die($self->handle()->errstr());
-	$sth->execute(@ids) or Chirpy::die($self->handle()->errstr());
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute(@ids);
+	$self->_db_error() unless (defined $rows);
 	my @results = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @results, &_unserialize($row->{'data'});
@@ -620,10 +624,9 @@ sub get_sessions {
 sub modify_session {
 	my ($self, $id, $data) = @_;
 	my $string = &_serialize($data);
-	return $self->handle()->do('UPDATE `' . $self->table_name_prefix()
-		. 'sessions` SET `data` = ?'
-		. ' WHERE `id` = ? LIMIT 1', undef, $string, $id)
-			or Chirpy::die($self->handle()->errstr());
+	my $sql = 'UPDATE `' . $self->table_name_prefix()
+		. 'sessions` SET `data` = ? WHERE `id` = ? LIMIT 1';
+	$self->_do($sql, $string, $id);
 }
 
 sub remove_sessions {
@@ -666,25 +669,27 @@ sub _get_quote_rating {
 	my ($self, $id) = @_;
 	my $sth = $self->handle()->prepare('SELECT `rating`'
 		. ' FROM `' . $self->table_name_prefix() . 'quotes`'
-		. ' WHERE `id` = ' . $id . ' LIMIT 1')
-			or Chirpy::die($self->handle()->errstr());
-	$sth->execute() or Chirpy::die($self->handle()->errstr());
+		. ' WHERE `id` = ' . $id . ' LIMIT 1');
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
 	my @row = $sth->fetchrow_array();
 	return $row[0];
 }
 
 sub _do {
 	my ($self, $query, @params) = @_;
-	my $rows = $self->handle()->do($query, undef, @params)
-		or Chirpy::die($self->handle()->errstr());
+	my $rows = $self->handle()->do($query, undef, @params);
+	$self->_db_error() unless (defined $rows);
 	return ($rows eq '0E0' ? 0 : $rows);
 }
 
 sub _execute_scalar {
 	my ($self, $query, @params) = @_;
-	my $sth = $self->handle()->prepare($query)
-		or Chirpy::die($self->handle()->errstr());
-	$sth->execute(@params) or Chirpy::die($self->handle()->errstr());
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute(@params);
+	$self->_db_error() unless (defined $rows);
 	my @row = $sth->fetchrow_array();
 	return (scalar(@row) ? $row[0] : undef);
 }
@@ -696,6 +701,12 @@ sub _serialize {
 sub _unserialize {
 	my $string = shift;
 	return (defined $string ? eval $string : undef);
+}
+
+sub _db_error {
+	my $self = shift;
+	my $msg = $self->handle()->errstr();
+	Chirpy::die($msg);
 }
 
 1;

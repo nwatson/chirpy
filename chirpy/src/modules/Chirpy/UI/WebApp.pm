@@ -2210,7 +2210,8 @@ sub _load_template {
 	my $template = new HTML::Template(
 		'filename' => $self->{'templates_path'} . '/' . $name . '.html',
 		'die_on_bad_params' => 0
-	) or Chirpy::die('Failed to load template: ' . $!);
+	);
+	Chirpy::die('Failed to load template: ' . $!) unless ($template);
 	return $template;
 }
 
@@ -2401,6 +2402,8 @@ sub _format_date_time_iso8601 {
 
 sub _auto_link {
 	my ($html, $no_antispam) = @_;
+	return undef unless (defined $html);
+	$no_antispam = 0 unless (defined $no_antispam);
 	# &amp; is the only entity we allow in URLs, so we temporarily replace all
 	# of them with null bytes
 	$html =~ s/&amp;/\0/ig;

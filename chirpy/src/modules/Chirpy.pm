@@ -294,6 +294,8 @@ use constant USER_LEVELS => [
 	Chirpy::Account::USER_LEVEL_3
 ];
 
+use Carp qw/croak confess/;
+
 sub new {
 	my ($class, $configuration_file, $dm_override) = @_;
 	my $st = ($hires_timing ? Time::HiRes::time() : undef);
@@ -621,13 +623,13 @@ sub modify_account {
 	Chirpy::die('Not a Chirpy::Account')
 		unless (ref $account eq 'Chirpy::Account');
 	if (defined $username) {
-		Chirpy::Util::valid_username($username)
-			or Chirpy::die('Invalid username');
+		Chirpy::die('Invalid username')
+			unless (Chirpy::Util::valid_username($username));
 		$account->set_username($username);
 	}
 	if (defined $password) {
-		Chirpy::Util::valid_password($password)
-			or Chirpy::die('Invalid password');
+		Chirpy::die('Invalid password')
+			unless (Chirpy::Util::valid_password($password));
 		$account->set_password(Chirpy::Util::encrypt($password));
 	}
 	if (defined $level) {
@@ -694,12 +696,12 @@ sub remove {
 
 sub die {
 	my $message = shift;
-	require Carp;
+	$message = 'Unknown error' unless (defined $message);
 	if (DEBUG) {
-		Carp::confess($message);
+		confess $message;
 	}
 	else {
-		Carp::croak($message);
+		croak $message;
 	}
 }
 
