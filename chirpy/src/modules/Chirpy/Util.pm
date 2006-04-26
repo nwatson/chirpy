@@ -43,6 +43,11 @@ Performs various cleanup operations on the given string, which is assumed to be
 filled in by the user somewhere. The operations include removal of leading and
 trailing whitespaces, and trimming down sequences of more than 2 line feeds.
 
+=item parse_tags($tags)
+
+Parses the string C<$tags> into an array of valid tags and returns a reference
+to it. The array may be empty.
+
 =item encrypt($string)
 
 Encrypts the given string using the MD5 algorithm. This function is used for
@@ -151,6 +156,19 @@ sub clean_up_submission {
 	return $text;
 }
 
+sub parse_tags {
+	my $tags = shift;
+	return [] unless (defined $tags && $tags ne '');
+	$tags = lc $tags;
+	$tags =~ s/^\s+//;
+	$tags =~ s/\s+$//;
+	my %tags = ();
+	foreach my $tag (split(/\s+/, $tags)) {
+		$tags{$tag} = 1;
+	}
+	return [ keys %tags ];
+}
+
 sub encrypt {
 	require Digest::MD5;
 	return Digest::MD5::md5_hex(shift);
@@ -178,6 +196,10 @@ sub encode_xml_entities {
 sub decode_utf8 {
 	require Encode;
 	return Encode::decode('utf8', shift);
+}
+
+sub shuffle_array {
+	return sort { rand 2 } @_;
 }
 
 sub abstract_method {

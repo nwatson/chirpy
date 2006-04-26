@@ -278,6 +278,7 @@ use constant ACTIONS => {
 	'BOTTOM_QUOTES' => 'bottom',
 	'QUOTES_OF_THE_WEEK' => 'qotw',
 	'QUOTE_SEARCH' => 'search',
+	'TAG_CLOUD' => 'tags',
 	'SUBMIT_QUOTE' => 'submit',
 	'ADMINISTRATION' => 'admin',
 	'LOGIN' => 'login',
@@ -355,9 +356,27 @@ sub get_first_quote_index {
 	return $self->_cgi_param('start') || 0;
 }
 
-sub get_search_query {
+sub get_search_instruction {
 	my $self = shift;
-	return $self->_cgi_param('query');
+	my $query = $self->_cgi_param('query');
+	my @queries = ();
+	my @tags = ();
+	while ($query =~ /"(.*?)"|(\S+)|"([^"]+)$/g) {
+		my $literal = defined $1 ? $1 : $3;
+		if (defined $literal) {
+			push @queries, $literal;
+		}
+		else {
+			my $word = $2;
+			if ($word =~ s/^tag://i) {
+				push @tags, $word;
+			}
+			else {
+				push @queries, $word;
+			}
+		}
+	}
+	return (\@queries, \@tags);
 }
 
 sub get_submitted_quote {
@@ -372,7 +391,8 @@ sub get_submitted_quote {
 			return undef;
 		}
 	}
-	return ($self->_cgi_param('quote'), $self->_cgi_param('notes'));
+	return ($self->_cgi_param('quote'),
+		$self->_cgi_param('notes'), $self->_cgi_param('tags'));
 }
 
 sub attempting_login {
@@ -555,6 +575,7 @@ sub _generate_feed {
 			undef, 'id' => $id);
 		my $body = &_text_to_xhtml($quote->get_body());
 		my $notes = &_text_to_xhtml($quote->get_notes());
+		my $tags = $self->_link_tags($quote);
 		if ($auto_link) {
 			$body = &_auto_link($body);
 			$notes = &_auto_link($notes);
@@ -568,8 +589,11 @@ sub _generate_feed {
 			'QUOTE_URL' => &_text_to_xhtml($self->_quote_url($id)),
 			'QUOTE_BODY' => $body,
 			'QUOTE_NOTES' => $notes,
+			'QUOTE_TAGS' => $tags,
 			'QUOTE_NOTES_TITLE' => &_text_to_xhtml(
 				$locale->get_string('quote_notes_title')),
+			'QUOTE_TAGS_TITLE' => &_text_to_xhtml(
+				$locale->get_string('quote_tags_title')),
 			'QUOTE_RATING'
 				=> Chirpy::Util::format_quote_rating($quote->get_rating()),
 			'QUOTE_RATING_UP_URL' => $up_url,
@@ -681,6 +705,8 @@ sub _generate_xhtml {
 		$locale->get_string('quote_removal_confirmation'));
 	my $notes_title = &_text_to_xhtml(
 		$locale->get_string('quote_notes_title'));
+	my $tags_title = &_text_to_xhtml(
+		$locale->get_string('quote_tags_title'));
 	my %static_strings = (
 		'RATING_UP_DESCRIPTION' => $rating_up_desc,
 		'RATING_DOWN_DESCRIPTION' => $rating_down_desc,
@@ -700,7 +726,8 @@ sub _generate_xhtml {
 		'UNFLAG' => $unflag,
 		'REPORT' => $report,
 		'FLAGGED' => $flagged,
-		'NOTES_TITLE' => $notes_title
+		'NOTES_TITLE' => $notes_title,
+		'TAGS_TITLE' => $tags_title
 	);
 	my $auto_link = $self->configuration()->get('ui', 'webapp.enable_autolink');
 	my @quotes_tmpl = ();
@@ -721,6 +748,7 @@ sub _generate_xhtml {
 		$self->parent()->mark_debug_event('Parse quote body');
 		my $body = &_text_to_xhtml($quote->get_body());
 		my $notes = &_text_to_xhtml($quote->get_notes());
+		my $tags = $self->_link_tags($quote);
 		if ($auto_link) {
 			$body = &_auto_link($body);
 			$notes = &_auto_link($notes);
@@ -734,6 +762,8 @@ sub _generate_xhtml {
 			'ID' => $quote->get_id(),
 			'BODY' => $body,
 			'NOTES' => $notes,
+			'TAGS' => $tags,
+			'NOTES_OR_TAGS' => (defined $notes || defined $tags ? 1 : 0),
 			'RATING_NUMBER' => $quote->get_rating(),
 			'RATING_TEXT'
 				=> Chirpy::Util::format_quote_rating($quote->get_rating()),
@@ -773,7 +803,7 @@ sub _generate_xhtml {
 	$self->parent()->mark_debug_event('Quotes parsed');
 	$template->param('QUOTES' => \@quotes_tmpl);
 	if (defined $previous || defined $next) {
-		my $query = $self->get_search_query();
+		my $query = $self->_cgi_param('query');
 		my %query = (defined $query && $query ne '' ? ('query' => $query) : ());
 		$template->param('BROWSER' => 1);
 		$template->param('PREVIOUS_URL' => $self->_url(
@@ -832,6 +862,36 @@ sub provide_quote_search_interface {
 	$self->_output_template($template);
 }
 
+sub provide_tag_cloud {
+	my ($self, $tag_counts) = @_;
+	my $template = $self->_load_template('tag_cloud');
+	my $locale = $self->locale();
+	my @tags = Chirpy::Util::shuffle_array(keys %$tag_counts);
+	my $highest = 0;
+	my $total = 0;
+	foreach my $cnt (values %$tag_counts) {
+		$highest = $cnt if ($cnt > $highest);
+		$total += $cnt;
+	}
+	my @tag_info = ();
+	foreach my $tag (@tags) {
+		my $cnt = $tag_counts->{$tag};
+		push @tag_info, {
+			'TAG' => &_text_to_xhtml($tag),
+			'USAGE_COUNT' => $cnt,
+			'PERCENTAGE' => sprintf('%.0f', 100 * $cnt / $total),
+			'SIZE_PERCENTAGE' => sprintf('%.0f', 100 + (100 * $cnt / $highest)),
+			'URL' => &_text_to_xhtml($self->_tag_url($tag))
+		};
+	}
+	$template->param(
+		'PAGE_TITLE' => &_text_to_xhtml(
+			$locale->get_string('tag_cloud')),
+		'TAGS' => \@tag_info
+	);
+	$self->_output_template($template);
+}
+
 sub report_no_search_results {
 	my $self = shift;
 	my $locale = $self->locale();
@@ -862,6 +922,8 @@ sub provide_quote_submission_interface {
 			$locale->get_string('submission_title')),
 		'NOTES_LABEL' => &_text_to_xhtml(
 			$locale->get_string('notes_title')),
+		'TAGS_LABEL' => &_text_to_xhtml(
+			$locale->get_string('tags_title')),
 		'SUBMIT_LABEL' => &_text_to_xhtml(
 			$locale->get_string('submit_button_label')),
 		'SUBMIT_LABEL_NO_APPROVAL' => &_text_to_xhtml(
@@ -1108,7 +1170,8 @@ sub get_quote_to_edit {
 
 sub get_modified_quote_information {
 	my $self = shift;
-	return ($self->_cgi_param('quote'), $self->_cgi_param('notes'));
+	return ($self->_cgi_param('quote'),
+		$self->_cgi_param('notes'), $self->_cgi_param('tags'));
 }
 
 sub confirm_quote_modification {
@@ -1527,6 +1590,7 @@ sub _get_approve_quotes_html {
 		foreach my $quote (@$quotes) {
 			my $id = $quote->get_id();
 			my $notes = $quote->get_notes();
+			my $tags = $quote->get_tags();
 			$html .= '<li>' . $/
 				. '<div class="quote-container">' . $/
 				. '<h3 class="quote-header">'
@@ -1539,13 +1603,25 @@ sub _get_approve_quotes_html {
 				. '<p>' . &_text_to_xhtml($quote->get_body())
 				. '</p>' . $/
 				. '</blockquote>' . $/
-				. (defined $notes
+				. (defined $notes || @$tags ?
+				  '<div class="quote-footer">' . (defined $notes
 					? '<div class="quote-notes">' . $/
 						. '<p><em class="quote-notes-title">Notes:</em>' . $/
 						. &_text_to_xhtml($notes)
 						. '</p>' . $/
 						. '</div>' . $/
 					: '')
+				. (@$tags
+					? '<div class="quote-tags">' . $/
+						. '<p><em class="quote-tags-title">'
+						. &_text_to_xhtml(
+							$locale->get_string('quote_tags_title'))
+						. '</em>' . $/
+						. &_text_to_xhtml(join(' ', @$tags))
+						. '</p>' . $/
+						. '</div>' . $/
+					: '')
+				  . '</div>' : '')
 				. '</div>' . $/
 				. '<div class="approval-options">' . $/
 				. '<input type="radio" name="action_' . $id
@@ -1626,6 +1702,7 @@ sub _get_flagged_quotes_html {
 		foreach my $quote (@$quotes) {
 			my $id = $quote->get_id();
 			my $notes = $quote->get_notes();
+			my $tags = $quote->get_tags();
 			$html .= '<li>' . $/
 				. '<div class="quote-container">' . $/
 				. '<h3 class="quote-header">'
@@ -1638,16 +1715,28 @@ sub _get_flagged_quotes_html {
 				. '<p>' . &_text_to_xhtml($quote->get_body())
 				. '</p>' . $/
 				. '</blockquote>' . $/
-				. (defined $notes
+				. (defined $notes || @$tags ?
+				  '<div class="quote-footer">' . (defined $notes
 					? '<div class="quote-notes">' . $/
 						. '<p><em class="quote-notes-title">'
 						. &_text_to_xhtml(
 							$locale->get_string('quote_notes_title'))
 						. '</em>' . $/
-						. &_text_to_xhtml($quote->get_notes())
+						. &_text_to_xhtml($notes)
 						. '</p>' . $/
 						. '</div>' . $/
 					: '')
+				. (@$tags
+					? '<div class="quote-tags">' . $/
+						. '<p><em class="quote-tags-title">'
+						. &_text_to_xhtml(
+							$locale->get_string('quote_tags_title'))
+						. '</em>' . $/
+						. &_text_to_xhtml(join(' ', @$tags))
+						. '</p>' . $/
+						. '</div>' . $/
+					: '')
+				  . '</div>' : '')
 				. '</div>' . $/
 				. '<div class="flag-options">' . $/
 				. '<input type="radio" name="action_' . $id
@@ -1719,6 +1808,7 @@ sub _get_manage_quotes_html {
 	my $locale = $self->parent()->locale();
 	if (my $quote = $params{'edit_quote'}) {
 		my $notes = $quote->get_notes();
+		my $tags = $quote->get_tags();
 		return '<div id="edit-quote-form">' . $/
 			. '<form method="post" action="'
 			. $self->_url(
@@ -1743,6 +1833,14 @@ sub _get_manage_quotes_html {
 			. 'rows="3" cols="80">'
 			. (defined $notes ? Chirpy::Util::encode_xml_entities($notes) : '')
 			. '</textarea></div>' . $/
+			. '<div id="tags-container">' . $/
+			. '<label for="tags-field">'
+			. &_text_to_xhtml(
+				$locale->get_string('tags_title'))
+			. '</label>' . $/
+			. '<input type="text" name="tags" value="'
+			. (@$tags ? &_text_to_xhtml(join(' ', @$tags)) : '')
+			. '" id="tags-field" /></div>' . $/
 			. '<div id="edit-quote-submit-container">' . $/
 			. '<input type="submit" value="'
 			. &_text_to_xhtml($locale->get_string('save_quote'))
@@ -2194,6 +2292,9 @@ sub _get_page_name {
 	elsif ($page == Chirpy::UI::QUOTE_SEARCH) {
 		return 'search_results';
 	}
+	elsif ($page == Chirpy::UI::TAG_CLOUD) {
+		return 'tag_cloud';
+	}
 	return undef;
 }
 
@@ -2465,6 +2566,20 @@ sub _format_news_body {
 	);
 }
 
+sub _link_tags {
+	my ($self, $quote) = @_;
+	my $tags = $quote->get_tags();
+	return [] unless (defined $tags && @$tags);
+	my @out = ();
+	foreach my $tag (@$tags) {
+		push @out, {
+			'TAG' => &_text_to_xhtml($tag),
+			'URL' => &_text_to_xhtml($self->_tag_url($tag))
+		};
+	}
+	return \@out;
+}
+
 sub _captcha {
 	my $self = shift;
 	require Authen::Captcha;
@@ -2531,6 +2646,12 @@ sub _quote_url {
 	return ($self->param('enable_short_urls')
 		? $self->_url() . $id
 		: $self->_url(undef, undef, 'id' => $id));
+}
+
+sub _tag_url {
+	my ($self, $tag) = @_;
+	return $self->_url(ACTIONS->{'QUOTE_SEARCH'}, undef,
+		'query' => 'tag:' . $tag);
 }
 
 sub _url {

@@ -24,7 +24,7 @@ Chirpy::Quote - Represents a quote
 =head1 SYNOPSIS
 
  $quote = new Chirpy::Quote(
-     $id, $body, $notes, $rating, $submitted, $approved, $flagged);
+     $id, $body, $notes, $rating, $submitted, $approved, $flagged, $tags);
 
  $id = $quote->get_id();
  $quote->set_id($id);
@@ -46,6 +46,11 @@ Chirpy::Quote - Represents a quote
 
  $flagged = $quote->get_flagged();
  $quote->set_flagged($flagged);
+ 
+ $tags = $quote->get_tags();
+ $quote->set_tags($tags);
+ $quote->add_tag($tag);
+ $quote->remove_tag($tag);
 
 =head1 CONSTRAINTS
 
@@ -115,7 +120,7 @@ $VERSION = '0.2';
 
 sub new {
 	my ($class, $id, $body, $notes,
-		$rating, $submitted, $approved, $flagged) = @_;
+		$rating, $submitted, $approved, $flagged, $tags) = @_;
 	my $self = {
 		'id' => $id,
 		'body' => $body,
@@ -123,7 +128,8 @@ sub new {
 		'rating' => $rating,
 		'submitted' => $submitted,
 		'approved' => $approved,
-		'flagged' => $flagged
+		'flagged' => $flagged,
+		'tags' => (ref $tags eq 'ARRAY' ? [ sort @$tags ] : [])
 	};
 	return bless($self, $class);
 }
@@ -197,6 +203,16 @@ sub get_flagged {
 sub set_flagged {
 	my $self = shift;
 	return ($self->{'flagged'} = shift);
+}
+
+sub get_tags {
+	my $self = shift;
+	return $self->{'tags'};
+}
+
+sub set_tags {
+	my $self = shift;
+	return ($self->{'tags'} = shift);
 }
 
 1;

@@ -163,8 +163,12 @@ input[type=submit]:hover, input[type=reset]:hover, input[type=button]:hover {
 	cursor: pointer;
 }
 
+label {
+	border-bottom: 1px dotted transparent;
+}
+
 label:hover {
-	border-bottom: 1px dotted #CCC;
+	border-color: #CCC;
 	cursor: pointer;
 }
 
@@ -266,21 +270,26 @@ ul.quote-list li blockquote.quote-body p {
 	padding: 0;
 }
 
-ul.quote-list li .quote-notes {
+ul.quote-list li .quote-footer {
 	margin: 0.25em 0.75em;
 	padding: 0;
 	border-top: 1px dashed #EEE;
+	line-height: 1.5em;
+}
+
+ul.quote-list li .quote-footer, ul.quote-list li .quote-footer a {
 	color: #999;
 }
 
-ul.quote-list li .quote-notes p {
+ul.quote-list li .quote-footer p {
 	font-size: 80%;
 	margin: 0;
 	padding: 0 0 0 2.5ex;
 	text-indent: -2.5ex;
 }
 
-ul.quote-list li .quote-notes .quote-notes-title {
+ul.quote-list li .quote-notes .quote-notes-title,
+ul.quote-list li .quote-tags .quote-tags-title {
 	font-size: 80%;
 	text-transform: uppercase;
 	font-style: normal;
@@ -428,9 +437,19 @@ ul#news-list .news-footer .news-edit, ul#news-list .news-footer .news-remove {
 	height: 6em;
 }
 
-#submit-form #quote-container, #submit-form #notes-container, #submit-form #captcha-container,
-#edit-quote-form #quote-container, #edit-quote-form #notes-container {
+#submit-form #quote-container, #submit-form #notes-container,
+#submit-form #tags-container, #submit-form #captcha-container,
+#edit-quote-form #quote-container, #edit-quote-form #notes-container,
+#edit-quote-form #tags-container {
 	margin-bottom: 1em;
+}
+
+#submit-form #tags-container label, #edit-quote-form #tags-container label {
+	display: block;
+}
+
+#submit-form #tags-container input, #edit-quote-form #tags-container input {
+	width: 95%;
 }
 
 #submit-form #captcha-image {
@@ -449,6 +468,22 @@ ul#news-list .news-footer .news-edit, ul#news-list .news-footer .news-remove {
 
 #jump-to-quote-form #jump-to-quote-submit-button {
 	padding: 0.1em 0.5em;
+}
+
+ul.tag-cloud {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+ul.tag-cloud li {
+	display: inline;
+	margin: 0;
+	padding: 0 1ex 0 0;
+}
+
+ul.tag-cloud li a {
+	white-space: nowrap;
 }
 
 ul.tabbed-pane-header {

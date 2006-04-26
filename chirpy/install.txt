@@ -444,26 +444,35 @@ there. If anything goes wrong, try the Support Tracker.
 4. UPGRADING
 ============
 
-If you are upgrading from Chirpy! 0.1, you will have to create an extra MySQL
-table (or, if you are using your own data manager, implement the
-"last_session_cleanup" method). The easiest way to create the table is to surf
-to your installation of phpMyAdmin, which most hosts offer, and create a new
-table on your database. Name it "vars", prefixed with the table name prefix
-from your configuration file. It should contain two columns:
- _______________________ ___________________ _____________ ___________________
-|                       |                   |             |                   |
-| Field                 | Type              | Length      | Attributes        |
-|_______________________|___________________|_____________|___________________|
-|                       |                   |             |                   |
-| name                  | VARCHAR           | 32          | Primary           |
-| value                 | VARCHAR           | 255         | -                 |
-|_______________________|___________________|_____________|___________________|
+If you are upgrading from Chirpy! 0.1, you will have to create three extra
+MySQL tables (or, if you are using your own data manager, implement the new
+methods however you please). Creating the tables is done by issuing the MySQL
+commands below. Most people will want to do this from phpMyAdmin. Also, you
+need to replace %prefix% with the table name prefix set in chirpy.ini.
 
-"Primary" means you should click the radio button under the key icon. Also,
-under "Collation" at the bottom of the form, you should pick "utf8_unicode_ci".
-After creating the table, just upload the new files, perhaps take a look at the
-other new features so you can update your configuration file, and enjoy your
-upgraded Chirpy! installation!
+  CREATE TABLE `%prefix%tags` (
+    `id` int unsigned NOT NULL auto_increment,
+    `tag` varchar(255) NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX (`tag`)
+  ) TYPE=MyISAM DEFAULT CHARSET=utf8;
+
+  CREATE TABLE `%prefix%quote_tag` (
+    `quote_id` int unsigned NOT NULL,
+    `tag_id` int unsigned NOT NULL,
+    INDEX (`quote_id`),
+    INDEX (`tag_id`)
+  ) TYPE=MyISAM DEFAULT CHARSET=utf8;
+
+  CREATE TABLE `%prefix%vars` (
+    `name` VARCHAR(32) NOT NULL,
+    `value` VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`name`)
+  ) TYPE=MyISAM DEFAULT CHARSET=utf8;
+
+After creating the tables, just upload the new files, perhaps take a look at
+the other new features so you can update your configuration file, and enjoy
+your upgraded Chirpy! installation!
 
 
 5. RUN CHIRPY!

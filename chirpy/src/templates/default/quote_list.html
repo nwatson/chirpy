@@ -68,10 +68,22 @@
 				<blockquote class="quote-body">
 					<p><TMPL_VAR NAME="BODY"></p>
 				</blockquote>
+				<TMPL_IF NAME="NOTES_OR_TAGS">
+				<div class="quote-footer">
 				<TMPL_IF NAME="NOTES">
 				<div class="quote-notes">
 					<p><em class="quote-notes-title"><TMPL_VAR NAME="NOTES_TITLE"></em>
 					<TMPL_VAR NAME="NOTES"></p>
+				</div>
+				</TMPL_IF>
+				<TMPL_IF NAME="TAGS">
+				<div class="quote-tags">
+					<p><em class="quote-tags-title"><TMPL_VAR NAME="TAGS_TITLE"></em>
+					<TMPL_LOOP NAME="TAGS">
+					<a href="<TMPL_VAR NAME="URL">"><TMPL_VAR NAME="TAG"></a>
+					</TMPL_LOOP></p>
+				</div>
+				</TMPL_IF>
 				</div>
 				</TMPL_IF>
 			</div>

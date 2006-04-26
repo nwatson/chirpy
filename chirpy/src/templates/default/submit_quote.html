@@ -12,6 +12,10 @@
 			<label for="notes-field"><TMPL_VAR NAME="NOTES_LABEL"></label>
 			<textarea name="notes" id="notes-field" rows="3" cols="80"></textarea>
 		</div>
+		<div id="tags-container">
+			<label for="tags-field"><TMPL_VAR NAME="TAGS_LABEL"></label>
+			<input type="text" name="tags" value="" id="tags-field" />
+		</div>
 		<TMPL_IF NAME="USE_CAPTCHA">
 		<div id="captcha-container">
 			<input type="hidden" name="captcha_hash" value="<TMPL_VAR NAME="CAPTCHA_HASH">" />

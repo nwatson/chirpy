@@ -71,13 +71,14 @@ use constant TOP_QUOTES               =>  5;
 use constant BOTTOM_QUOTES            =>  6;
 use constant QUOTES_OF_THE_WEEK       =>  7;
 use constant QUOTE_SEARCH             =>  8;
-use constant SUBMIT_QUOTE             =>  9;
-use constant QUOTE_RATING_UP          => 10;
-use constant QUOTE_RATING_DOWN        => 11;
-use constant REPORT_QUOTE             => 12;
-use constant LOGIN                    => 13;
-use constant LOGOUT                   => 14;
-use constant ADMINISTRATION           => 15;
+use constant TAG_CLOUD                =>  9;
+use constant SUBMIT_QUOTE             => 10;
+use constant QUOTE_RATING_UP          => 11;
+use constant QUOTE_RATING_DOWN        => 12;
+use constant REPORT_QUOTE             => 13;
+use constant LOGIN                    => 14;
+use constant LOGOUT                   => 15;
+use constant ADMINISTRATION           => 16;
 
 use constant CHANGE_PASSWORD          => 100;
 use constant MANAGE_UNAPPROVED_QUOTES => 110;
@@ -173,12 +174,12 @@ sub run {
 		);
 	}
 	elsif ($page == QUOTE_SEARCH) {
-		my $query = $self->get_search_query();
-		if (defined $query && $query) {
+		my ($queries, $tags) = $self->get_search_instruction();
+		if (@$queries || @$tags) {
 			$self->_browse_quotes_segmented(
 				$page,
 				$start,
-				$self->parent()->get_matching_quotes($start, $query)
+				$self->parent()->get_matching_quotes($start, $queries, $tags)
 			);
 		}
 		else {
@@ -216,7 +217,7 @@ sub run {
 		);
 	}
 	elsif ($page == SUBMIT_QUOTE) {
-		my ($body, $notes) = $self->get_submitted_quote();
+		my ($body, $notes, $tags) = $self->get_submitted_quote();
 		if (defined $body && $body) {
 			my $approved
 				= $self->administration_allowed(Chirpy::UI::SUBMIT_QUOTE);
@@ -224,17 +225,20 @@ sub run {
 			$notes = (defined $notes
 				? Chirpy::Util::clean_up_submission($notes)
 				: undef);
+			$tags = Chirpy::Util::parse_tags($tags);
 			my $id = $self->parent()->add_quote(
 				$body,
 				$notes,
-				$approved
+				$approved,
+				$tags
 			);
 			$self->confirm_quote_submission($approved);
 			$self->_log_event(Chirpy::Event::ADD_QUOTE, {
 				'id' => $id,
 				'body' => $body,
 				'notes' => $notes,
-				'approved' => $approved
+				'approved' => $approved,
+				'tags' => join(' ', @$tags)
 			});
 		}
 		else {
@@ -297,6 +301,10 @@ sub run {
 		else {
 			$self->report_reported_quote_not_found();
 		}
+	}
+	elsif ($page eq TAG_CLOUD) {
+		my $use_counts = $self->parent()->get_tag_use_counts();
+		$self->provide_tag_cloud($use_counts);
 	}
 	elsif ($page == LOGIN) {
 		if ($self->attempting_login()) {
@@ -436,20 +444,26 @@ sub _provide_administration_interface {
 			if ($id) {
 				my $quote = $self->parent()->get_quote($id);
 				if (defined $quote) {
-					my ($body, $notes) = $self->get_modified_quote_information();
+					my ($body, $notes, $tags)
+						= $self->get_modified_quote_information();
 					if ($body) {
 						$body = Chirpy::Util::clean_up_submission($body);
 						$notes = Chirpy::Util::clean_up_submission($notes);
+						$tags = Chirpy::Util::parse_tags($tags);
 						my $old_body = $quote->get_body();
 						my $old_notes = $quote->get_notes();
-						$self->parent()->modify_quote($quote, $body, $notes);
+						my $old_tags = $quote->get_tags();
+						$self->parent()->modify_quote(
+							$quote, $body, $notes, $tags);
 						$self->confirm_quote_modification($quote);
 						$self->_log_event(Chirpy::Event::EDIT_QUOTE, {
 							'id' => $id,
 							'old_body' => $old_body,
 							'old_notes' => $old_notes,
+							'old_tags' => $old_tags,
 							'new_body' => $body,
-							'new_notes' => $notes
+							'new_notes' => $notes,
+							'new_tags' => $tags
 						});
 					}
 					else {
@@ -856,7 +870,7 @@ sub param {
 
 *get_first_quote_index = \&Chirpy::Util::abstract_method;
 
-*get_search_query = \&Chirpy::Util::abstract_method;
+*get_search_instruction = \&Chirpy::Util::abstract_method;
 
 *get_submitted_quote = \&Chirpy::Util::abstract_method;
 
@@ -885,6 +899,8 @@ sub param {
 *browse_quotes = \&Chirpy::Util::abstract_method;
 
 *provide_quote_search_interface = \&Chirpy::Util::abstract_method;
+
+*provide_tag_cloud = \&Chirpy::Util::abstract_method;
 
 *report_no_search_results = \&Chirpy::Util::abstract_method;
 

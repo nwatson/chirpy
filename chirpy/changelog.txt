@@ -7,6 +7,9 @@
 * Added on-the-fly gzip compression to Chirpy::UI::WebApp--webapp.enable_gzip=1
   in your configuration file enables it
 * Added optional captcha image to Chirpy::UI::WebApp's quote submission page
+* Added quote tagging
+* Made search query Google-style and added tag: prefix for searching for quotes
+  with a certain tag
 * Made top and bottom quotes browsable
 * Made ui.quotes_per_page apply to random, top and bottom quotes instead of
   individual setting per page type

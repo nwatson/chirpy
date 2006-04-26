@@ -190,6 +190,22 @@ sub set_up {
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
 		|) or Chirpy::die('Cannot create quote table: ' . DBI->errstr());
 	$handle->do(q|
+			CREATE TABLE `| . $prefix . q|tags` (
+				`id` int unsigned NOT NULL auto_increment,
+				`tag` varchar(255) NOT NULL,
+				PRIMARY KEY (`id`),
+				INDEX (`tag`)
+			) TYPE=MyISAM DEFAULT CHARSET=utf8
+		|) or Chirpy::die('Cannot create tag table: ' . DBI->errstr());
+	$handle->do(q|
+			CREATE TABLE `| . $prefix . q|quote_tag` (
+				`quote_id` int unsigned NOT NULL,
+				`tag_id` int unsigned NOT NULL,
+				INDEX (`quote_id`),
+				INDEX (`tag_id`)
+			) TYPE=MyISAM DEFAULT CHARSET=utf8
+		|) or Chirpy::die('Cannot create quote tag table: ' . DBI->errstr());
+	$handle->do(q|
 			CREATE TABLE `| . $prefix . q|log` (
 				`id` int unsigned NOT NULL auto_increment,
 				`date` timestamp NOT NULL default CURRENT_TIMESTAMP,
@@ -249,9 +265,9 @@ sub remove {
 sub get_quotes {
 	my ($self, $params) = @_;
 	$params = {} unless (ref $params eq 'HASH');
-	my $query = 'SELECT `id`, `body`, `notes`, `rating`,'
+	my $query = 'SELECT `q`.`id` AS `id`, `body`, `notes`, `rating`,'
 		. ' UNIX_TIMESTAMP(`submitted`) AS `submitted`, `approved`, `flagged`'
-		. ' FROM `' . $self->table_name_prefix() . 'quotes`';
+		. ' FROM `' . $self->table_name_prefix() . 'quotes` AS `q`';
 	my @par = ();
 	my @cond = ();
 	if (defined $params->{'flagged'}) {
@@ -262,10 +278,21 @@ sub get_quotes {
 		push @cond, '`approved` '
 			. ($params->{'approved'} ? '<>' : '=') . ' 0';
 	}
-	if (defined $params->{'contains'}) {
-		my $query = '%' . $params->{'contains'} . '%';
-		push @cond, '(`body` LIKE ? OR `notes` LIKE ?)';
-		push @par, $query, $query;
+	if (defined $params->{'contains'} && @{$params->{'contains'}}) {
+		foreach my $q (@{$params->{'contains'}}) {
+			my $query = '%' . $q . '%';
+			push @cond, '(`body` LIKE ? OR `notes` LIKE ?)';
+			push @par, $query, $query;
+		}
+	}
+	if (defined $params->{'tags'} && @{$params->{'tags'}}) {
+		$query .= ' JOIN `' . $self->table_name_prefix() . 'quote_tag` AS `qt`'
+			. ' ON `q`.`id` = `qt`.`quote_id`'
+			. ' JOIN `' . $self->table_name_prefix() . 'tags` AS `t`'
+			. ' ON `qt`.`tag_id` = `t`.`id`';
+		my @tags = @{$params->{'tags'}};
+		push @cond, '`tag` IN (?' . (',?' x (scalar(@tags) - 1)) . ')';
+		push @par, @tags;
 	}
 	if (defined $params->{'since'}) {
 		push @cond, '`submitted` > FROM_UNIXTIME(?)';
@@ -285,7 +312,7 @@ sub get_quotes {
 	}
 	elsif (ref $params->{'sort'} eq 'ARRAY') {
 		$query .= ' ORDER BY ' . join(', ', map {
-				'`' . $_->[0] . '`' . ($_->[1] ? ' DESC' : '')
+				'`q`.`' . $_->[0] . '`' . ($_->[1] ? ' DESC' : '')
 			} @{$params->{'sort'}});
 	}
 	my $per_page;
@@ -317,7 +344,8 @@ sub get_quotes {
 			$row->{'id'}, Chirpy::Util::decode_utf8($row->{'body'}),
 			Chirpy::Util::decode_utf8($row->{'notes'}),
 			$row->{'rating'}, $row->{'submitted'},
-			$row->{'approved'}, $row->{'flagged'}
+			$row->{'approved'}, $row->{'flagged'},
+			$self->_quote_tags($row->{'id'})
 		);
 	}
 	my $result = (@result ? \@result : undef);
@@ -343,6 +371,7 @@ sub add_quote {
 		$quote->get_notes(),
 		$quote->get_approved() || 0);
 	my $id = $self->handle()->{'mysql_insertid'};
+	$self->_tag($id, $quote->get_tags());
 	return $id;
 }
 
@@ -350,9 +379,11 @@ sub modify_quote {
 	my ($self, $quote) = @_;
 	Chirpy::die('Not a Chirpy::Quote')
 		unless (ref $quote eq 'Chirpy::Quote');
-	return $self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
+	my $result = $self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
 		. ' SET `body` = ?, `notes` = ? WHERE `id` = ?',
 		$quote->get_body(), $quote->get_notes(), $quote->get_id());
+	$self->_replace_tags($quote->get_id(), $quote->get_tags());
+	return $result;
 }
 
 sub increase_quote_rating {
@@ -369,6 +400,24 @@ sub decrease_quote_rating {
 		. ' SET `rating` = `rating` - 1 WHERE `id` = ' . $id . ' LIMIT 1')
 			or return undef;
 	return $self->_get_quote_rating($id);
+}
+
+sub get_tag_use_counts {
+	my $self = shift;
+	my $query = 'SELECT `tag`, COUNT(`tag_id`) AS `cnt`'
+		. ' FROM `' . $self->table_name_prefix() . 'quote_tag` AS `qt`'
+		. ' JOIN `' . $self->table_name_prefix() . 'tags` AS `t`'
+			. ' ON `qt`.`tag_id` = `t`.`id`'
+		. ' GROUP BY `tag`';
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	my %result = ();
+	while (my $row = $sth->fetchrow_hashref()) {
+		$result{$row->{'tag'}} = $row->{'cnt'};
+	}
+	return \%result;
 }
 
 sub approve_quotes {
@@ -399,14 +448,17 @@ sub remove_quote {
 	my ($self, $quote) = @_;
 	Chirpy::die('Not a Chirpy::Quote')
 		unless (ref $quote eq 'Chirpy::Quote');
+	my $id = quote->get_id();
+	$self->_untag_all($id);
 	return $self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quotes`'
-		. ' WHERE `id` = ' . quote->get_id()
+		. ' WHERE `id` = ' . $id
 		. ' LIMIT 1');
 }
 
 sub remove_quotes {
 	my ($self, @ids) = @_;
 	return undef unless (@ids);
+	$self->_untag_all(@ids);
 	return $self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quotes`'
 		. ' WHERE `id` IN (' . join(',', map { int } @ids) . ')'
 		. ' LIMIT ' . scalar @ids);
@@ -663,6 +715,84 @@ sub handle {
 sub table_name_prefix {
 	my $self = shift;
 	return $self->{'prefix'};
+}
+
+# TODO: make tag functions faster
+sub _quote_tags {
+	my ($self, $quote_id, $as_ids) = @_;
+	my $query = 'SELECT `' . ($as_ids ? 'id' : 'tag') . '`'
+		. ' FROM `' . $self->table_name_prefix() . 'tags` AS `t`'
+		. ' JOIN `' . $self->table_name_prefix() . 'quote_tag` AS `qt`'
+			. ' ON `t`.`id` = `qt`.`tag_id`'
+		. ' WHERE `quote_id` = ?';
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute($quote_id);
+	$self->_db_error() unless (defined $rows);
+	my @result = ();
+	while (my $row = $sth->fetchrow_arrayref()) {
+		push @result, $row->[0];
+	}
+	return \@result;
+}
+
+sub _tag {
+	my ($self, $quote_id, $tags) = @_;
+	return unless (@$tags);
+	foreach my $tag (@$tags) {
+		my $tag_id = $self->_tag_id($tag);
+		unless (defined $tag_id) {
+			$tag_id = $self->_create_tag($tag);
+		}
+		$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'quote_tag`'
+			. ' (`quote_id`, `tag_id`) VALUES (?, ?)', $quote_id, $tag_id);
+	}
+}
+
+sub _untag {
+	my ($self, $quote_id, $tag_ids) = @_;
+	my $cnt = scalar(@$tag_ids);
+	return unless ($cnt);
+	$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quote_tag`'
+		. ' WHERE `tag_id` IN (?' . (',?' x ($cnt - 1)) . ')'
+		. ' LIMIT ' . $cnt, @$tag_ids);
+}
+
+sub _untag_all {
+	my ($self, @ids) = @_;
+	foreach my $id (@ids) {
+		my $tag_ids = $self->_quote_tags($id, 1);
+		$self->_untag($id, $tag_ids);
+	}
+	$self->_clean_up_tags();
+}
+
+sub _tag_id {
+	my ($self, $tag) = @_;
+	return $self->_execute_scalar('SELECT `id` FROM `'
+		. $self->table_name_prefix() . 'tags` WHERE `tag` = ? LIMIT 1', $tag);
+}
+
+sub _create_tag {
+	my ($self, $tag) = @_;
+	$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'tags`'
+		. ' (`tag`) VALUES (?)', $tag);
+	return $self->handle()->{'mysql_insertid'};
+}
+
+sub _replace_tags {
+	my ($self, $quote_id, $tags) = @_;
+	$self->_untag($quote_id, $self->_quote_tags($quote_id, 1));
+	$self->_tag($quote_id, $tags);
+	$self->_clean_up_tags();
+}
+
+sub _clean_up_tags {
+	my $self = shift;
+	$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'tags`'
+		. ' WHERE `id` NOT IN ('
+		. 'SELECT `tag_id` FROM `' . $self->table_name_prefix() . 'quote_tag`'
+		. ')');
 }
 
 sub _get_quote_rating {

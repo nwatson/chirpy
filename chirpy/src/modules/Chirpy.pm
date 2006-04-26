@@ -397,13 +397,14 @@ sub total_quote_count {
 }
 
 sub get_matching_quotes {
-	my ($self, $start, $query) = @_;
+	my ($self, $start, $queries, $tags) = @_;
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
-		'contains' => $query,
+		'contains' => $queries,
 		'sort'     => [ [ 'id', 1 ] ],
 		'first'    => $start,
-		'count'    => $self->quotes_per_page()
+		'count'    => $self->quotes_per_page(),
+		'tags'     => $tags
 	});
 }
 
@@ -474,14 +475,16 @@ sub get_unapproved_quotes {
 }
 
 sub add_quote {
-	my ($self, $body, $notes, $approved) = @_;
+	my ($self, $body, $notes, $approved, $tags) = @_;
 	my $quote = new Chirpy::Quote(
 		undef,
 		$body,
 		$notes,
 		undef,
 		undef,
-		$approved
+		$approved,
+		0,
+		$tags
 	);
 	my $id = $self->_data_manager()->add_quote($quote);
 	$quote->set_id($id);
@@ -489,13 +492,14 @@ sub add_quote {
 }
 
 sub modify_quote {
-	my ($self, $quote, $text, $notes) = @_;
+	my ($self, $quote, $text, $notes, $tags) = @_;
 	Chirpy::die('Not a Chirpy::Quote')
 		unless (ref $quote eq 'Chirpy::Quote');
 	$quote->set_body(Chirpy::Util::clean_up_submission($text));
 	$quote->set_notes($notes
 		? Chirpy::Util::clean_up_submission($notes)
 		: undef);
+	$quote->set_tags($tags) if (defined $tags);
 	return $self->_data_manager->modify_quote($quote);
 }
 
@@ -512,6 +516,11 @@ sub increase_quote_rating {
 sub decrease_quote_rating {
 	my ($self, $id) = @_;
 	return $self->_data_manager()->decrease_quote_rating($id);
+}
+
+sub get_tag_use_counts {
+	my $self = shift;
+	return $self->_data_manager()->get_tag_use_counts();
 }
 
 sub flag_quotes {

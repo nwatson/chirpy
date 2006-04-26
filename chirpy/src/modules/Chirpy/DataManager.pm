@@ -96,7 +96,11 @@ ID of the quote to retrieve.
 
 =item contains
 
-String to find in either the quote body or notes.
+Reference to an array of strings to find in either the quote body or notes.
+
+=item tags
+
+Reference to an array of tags, any of which must be a tag of the quote.
 
 =item approved
 
@@ -160,8 +164,8 @@ and vice versa.
 Adds the L<Chirpy::Quote|Chirpy::Quote> C<$quote> to the collection. Returns
 the quote's newly assigned ID.
 
-The properties to be saved by this method are I<body>, I<notes> and
-I<approved>.
+The properties to be saved by this method are I<body>, I<notes>, I<approved>
+and I<tags>.
 
 =item modify_quote($quote)
 
@@ -187,6 +191,11 @@ Increases the rating of quote number C<$id> by 1. Returns the new rating.
 =item decrease_quote_rating($id)
 
 Decreases the rating of quote number C<$id> by 1. Returns the new rating.
+
+=item get_tag_use_counts()
+
+Returns a reference to a hash, mapping tags to the number of times they were
+used.
 
 =item approve_quotes(@ids)
 
@@ -421,6 +430,8 @@ sub param {
 *increase_quote_rating = \&Chirpy::Util::abstract_method;
 
 *decrease_quote_rating = \&Chirpy::Util::abstract_method;
+
+*get_tag_use_counts = \&Chirpy::Util::abstract_method;
 
 *approve_quotes = \&Chirpy::Util::abstract_method;
 

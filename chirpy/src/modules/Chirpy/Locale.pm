@@ -273,6 +273,10 @@ Brief description of what removing the quote does, for tooltips and such.
 
 Title of the notes section in the quote list, followed by a colon.
 
+=item quote_tags_title
+
+Title of the tags section in the quote list, followed by a colon.
+
 =item search_query_title
 
 Title of the query field on the search interface, followed by a colon.

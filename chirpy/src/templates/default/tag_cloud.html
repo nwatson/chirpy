@@ -1,0 +1,14 @@
+<TMPL_INCLUDE NAME="_head.html">
+	<h2>
+		<TMPL_VAR NAME="PAGE_TITLE">
+	</h2>
+	<TMPL_IF NAME="TAGS">
+		<ul class="tag-cloud">
+			<TMPL_LOOP NAME="TAGS">
+				<li><a href="<TMPL_VAR NAME="URL">"
+				style="font-size: <TMPL_VAR NAME="SIZE_PERCENTAGE">%;"
+				title="<TMPL_VAR NAME="USAGE_COUNT"> (<TMPL_VAR NAME="PERCENTAGE">%)"><TMPL_VAR NAME="TAG"></a></li>
+			</TMPL_LOOP>
+		</ul>
+	</TMPL_IF>
+<TMPL_INCLUDE NAME="_foot.html">

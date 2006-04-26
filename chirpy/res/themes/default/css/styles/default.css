@@ -49,7 +49,7 @@ ul.quote-list li:hover .quote-container {
 	background: #FFFCEC;
 }
 
-ul.quote-list li:hover .quote-notes {
+ul.quote-list li:hover .quote-footer, ul.quote-list li:hover .quote-tags a {
 	color: #BA9;
 	border-color: #FFE9C9;
 }
