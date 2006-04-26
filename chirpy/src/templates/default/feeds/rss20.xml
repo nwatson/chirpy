@@ -24,7 +24,7 @@ xmlns:content="http://purl.org/rss/1.0/modules/content/">
 	<TMPL_IF NAME="QUOTE_NOTES"><p><b><TMPL_VAR NAME="QUOTE_NOTES_TITLE"></b>
 	<TMPL_VAR NAME="QUOTE_NOTES"></p></TMPL_IF>
 	<TMPL_IF NAME="QUOTE_TAGS"><p><b><TMPL_VAR NAME="QUOTE_TAGS_TITLE"></b>
-	<TMPL_LOOP NAME="TAGS">
+	<TMPL_LOOP NAME="QUOTE_TAGS">
 	<a href="<TMPL_VAR NAME="URL">"><TMPL_VAR NAME="TAG"></a>
 	</TMPL_LOOP></p></TMPL_IF>
 ]]></content:encoded>
