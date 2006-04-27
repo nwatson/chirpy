@@ -868,10 +868,8 @@ sub provide_tag_cloud {
 	my $locale = $self->locale();
 	my @tags = Chirpy::Util::shuffle_array(keys %$tag_counts);
 	my $highest = 0;
-	my $total = 0;
 	foreach my $cnt (values %$tag_counts) {
 		$highest = $cnt if ($cnt > $highest);
-		$total += $cnt;
 	}
 	my @tag_info = ();
 	foreach my $tag (@tags) {
@@ -879,7 +877,6 @@ sub provide_tag_cloud {
 		push @tag_info, {
 			'TAG' => &_text_to_xhtml($tag),
 			'USAGE_COUNT' => $cnt,
-			'PERCENTAGE' => sprintf('%.0f', 100 * $cnt / $total),
 			'SIZE_PERCENTAGE' => sprintf('%.0f', 100 + (100 * $cnt / $highest)),
 			'URL' => &_text_to_xhtml($self->_tag_url($tag))
 		};
