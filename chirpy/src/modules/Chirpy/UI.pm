@@ -303,8 +303,7 @@ sub run {
 		}
 	}
 	elsif ($page eq TAG_CLOUD) {
-		my $use_counts = $self->parent()->get_tag_use_counts();
-		$self->provide_tag_cloud($use_counts);
+		$self->_provide_tag_cloud();
 	}
 	elsif ($page == LOGIN) {
 		if ($self->attempting_login()) {
@@ -764,6 +763,34 @@ sub _browse_quotes_segmented {
 	else {
 		$self->report_no_quotes_to_display($page);
 	}
+}
+
+sub _provide_tag_cloud {
+	my $self = shift;
+	my $tag_counts = $self->parent()->get_tag_use_counts();
+	my $highest = 0;
+	my $lowest = undef;
+	foreach my $cnt (values %$tag_counts) {
+		$lowest = $cnt if (!defined $lowest || $cnt < $lowest);
+		$highest = $cnt if ($cnt > $highest);
+	}
+	my $difference = $highest - $lowest;
+	my @tag_info = ();
+	my $max_increase = $self->param('ui', 'tag_cloud_percentage_delta') || 100;
+	my @tags = $self->param('ui', 'randomize_tag_cloud')
+		? Chirpy::Util::shuffle_array(keys %$tag_counts)
+		: sort keys %$tag_counts;
+	my @tag_info_list;
+	foreach my $tag (@tags) {
+		my $cnt = $tag_counts->{$tag};
+		$tag = [
+			$tag,
+			$cnt,
+			sprintf('%.0f',
+				100 + ($max_increase * ($cnt - $lowest) / $difference))
+		];
+	}
+	$self->provide_tag_cloud(\@tags);
 }
 
 sub _already_rated {

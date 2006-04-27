@@ -863,21 +863,16 @@ sub provide_quote_search_interface {
 }
 
 sub provide_tag_cloud {
-	my ($self, $tag_counts) = @_;
+	my ($self, $tag_information) = @_;
 	my $template = $self->_load_template('tag_cloud');
 	my $locale = $self->locale();
-	my @tags = Chirpy::Util::shuffle_array(keys %$tag_counts);
-	my $highest = 0;
-	foreach my $cnt (values %$tag_counts) {
-		$highest = $cnt if ($cnt > $highest);
-	}
 	my @tag_info = ();
-	foreach my $tag (@tags) {
-		my $cnt = $tag_counts->{$tag};
+	foreach my $arrayref (@$tag_information) {
+		my ($tag, $cnt, $perc) = @$arrayref;
 		push @tag_info, {
 			'TAG' => &_text_to_xhtml($tag),
 			'USAGE_COUNT' => $cnt,
-			'SIZE_PERCENTAGE' => sprintf('%.0f', 100 + (100 * $cnt / $highest)),
+			'SIZE_PERCENTAGE' => $perc,
 			'URL' => &_text_to_xhtml($self->_tag_url($tag))
 		};
 	}
