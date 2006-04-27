@@ -763,7 +763,7 @@ sub _generate_xhtml {
 			'BODY' => $body,
 			'NOTES' => $notes,
 			'TAGS' => $tags,
-			'NOTES_OR_TAGS' => (defined $notes || defined $tags ? 1 : 0),
+			'NOTES_OR_TAGS' => (defined $notes || @$tags ? 1 : 0),
 			'RATING_NUMBER' => $quote->get_rating(),
 			'RATING_TEXT'
 				=> Chirpy::Util::format_quote_rating($quote->get_rating()),
