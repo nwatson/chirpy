@@ -884,6 +884,11 @@ sub provide_tag_cloud {
 	$self->_output_template($template);
 }
 
+sub report_no_tagged_quotes {
+	my $self = shift;
+	$self->_report_error($self->locale()->get_string('no_tagged_quotes'));
+}
+
 sub report_no_search_results {
 	my $self = shift;
 	my $locale = $self->locale();

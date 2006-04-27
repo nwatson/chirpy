@@ -303,7 +303,13 @@ sub run {
 		}
 	}
 	elsif ($page eq TAG_CLOUD) {
-		$self->_provide_tag_cloud();
+		my $tag_counts = $self->parent()->get_tag_use_counts();
+		if (%$tag_counts) {
+			$self->_provide_tag_cloud($tag_counts);
+		}
+		else {
+			$self->report_no_tagged_quotes;
+		}
 	}
 	elsif ($page == LOGIN) {
 		if ($self->attempting_login()) {
@@ -766,8 +772,7 @@ sub _browse_quotes_segmented {
 }
 
 sub _provide_tag_cloud {
-	my $self = shift;
-	my $tag_counts = $self->parent()->get_tag_use_counts();
+	my ($self, $tag_counts) = @_;
 	my $highest = 0;
 	my $lowest = undef;
 	foreach my $cnt (values %$tag_counts) {
@@ -928,6 +933,8 @@ sub param {
 *provide_quote_search_interface = \&Chirpy::Util::abstract_method;
 
 *provide_tag_cloud = \&Chirpy::Util::abstract_method;
+
+*report_no_tagged_quotes = \&Chirpy::Util::abstract_method;
 
 *report_no_search_results = \&Chirpy::Util::abstract_method;
 
