@@ -163,7 +163,7 @@ sub parse_tags {
 	$tags =~ s/^\s+//;
 	$tags =~ s/\s+$//;
 	my %tags = ();
-	foreach my $tag (split(/\s+/, $tags)) {
+	foreach my $tag (split(/[\s;,]+/, $tags)) {
 		$tags{$tag} = 1;
 	}
 	return [ keys %tags ];
