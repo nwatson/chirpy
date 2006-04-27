@@ -160,10 +160,9 @@ sub parse_tags {
 	my $tags = shift;
 	return [] unless (defined $tags && $tags ne '');
 	$tags = lc $tags;
-	$tags =~ s/^\s+//;
-	$tags =~ s/\s+$//;
 	my %tags = ();
 	foreach my $tag (split(/[\s;,]+/, $tags)) {
+		next if (length($tag) < 2);
 		$tags{$tag} = 1;
 	}
 	return [ keys %tags ];
