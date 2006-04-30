@@ -717,10 +717,11 @@ sub table_name_prefix {
 	return $self->{'prefix'};
 }
 
-# TODO: make tag functions faster
 sub _quote_tags {
-	my ($self, $quote_id, $as_ids) = @_;
-	my $query = 'SELECT `' . ($as_ids ? 'id' : 'tag') . '`'
+	my ($self, $quote_id, $mode) = @_;
+	$mode = 0 unless (defined $mode);
+	my $cols = ($mode == 2 ? '`tag`, `id`' : ($mode == 1 ? '`id`' : '`tag`'));
+	my $query = 'SELECT ' .$cols
 		. ' FROM `' . $self->table_name_prefix() . 'tags` AS `t`'
 		. ' JOIN `' . $self->table_name_prefix() . 'quote_tag` AS `qt`'
 			. ' ON `t`.`id` = `qt`.`tag_id`'
@@ -729,6 +730,13 @@ sub _quote_tags {
 	$self->_db_error() unless (defined $sth);
 	my $rows = $sth->execute($quote_id);
 	$self->_db_error() unless (defined $rows);
+	if ($mode == 2) {
+		my %result = ();
+		while (my $row = $sth->fetchrow_arrayref()) {
+			$result{$row->[0]} = $row->[1];
+		}
+		return \%result;
+	}
 	my @result = ();
 	while (my $row = $sth->fetchrow_arrayref()) {
 		push @result, $row->[0];
@@ -751,18 +759,18 @@ sub _tag {
 
 sub _untag {
 	my ($self, $quote_id, $tag_ids) = @_;
-	my $cnt = scalar(@$tag_ids);
+	my $cnt = scalar @$tag_ids;
 	return unless ($cnt);
 	$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quote_tag`'
-		. ' WHERE `tag_id` IN (?' . (',?' x ($cnt - 1)) . ')'
-		. ' LIMIT ' . $cnt, @$tag_ids);
+		. ' WHERE `quote_id` = ? AND `tag_id` IN (?' . (',?' x ($cnt - 1)) . ')'
+		. ' LIMIT ' . $cnt, $quote_id, @$tag_ids);
 }
 
 sub _untag_all {
-	my ($self, @ids) = @_;
-	foreach my $id (@ids) {
-		my $tag_ids = $self->_quote_tags($id, 1);
-		$self->_untag($id, $tag_ids);
+	my ($self, @quote_ids) = @_;
+	foreach my $id (@quote_ids) {
+		$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quote_tag`'
+			. ' WHERE `quote_id` = ?', $id);
 	}
 	$self->_clean_up_tags();
 }
@@ -781,10 +789,21 @@ sub _create_tag {
 }
 
 sub _replace_tags {
-	my ($self, $quote_id, $tags) = @_;
-	$self->_untag($quote_id, $self->_quote_tags($quote_id, 1));
-	$self->_tag($quote_id, $tags);
+	my ($self, $quote_id, $new_tags) = @_;
+	my $old_tags = $self->_quote_tags($quote_id, 2);
+	my @add = ();
+	foreach my $tag (@$new_tags) {
+		if (exists $old_tags->{$tag}) {
+			delete $old_tags->{$tag};
+		}
+		else {
+			push @add, $tag;
+		}
+	}
+	my @remove = values %$old_tags;
+	$self->_untag($quote_id, \@remove);
 	$self->_clean_up_tags();
+	$self->_tag($quote_id, \@add);
 }
 
 sub _clean_up_tags {
