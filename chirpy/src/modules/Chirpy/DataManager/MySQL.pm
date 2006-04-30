@@ -324,9 +324,11 @@ sub get_quotes {
 		$query .= ' LIMIT ';
 		if ($params->{'first'}) {
 			$leading = 1;
-			$query .= $params->{'first'} . ',';
+			$query .= '?,';
+			push @par, $params->{'first'};
 		}
-		$query .= $params->{'count'} + 1;
+		$query .= '?';
+		push @par, $params->{'count'} + 1;
 		$per_page = $params->{'count'};
 	}
 	my $sth = $self->handle()->prepare($query);
@@ -471,15 +473,20 @@ sub get_news_items {
 		. 'FROM `' . $self->table_name_prefix() . 'news` N'
 		. ' LEFT JOIN `' . $self->table_name_prefix() . 'accounts` A'
 		. ' ON N.poster = A.id';
+	my @par = ();
 	if ($params->{'id'}) {
-		$query .= ' WHERE N.id = ' . $params->{'id'};
+		$query .= ' WHERE N.id = ?';
+		push @par, $params->{'id'};
 		$params->{'count'} = 1;
 	}
 	$query .= ' ORDER BY `date` DESC';
-	$query .= ' LIMIT ' . $params->{'count'} if ($params->{'count'});
+	if ($params->{'count'}) {
+		$query .= ' LIMIT ?';
+		push @par, $params->{'count'};
+	}
 	my $sth = $self->handle()->prepare($query);
 	$self->_db_error() unless (defined $sth);
-	my $rows = $sth->execute();
+	my $rows = $sth->execute(@par);
 	$self->_db_error() unless (defined $rows);
 	my @result = ();
 	while (my $row = $sth->fetchrow_hashref()) {

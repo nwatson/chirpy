@@ -3,6 +3,7 @@
 | Chirpy! v0.2                                                     YYYY.MM.DD |
 \_____________________________________________________________________________/
 
+* Fixed SQL injection vulnerabilities
 * Fixed logging of author when editing or removing news items (#1289047)
 * Added on-the-fly gzip compression to Chirpy::UI::WebApp--webapp.enable_gzip=1
   in your configuration file enables it
