@@ -788,11 +788,13 @@ sub _provide_tag_cloud {
 	my @tag_info_list;
 	foreach my $tag (@tags) {
 		my $cnt = $tag_counts->{$tag};
+		my $delta = ($difference > 0
+			? ($max_increase * ($cnt - $lowest) / $difference)
+			: 0);
 		$tag = [
 			$tag,
 			$cnt,
-			sprintf('%.0f',
-				100 + ($max_increase * ($cnt - $lowest) / $difference))
+			sprintf('%.0f', 100 + $delta)
 		];
 	}
 	$self->provide_tag_cloud(\@tags);
