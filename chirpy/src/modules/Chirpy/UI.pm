@@ -360,52 +360,7 @@ sub _provide_administration_interface {
 	my $self = shift;
 	if ($self->configuration->get('general', 'update_check')
 	&& $self->administration_allowed(CHECK_FOR_UPDATE)) {
-		my $last_check = $self->get_parameter('last_update_check');
-		my $now = time();
-		my @update_info;
-		my $update_check_error;
-		if (!defined $last_check
-		|| $last_check + UPDATE_CHECK_INTERVAL < $now) {
-			$self->set_parameter('last_update_check', $now);
-			my $upd_status = $self->_check_for_update();
-			if (defined $upd_status) {
-				if (ref $upd_status eq 'ARRAY') {
-					$self->set_parameter('update_version', $upd_status->[0]);
-					$self->set_parameter('update_released', $upd_status->[1]);
-					$self->set_parameter('update_url', $upd_status->[2]);
-					$self->set_parameter('update_version_current',
-						$Chirpy::VERSION);
-					@update_info = @$upd_status; 
-				}
-				else {
-					$update_check_error = $upd_status;
-				}
-			}
-		}
-		else {
-			my $version = $self->get_parameter('update_version');
-			if ($version) {
-				my $version_at_check
-					= $self->get_parameter('update_version_current');
-				if ($version_at_check == $Chirpy::VERSION) {
-					my $date = $self->get_parameter('update_released');
-					my $url = $self->get_parameter('update_url');
-					@update_info = ($version, $date, $url);
-				}
-				else {
-					$self->set_parameter('update_version', undef);
-					$self->set_parameter('update_released', undef);
-					$self->set_parameter('update_url', undef);
-					$self->set_parameter('update_version_current', undef);
-				}
-			}
-		}
-		if (defined $update_check_error) {
-			$self->update_check_error($update_check_error);
-		}
-		elsif (@update_info) {
-			$self->update_available(@update_info);
-		}
+		$self->_maybe_check_for_update();
 	}
 	my $page = $self->get_current_administration_page() || 0;
 	if ($page == CHANGE_PASSWORD) {
@@ -802,6 +757,56 @@ sub _provide_administration_interface {
 	}
 	else {
 		$self->welcome_administrator();
+	}
+}
+
+sub _maybe_check_for_update {
+	my $self = shift;
+	my $last_check = $self->get_parameter('last_update_check');
+	my $now = time();
+	my @update_info;
+	my $update_check_error;
+	if (!defined $last_check
+	|| $last_check + UPDATE_CHECK_INTERVAL < $now) {
+		$self->set_parameter('last_update_check', $now);
+		my $upd_status = $self->_check_for_update();
+		if (defined $upd_status) {
+			if (ref $upd_status eq 'ARRAY') {
+				$self->set_parameter('update_version', $upd_status->[0]);
+				$self->set_parameter('update_released', $upd_status->[1]);
+				$self->set_parameter('update_url', $upd_status->[2]);
+				$self->set_parameter('update_version_current',
+					$Chirpy::VERSION);
+				@update_info = @$upd_status; 
+			}
+			else {
+				$update_check_error = $upd_status;
+			}
+		}
+	}
+	else {
+		my $version = $self->get_parameter('update_version');
+		if ($version) {
+			my $version_at_check
+				= $self->get_parameter('update_version_current');
+			if ($version_at_check == $Chirpy::VERSION) {
+				my $date = $self->get_parameter('update_released');
+				my $url = $self->get_parameter('update_url');
+				@update_info = ($version, $date, $url);
+			}
+			else {
+				$self->set_parameter('update_version', undef);
+				$self->set_parameter('update_released', undef);
+				$self->set_parameter('update_url', undef);
+				$self->set_parameter('update_version_current', undef);
+			}
+		}
+	}
+	if (defined $update_check_error) {
+		$self->update_check_error($update_check_error);
+	}
+	elsif (@update_info) {
+		$self->update_available(@update_info);
 	}
 }
 
