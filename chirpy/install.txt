@@ -247,7 +247,9 @@ base_path           Enter the absolute or relative path to the src/ directory
                     the directory where index.cgi is.
 update_check        Set this to 1 to tell Chirpy! to automatically check for
                     updates periodically. Only site owners will be informed of
-                    available updates.
+                    available updates. This feature requires that libwww-perl
+                    (LWP) be installed; if it is not, Chirpy! will just show
+                    you an informative error message.
 
 3.2.2. The [data] Section
 -------------------------
