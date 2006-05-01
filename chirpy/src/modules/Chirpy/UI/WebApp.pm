@@ -900,9 +900,15 @@ sub report_no_tagged_quotes {
 
 sub report_no_search_results {
 	my $self = shift;
-	my $locale = $self->locale();
-	$self->_report_message($locale->get_string('no_search_results'),
-		$locale->get_string('no_search_results_text'));
+	my $type = $self->_feed_type();
+	if (defined $type) {
+		$self->_generate_feed([], $type, Chirpy::UI::QUOTE_SEARCH);
+	}
+	else {
+		my $locale = $self->locale();
+		$self->_report_message($locale->get_string('no_search_results'),
+			$locale->get_string('no_search_results_text'));
+	}
 }
 
 sub report_inexistent_quote {
