@@ -49,6 +49,20 @@ exactly the same as the version of Chirpy! the data manager was built for.
 
 =back
 
+=head2 Parameters
+
+=over 4
+
+=item get_parameter($name)
+
+Gets the value of a persistent parameter.
+
+=item set_parameter($name, $value)
+
+Sets the value of a persistent parameter.
+
+=back
+
 =head2 Installation & Removal
 
 =over 4
@@ -468,6 +482,10 @@ sub param {
 *account_count = \&Chirpy::Util::abstract_method;
 
 *log_event = \&Chirpy::Util::abstract_method;
+
+*get_parameter = \&Chirpy::Util::abstract_method;
+
+*set_parameter = \&Chirpy::Util::abstract_method;
 
 1;
 

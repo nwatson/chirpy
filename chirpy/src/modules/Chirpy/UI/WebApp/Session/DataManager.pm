@@ -71,10 +71,6 @@ referred to by C<$data>.
 Removes all sessions with an ID contained in C<@ids> from the system. Returns
 the number of removed sessions.
 
-=item last_session_cleanup($timestamp)
-
-Gets or sets the date when the last session cleanup occurred.
-
 =back
 
 =head1 AUTHOR
@@ -135,8 +131,9 @@ sub remove_expired_sessions {
 sub remove_expired_sessions_if_necessary {
 	my $self = shift;
 	my $now = time();
-	if ($self->last_session_cleanup() + CLEANUP_INTERVAL < $now) {
-		$self->last_session_cleanup($now);
+	my $last_cleanup = $self->get_parameter('last_session_cleanup');
+	if (!defined $last_cleanup || $last_cleanup + CLEANUP_INTERVAL < $now) {
+		$self->set_parameter('last_session_cleanup', $now);
 		return $self->remove_expired_sessions();
 	}
 	return undef;
@@ -150,4 +147,6 @@ sub remove_expired_sessions_if_necessary {
 
 *remove_sessions = \&Chirpy::Util::abstract_method;
 
-*last_session_cleanup = \&Chirpy::Util::abstract_method;
+1;
+
+###############################################################################

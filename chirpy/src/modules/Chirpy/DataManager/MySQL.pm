@@ -228,7 +228,7 @@ sub set_up {
 				`value` VARCHAR(255) NOT NULL,
 				PRIMARY KEY (`name`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create variable table: ' . DBI->errstr());
+		|) or Chirpy::die('Cannot create parameter table: ' . DBI->errstr());
 	if (defined $accounts) {
 		foreach my $account (@$accounts) {
 			$self->add_account($account);
@@ -693,21 +693,28 @@ sub remove_sessions {
 		. ' LIMIT ' . scalar(@ids), @ids);
 }
 
-sub last_session_cleanup {
-	my ($self, $timestamp) = @_;
-	unless (defined $timestamp) {
-		return $self->_execute_scalar('SELECT `value` FROM `'
-			. $self->table_name_prefix() . 'vars`'
-			. ' WHERE `name` = ?', 'last_session_cleanup');
+sub get_parameter {
+	my ($self, $name) = @_;
+	return $self->_execute_scalar('SELECT `value` FROM `'
+		. $self->table_name_prefix() . 'vars`'
+		. ' WHERE `name` = ?', $name);
+}
+
+sub set_parameter {
+	my ($self, $name, $value) = @_;
+	if (!defined $value) {
+		$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'vars`'
+			. ' WHERE `name` = ? LIMIT 1', $name);
+		return;
 	}
 	my $res = $self->_do('UPDATE `' . $self->table_name_prefix() . 'vars`'
 		. ' SET `value` = ?'
 		. ' WHERE `name` = ? LIMIT 1',
-			$timestamp, 'last_session_cleanup');
+			$value, $name);
 	unless ($res) {
 		$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'vars`'
 			. ' (`name`, `value`) VALUES (?, ?)',
-			'last_session_cleanup', $timestamp);
+			$name, $value);
 	}
 }
 

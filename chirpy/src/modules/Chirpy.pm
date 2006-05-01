@@ -361,6 +361,16 @@ sub locale {
 	return $self->{'locale'};
 }
 
+sub get_parameter {
+	my ($self, $name) = @_;
+	return $self->{'data_manager'}->get_parameter($name);
+}
+
+sub set_parameter {
+	my ($self, $name, $value) = @_;
+	$self->{'data_manager'}->set_parameter($name, $value);
+}
+
 sub user_level_name {
 	my ($self, $id) = @_;
 	$self->locale->get_string('user_level_' . $id);

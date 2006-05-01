@@ -1102,6 +1102,16 @@ sub get_supplied_passwords {
 		$self->_cgi_param('repeat_new_password'));
 }
 
+sub update_available {
+	my ($self, $version, $released, $url) = @_;
+	$self->{'available_update'} = [ $version, $released, $url ];
+}
+
+sub update_check_error {
+	my ($self, $error) = @_;
+	$self->{'update_check_error'} = $error;
+}
+
 sub get_current_administration_page {
 	my $self = shift;
 	my $action = $self->_admin_action();
@@ -1518,6 +1528,25 @@ sub _output_administration_page {
 	my ($self, %params) = @_;
 	my $template = $self->_load_template('administration');
 	my $locale = $self->locale();
+	my ($upd_url, $upd_text);
+	if (my $update = $self->{'available_update'}) {
+		$template->param('UPDATE_AVAILABLE'
+			=> &_text_to_xhtml($locale->get_string('update_available')));
+		$template->param('UPDATE_AVAILABLE_TEXT' => &_text_to_xhtml(
+			$locale->get_string('update_available_text',
+			$update->[0], $update->[1])));
+		$template->param('UPDATE_LINK_TEXT'
+			=> &_text_to_xhtml($locale->get_string('update_link_text')));
+		$template->param('UPDATE_URL' => &_text_to_xhtml($update->[2]));
+	}
+	elsif (my $errmsg = $self->{'update_check_error'}) {
+		$template->param('UPDATE_CHECK_FAILED'
+			=> &_text_to_xhtml($locale->get_string('update_check_failed')));
+		$template->param('UPDATE_CHECK_FAILED_TEXT' => &_text_to_xhtml(
+			$locale->get_string('update_check_failed_text')));
+		$template->param('UPDATE_CHECK_ERROR_MESSAGE'
+			=> &_text_to_xhtml($errmsg));
+	}
 	$template->param(
 		'PAGE_TITLE' => &_text_to_xhtml(
 			$locale->get_string('administration')),

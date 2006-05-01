@@ -649,3 +649,40 @@ ul.tabbed-pane-contents > li {
 #mass-approve-container, #mass-unflag-container {
 	display: inline;
 }
+
+#update-information {
+	background: #FFF6E6;
+	border: 2px dashed #F90;
+	color: #E70;
+	margin: 2em 5%;
+	padding: 0;
+	font-weight: bold;
+	line-height: 1.25em;
+}
+
+#update-information a, #update-information a:visited {
+	display: block;
+	color: #E70;
+	text-align: center;
+	margin: 0;
+	padding: 1em;
+}
+
+#update-information a:hover {
+	text-decoration: none;
+	color: #E50;
+}
+
+#update-information p {
+	text-align: center;
+	margin: 0.75em 1em 0.25em 1em;
+	padding: 0;
+}
+
+#update-information blockquote {
+	text-align: center;
+	margin: 0 1em 0.75em 1em;
+	color: #666;
+	font-weight: normal;
+	font-style: italic;
+}

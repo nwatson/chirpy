@@ -3,6 +3,19 @@
 	<h2>
 		<TMPL_VAR NAME="PAGE_TITLE">
 	</h2>
+	<TMPL_IF NAME="UPDATE_CHECK_FAILED">
+		<div id="update-information">
+			<p><TMPL_VAR NAME="UPDATE_CHECK_FAILED_TEXT"></p>
+			<blockquote><TMPL_VAR NAME="UPDATE_CHECK_ERROR_MESSAGE"></blockquote>
+		</div>
+	<TMPL_ELSE>
+		<TMPL_IF NAME="UPDATE_AVAILABLE">
+			<div id="update-information">
+				<a href="<TMPL_VAR NAME="UPDATE_URL">"><TMPL_VAR NAME="UPDATE_AVAILABLE_TEXT">
+				<TMPL_VAR NAME="UPDATE_LINK_TEXT"></a>
+			</div>
+		</TMPL_IF>
+	</TMPL_IF>
 	<ul id="admin-navigation" class="tabbed-pane-header"><li><a
 		href="#approve-quotes" id="tab-approve-quotes"><TMPL_VAR NAME="APPROVE_QUOTES"></a></li><li><a
 		href="#flagged-quotes" id="tab-flagged-quotes"><TMPL_VAR NAME="FLAGGED_QUOTES"></a></li><li><a

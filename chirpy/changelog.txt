@@ -12,6 +12,7 @@
 * Made search query Google-style and added tag: prefix for searching for quotes
   with a certain tag
 * Made top and bottom quotes browsable
+* Added periodic update check (site owners only)
 * Made ui.quotes_per_page apply to random, top and bottom quotes instead of
   individual setting per page type
 * Made Atom 1.0 feed valid by adding feed ID and webmaster name. Webmaster name

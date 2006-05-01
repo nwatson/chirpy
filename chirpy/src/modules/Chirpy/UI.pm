@@ -62,6 +62,7 @@ use vars qw($VERSION);
 $VERSION = '0.2';
 
 use Chirpy::Util 0.2;
+use Chirpy::UpdateChecker 0.2;
 
 use constant START_PAGE               =>  1;
 use constant QUOTE_BROWSER            =>  2;
@@ -91,6 +92,7 @@ use constant REMOVE_NEWS              => 142;
 use constant ADD_ACCOUNT              => 150;
 use constant EDIT_ACCOUNT             => 151;
 use constant REMOVE_ACCOUNT           => 152;
+use constant CHECK_FOR_UPDATE         => 160;
 
 use constant CURRENT_PASSWORD_INVALID => -1;
 use constant NEW_PASSWORD_INVALID     => -2;
@@ -139,8 +141,13 @@ use constant ADMIN_PERMISSIONS => {
 	},
 	REMOVE_ACCOUNT() => {
 		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	CHECK_FOR_UPDATE() => {
+		Chirpy::Account::USER_LEVEL_9 => 1
 	}
 };
+
+use constant UPDATE_CHECK_INTERVAL => 7 * 24 * 60 * 60;
 
 sub new {
 	my ($class, $parent, $params) = @_;
@@ -351,6 +358,43 @@ sub run {
 
 sub _provide_administration_interface {
 	my $self = shift;
+	if ($self->configuration->get('general', 'update_check')
+	&& $self->administration_allowed(CHECK_FOR_UPDATE)) {
+		my $last_check = $self->get_parameter('last_update_check');
+		my $now = time();
+		my @update_info;
+		my $update_check_error;
+		if (!defined $last_check
+		|| $last_check + UPDATE_CHECK_INTERVAL < $now) {
+			$self->set_parameter('last_update_check', $now);
+			my $upd_status = $self->_check_for_update();
+			if (defined $upd_status) {
+				if (ref $upd_status eq 'ARRAY') {
+					$self->set_parameter('update_version', $upd_status->[0]);
+					$self->set_parameter('update_released', $upd_status->[1]);
+					$self->set_parameter('update_url', $upd_status->[2]);
+					@update_info = @$upd_status; 
+				}
+				else {
+					$update_check_error = $upd_status;
+				}
+			}
+		}
+		else {
+			my $version = $self->get_parameter('update_version');
+			if ($version) {
+				my $date = $self->get_parameter('update_released');
+				my $url = $self->get_parameter('update_url');
+				@update_info = ($version, $date, $url);
+			}
+		}
+		if (defined $update_check_error) {
+			$self->update_check_error($update_check_error);
+		}
+		elsif (@update_info) {
+			$self->update_available(@update_info);
+		}
+	}
 	my $page = $self->get_current_administration_page() || 0;
 	if ($page == CHANGE_PASSWORD) {
 		my $user = $self->get_logged_in_user_account();
@@ -749,6 +793,15 @@ sub _provide_administration_interface {
 	}
 }
 
+sub _check_for_update {
+	my $self = shift;
+	my $uc = new Chirpy::UpdateChecker($self);
+	my $result = $uc->check_for_updates();
+	return undef unless ($result);
+	return $uc->get_error_message() if (ref $result ne 'ARRAY');
+	return $result;
+}
+
 sub _browse_quotes_segmented {
 	my ($self, $page, $start, $quotes, $leading, $trailing) = @_;
 	if (defined $quotes) {
@@ -867,6 +920,16 @@ sub administration_allowed {
 	return 0 unless defined $user;
 	my $level = $user->get_level();
 	return ADMIN_PERMISSIONS->{$action}{$level};
+}
+
+sub get_parameter {
+	my ($self, $name) = @_;
+	return $self->parent()->get_parameter($name);
+}
+
+sub set_parameter {
+	my ($self, $name, $value) = @_;
+	$self->parent()->set_parameter($name, $value);
 }
 
 sub format_date_time {
@@ -1088,6 +1151,10 @@ sub param {
 *report_last_owner_account_removal_error = \&Chirpy::Util::abstract_method;
 
 *get_user_information = \&Chirpy::Util::abstract_method;
+
+*update_available = \&Chirpy::Util::abstract_method;
+
+*update_check_error = \&Chirpy::Util::abstract_method;
 
 1;
 

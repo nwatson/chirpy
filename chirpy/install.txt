@@ -199,6 +199,7 @@ base_path=./src
 locale=en-US
 rating_limit_count=2
 rating_limit_time=60
+update_check=1
 
 [data]
 type=MySQL
@@ -243,6 +244,9 @@ title               Change this value to the title you want your QDB to have.
 base_path           Enter the absolute or relative path to the src/ directory
                     here. When using relative paths, this is again relative to
                     the directory where index.cgi is.
+update_check        Set this to 1 to tell Chirpy! to automatically check for
+                    updates periodically. Only site owners will be informed of
+                    available updates.
 
 3.2.2. The [data] Section
 -------------------------

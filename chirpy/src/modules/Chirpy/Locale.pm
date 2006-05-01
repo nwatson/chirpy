@@ -277,6 +277,15 @@ Title of the notes section in the quote list, followed by a colon.
 
 Title of the tags section in the quote list, followed by a colon.
 
+=item no_tagged_quotes
+
+Message displayed instead of the tag cloud when no quotes have been tagged.
+
+=item tag_link_description
+
+Description text for the link to the list of quotes with the current tag.
+C<%1%> is replaced with the tag.
+
 =item search_query_title
 
 Title of the query field on the search interface, followed by a colon.
@@ -781,6 +790,29 @@ account.
 Error message displayed when the user attempts to access an administration
 interface he is not allowed to use.
 
+=item update_available
+
+Title for the message indicating that a new version of Chirpy! is available.
+
+=item update_available_text
+
+Text giving basic information about a Chirpy! update. C<%1%> is replaced with
+the version number C<%2%> with the release date.
+
+=item update_link_text
+
+Text for a link to an available update. Usually something along the lines of
+"Click here for more information."
+
+=item update_check_failed
+
+Title for the message indicating that checking for updates has failed.
+
+=item update_check_failed_text
+
+Message explaining that Chirpy! failed to check for updates, and indicating
+that an error report follows.
+
 =back
 
 =head1 TODO
@@ -859,5 +891,7 @@ sub	get_author_information {
 		'uri' => $self->get('properties', 'author_uri')
 	};
 }
+
+1;
 
 ###############################################################################
