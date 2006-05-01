@@ -61,7 +61,7 @@ function QuoteActionRequest (url, id, isReport) {
 	this.resultField = document.getElementById('quote-live-vote-result-' + id);
 	this.setResult(locale["processing"], true);
 	this.ajax = getAjaxObject(this);
-	this.ajax.onreadystatechange = function() { readyStateChanged(req); }
+	this.ajax.onreadystatechange = function() { readyStateChanged(req); };
 	this.startTime = t;
 	this.interval = setInterval(
 		function () { checkRequestTime(req); }, pollingInterval);
@@ -81,7 +81,7 @@ QuoteActionRequest.prototype.setResult = function (text, blink, timeout) {
 	var field = this.resultField;
 	if (timeout)
 		this.fadeTimeout = setTimeout(setText, timeout, field, "");
-}
+};
 
 function sendRating (anchor, id) {
 	if (ajaxMethodIndex < 0) return true;
