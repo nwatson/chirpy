@@ -80,7 +80,8 @@
 				<div class="quote-tags">
 					<p><em class="quote-tags-title"><TMPL_VAR NAME="TAGS_TITLE"></em>
 					<TMPL_LOOP NAME="TAGS">
-					<a href="<TMPL_VAR NAME="URL">"><TMPL_VAR NAME="TAG"></a>
+					<a href="<TMPL_VAR NAME="URL">"
+					title="<TMPL_VAR NAME="LINK_DESCRIPTION">"><TMPL_VAR NAME="TAG"></a>
 					</TMPL_LOOP></p>
 				</div>
 				</TMPL_IF>

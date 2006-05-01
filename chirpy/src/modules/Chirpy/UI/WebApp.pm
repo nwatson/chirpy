@@ -869,11 +869,13 @@ sub provide_tag_cloud {
 	my @tag_info = ();
 	foreach my $arrayref (@$tag_information) {
 		my ($tag, $cnt, $perc) = @$arrayref;
+		my $title = $self->locale()->get_string('tag_link_description', $tag);
 		push @tag_info, {
 			'TAG' => &_text_to_xhtml($tag),
 			'USAGE_COUNT' => $cnt,
 			'SIZE_PERCENTAGE' => $perc,
-			'URL' => &_text_to_xhtml($self->_tag_url($tag))
+			'URL' => &_text_to_xhtml($self->_tag_url($tag)),
+			'LINK_DESCRIPTION' => &_text_to_xhtml($title)
 		};
 	}
 	$template->param(
@@ -2570,9 +2572,11 @@ sub _link_tags {
 	return [] unless (defined $tags && @$tags);
 	my @out = ();
 	foreach my $tag (@$tags) {
+		my $title = $self->locale()->get_string('tag_link_description', $tag);
 		push @out, {
 			'TAG' => &_text_to_xhtml($tag),
-			'URL' => &_text_to_xhtml($self->_tag_url($tag))
+			'URL' => &_text_to_xhtml($self->_tag_url($tag)),
+			'LINK_DESCRIPTION' => &_text_to_xhtml($title)
 		};
 	}
 	return \@out;
