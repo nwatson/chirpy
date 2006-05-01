@@ -229,6 +229,7 @@ webapp.cookie_path=/cgi-bin/chirpy
 webapp.session_expiry=+3d
 webapp.enable_short_urls=0
 webapp.enable_feeds=0
+webapp.quotes_per_feed=50
 webapp.enable_gzip=0
 webapp.enable_captchas=0
 webapp.enable_autolink=0
@@ -288,6 +289,11 @@ webapp.enable_short_urls
 webapp.enable_feeds Chirpy! can offer an RSS 2.0 feed and an Atom 1.0 feed of
                     the Quotes of the Week, so visitors can syndicate them. If
                     you want to enable those, set this to 1.
+webapp.quotes_per_feed
+                    This is the maximum number of quotes to include in a feed.
+                    In theory, Chirpy! can provide a content feed for any page,
+                    and since feeds do not offer "Previous"/"Next" links, this
+                    should be a sensible number. The default is 50.
 webapp.enable_gzip  Chirpy! can greatly decrease bandwidth usage by compressing
                     output on the fly if the browser supports it. Set this to 1
                     to enable that. It requires the Compress::Zlib Perl module.

@@ -343,6 +343,13 @@ sub get_current_page {
 			? Chirpy::UI::SINGLE_QUOTE : Chirpy::UI::START_PAGE);
 	}
 	$self->_provide_session_if_necessary($page);
+	# XXX: This is sort of hackish. What to do?
+	if (defined $self->_feed_type()) {
+		my $quotes_per_feed = $self->param('quotes_per_feed');
+		$quotes_per_feed = 50
+			unless (defined $quotes_per_feed && $quotes_per_feed > 0);
+		$self->parent()->quotes_per_page($quotes_per_feed);
+	}
 	return $page;
 }
 

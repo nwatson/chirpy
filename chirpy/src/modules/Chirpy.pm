@@ -683,7 +683,9 @@ sub attempt_login {
 }
 
 sub quotes_per_page {
-	my $self = shift;
+	my ($self, $value) = @_;
+	$self->{'quotes_per_page'} = $value if ($value);
+	return $self->{'quotes_per_page'} if (defined $self->{'quotes_per_page'});
 	return $self->configuration()->get('ui', 'quotes_per_page');
 }
 
