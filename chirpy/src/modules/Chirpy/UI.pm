@@ -373,6 +373,8 @@ sub _provide_administration_interface {
 					$self->set_parameter('update_version', $upd_status->[0]);
 					$self->set_parameter('update_released', $upd_status->[1]);
 					$self->set_parameter('update_url', $upd_status->[2]);
+					$self->set_parameter('update_version_current',
+						$Chirpy::VERSION);
 					@update_info = @$upd_status; 
 				}
 				else {
@@ -383,9 +385,19 @@ sub _provide_administration_interface {
 		else {
 			my $version = $self->get_parameter('update_version');
 			if ($version) {
-				my $date = $self->get_parameter('update_released');
-				my $url = $self->get_parameter('update_url');
-				@update_info = ($version, $date, $url);
+				my $version_at_check
+					= $self->get_parameter('update_version_current');
+				if ($version_at_check == $Chirpy::VERSION) {
+					my $date = $self->get_parameter('update_released');
+					my $url = $self->get_parameter('update_url');
+					@update_info = ($version, $date, $url);
+				}
+				else {
+					$self->set_parameter('update_version', undef);
+					$self->set_parameter('update_released', undef);
+					$self->set_parameter('update_url', undef);
+					$self->set_parameter('update_version_current', undef);
+				}
 			}
 		}
 		if (defined $update_check_error) {
