@@ -324,11 +324,9 @@ sub get_quotes {
 		$query .= ' LIMIT ';
 		if ($params->{'first'}) {
 			$leading = 1;
-			$query .= '?,';
-			push @par, $params->{'first'};
+			$query .= int($params->{'first'}) . ',';
 		}
-		$query .= '?';
-		push @par, $params->{'count'} + 1;
+		$query .= int($params->{'count'}) + 1;
 		$per_page = $params->{'count'};
 	}
 	my $sth = $self->handle()->prepare($query);
@@ -481,8 +479,7 @@ sub get_news_items {
 	}
 	$query .= ' ORDER BY `date` DESC';
 	if ($params->{'count'}) {
-		$query .= ' LIMIT ?';
-		push @par, $params->{'count'};
+		$query .= ' LIMIT ' . int $params->{'count'};
 	}
 	my $sth = $self->handle()->prepare($query);
 	$self->_db_error() unless (defined $sth);
