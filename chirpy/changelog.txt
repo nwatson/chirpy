@@ -1,6 +1,12 @@
  _____________________________________________________________________________
 /                                                                             \
-| Chirpy! v0.2                                                     YYYY.MM.DD |
+| Chirpy! v0.3                                                     YYYY.MM.DD |
+\_____________________________________________________________________________/
+
+
+ _____________________________________________________________________________
+/                                                                             \
+| Chirpy! v0.3                                                     2006.05.02 |
 \_____________________________________________________________________________/
 
 * Fixed SQL injection vulnerabilities
@@ -23,7 +29,7 @@
   UNAPPROVED_QUOTE_COUNT, and TOTAL_QUOTE_COUNT to templates
 * Added mass quote approval and unflagging to Chirpy::UI::WebApp's
   administration section
-* Changed Chirpy::DataManager's API so add_* methods return ID of added item
+* Changed Chirpy::DataManager's API so add_* methods set IDs
 * Added option to automatically turn URLs and e-mail addresses in quotes into
   hyperlinks
 * Made Chirpy::UI::WebApp escape all e-mail addresses to prevent spam
@@ -35,8 +41,7 @@
   works again
 * Optimized fetching single quote in Chirpy::DataManager::MySQL
 * Made Chirpy::UI::WebApp::Session automatically remove expired sessions every
-  24 hours; util/remove_expired_sessions.pl is now obsolete, but you need to
-  create a new database table, as described in install.txt
+  24 hours; util/remove_expired_sessions.pl is now obsolete
 * Fixed US English (and Dutch) locale: quote_submission_thanks_administrator is
   now quote_submission_thanks_no_approval
 * Extended feed templates with a couple of variables and added rating and

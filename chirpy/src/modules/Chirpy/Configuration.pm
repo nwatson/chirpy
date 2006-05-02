@@ -1,5 +1,5 @@
 ###############################################################################
-# Chirpy! v0.2, a quote management system                                     #
+# Chirpy! v0.3, a quote management system                                     #
 # Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
@@ -60,10 +60,11 @@ use warnings;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.2';
+$VERSION = '0.3';
 @ISA = qw(Chirpy::Util::IniFile);
 
-use Chirpy::Util::IniFile 0.2;
+use Chirpy 0.3;
+use Chirpy::Util::IniFile 0.3;
 
 sub new {
 	my ($class, $file) = @_;

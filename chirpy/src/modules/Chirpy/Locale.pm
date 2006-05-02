@@ -1,5 +1,5 @@
 ###############################################################################
-# Chirpy! v0.2, a quote management system                                     #
+# Chirpy! v0.3, a quote management system                                     #
 # Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
@@ -43,15 +43,13 @@ I<French/Canada>.
 =head2 Information Section
 
 Information about the locale is stored in the INI file's C<properties> section.
-Version 0.2 locales use the following values for storing information about the
-locale:
+Locales use the following values for storing information about the locale:
 
 =over 4
 
 =item chirpy_version
 
-The version of Chirpy! that the locale was made for, so C<0.2> for this
-release.
+The version of Chirpy! that the locale was made for.
 
 =item full_name
 
@@ -78,9 +76,9 @@ The URL to your homepage, if any.
 
 =head2 Strings Section
 
-The localized strings are stored in the INI file's C<strings> section. Version
-0.2 locales must define the strings listed below. For examples, please consult
-F<en-US.ini>, the I<U.S. English> locale bundled with Chirpy! by default.
+The localized strings are stored in the INI file's C<strings> section. Mocales
+must define the strings listed below. For examples, please consult
+F<en-US.ini>, the I<U.S. English> locale, bundled with Chirpy! by default.
 
 Note that locales may contain extra strings which are specific to a user
 interface class. These must be prepended by the name of the class and a dot.
@@ -851,10 +849,11 @@ use warnings;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.2';
+$VERSION = '0.3';
 @ISA = qw(Chirpy::Util::IniFile);
 
-use Chirpy::Util::IniFile 0.2;
+use Chirpy 0.3;
+use Chirpy::Util::IniFile 0.3;
 
 sub new {
 	my ($class, $file) = @_;
