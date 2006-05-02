@@ -272,7 +272,8 @@ sub set_up {
 
 sub remove {
 	my ($self, $accounts, $news, $quotes) = @_;
-	foreach my $table (qw/accounts news quotes log sessions vars/) {
+	my @tables = qw/accounts news quotes tags quote_tag log sessions vars/;
+	foreach my $table (@tables) {
 		$self->_remove_table($self->table_name_prefix() . $table);
 	}
 }
