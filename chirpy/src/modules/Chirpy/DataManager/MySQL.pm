@@ -158,8 +158,10 @@ sub set_up {
 	my ($self, $accounts, $news, $quotes) = @_;
 	my $prefix = $self->table_name_prefix();
 	my $handle = $self->handle();
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|accounts` (
+	my $table = $prefix . 'accounts';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`id` int unsigned NOT NULL auto_increment,
 				`username` varchar(32) NOT NULL,
 				`password` varchar(32) NOT NULL,
@@ -167,18 +169,24 @@ sub set_up {
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `username` (`username`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create account table: ' . DBI->errstr());
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|news` (
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'news';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`id` int unsigned NOT NULL auto_increment,
 				`body` text NOT NULL,
 				`poster` int unsigned default NULL,
 				`date` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create news table: ' . DBI->errstr());
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|quotes` (
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'quotes';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`id` int unsigned NOT NULL auto_increment,
 				`body` text NOT NULL,
 				`notes` text,
@@ -188,25 +196,34 @@ sub set_up {
 				`flagged` tinyint(1) unsigned NOT NULL,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create quote table: ' . DBI->errstr());
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|tags` (
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'tags';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`id` int unsigned NOT NULL auto_increment,
 				`tag` varchar(255) NOT NULL,
 				PRIMARY KEY (`id`),
 				INDEX (`tag`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create tag table: ' . DBI->errstr());
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|quote_tag` (
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'quote_tag';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`quote_id` int unsigned NOT NULL,
 				`tag_id` int unsigned NOT NULL,
 				INDEX (`quote_id`),
 				INDEX (`tag_id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create quote tag table: ' . DBI->errstr());
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|log` (
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'log';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`id` int unsigned NOT NULL auto_increment,
 				`date` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				`code` int unsigned NOT NULL,
@@ -214,21 +231,28 @@ sub set_up {
 				`data` text,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create log table: ' . DBI->errstr());
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|sessions` (
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'sessions';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`id` varchar(32) NOT NULL,
 				`data` text NOT NULL,
 				UNIQUE KEY `id` (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create session table: ' . DBI->errstr());
-	$handle->do(q|
-			CREATE TABLE `| . $prefix . q|vars` (
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'vars';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
 				`name` VARCHAR(32) NOT NULL,
 				`value` VARCHAR(255) NOT NULL,
 				PRIMARY KEY (`name`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
-		|) or Chirpy::die('Cannot create parameter table: ' . DBI->errstr());
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
 	if (defined $accounts) {
 		foreach my $account (@$accounts) {
 			$self->add_account($account);
@@ -248,18 +272,22 @@ sub set_up {
 
 sub remove {
 	my ($self, $accounts, $news, $quotes) = @_;
-	my $prefix = $self->table_name_prefix();
-	my $handle = $self->handle();
-	$handle->do('DROP TABLE ' . $prefix . 'accounts')
-		or Chirpy::die('Cannot remove account table: ' . DBI->errstr());
-	$handle->do('DROP TABLE ' . $prefix . 'news')
-		or Chirpy::die('Cannot remove news table: ' . DBI->errstr());
-	$handle->do('DROP TABLE ' . $prefix . 'quotes')
-		or Chirpy::die('Cannot remove quote table: ' . DBI->errstr());
-	$handle->do('DROP TABLE ' . $prefix . 'log')
-		or Chirpy::die('Cannot remove log table: ' . DBI->errstr());
-	$handle->do('DROP TABLE ' . $prefix . 'sessions')
-		or Chirpy::die('Cannot remove session table: ' . DBI->errstr());
+	foreach my $table (qw/accounts news quotes log sessions vars/) {
+		$self->_remove_table($self->table_name_prefix() . $table);
+	}
+}
+
+sub _remove_table {
+	my ($self, $table) = @_;
+	return unless ($self->_table_exists($table));
+	defined $self->_do('DROP TABLE `' . $table . '`')
+		or Chirpy::die('Cannot remove "' . $table . '": ' . DBI->errstr());
+}
+
+sub _table_exists {
+	my ($self, $table) = @_;
+	my $query = "SHOW TABLES LIKE '$table'";
+	return defined $self->_execute_scalar($query);
 }
 
 sub get_quotes {

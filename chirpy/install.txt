@@ -456,35 +456,19 @@ there. If anything goes wrong, try the Support Tracker.
 4. UPGRADING
 ============
 
-If you are upgrading from Chirpy! 0.1, you will have to create three extra
-MySQL tables (or, if you are using your own data manager, implement the new
-methods however you please). Creating the tables is done by issuing the MySQL
-commands below. Most people will want to do this from phpMyAdmin. Also, you
-need to replace %prefix% with the table name prefix set in chirpy.ini.
+If you are upgrading from Chirpy! version 0.1, you should just move the updated
+setup.pl script from the "util" directory into Chirpy!'s root directory for
+a second, make it executable, and surf to it. Chirpy! will then ask you if you
+want to perform a fresh installation or an upgrade. DO _NOT_ CLICK ON "FRESH
+INSTALLATION," because you would lose all your quotes, accounts, etc. Instead,
+click the "UPGRADE" button, wait for the page to load, watch Chirpy! inform you
+of the successful upgrade, and remove setup.pl again.
 
-  CREATE TABLE `%prefix%tags` (
-    `id` int unsigned NOT NULL auto_increment,
-    `tag` varchar(255) NOT NULL,
-    PRIMARY KEY (`id`),
-    INDEX (`tag`)
-  ) TYPE=MyISAM DEFAULT CHARSET=utf8;
-
-  CREATE TABLE `%prefix%quote_tag` (
-    `quote_id` int unsigned NOT NULL,
-    `tag_id` int unsigned NOT NULL,
-    INDEX (`quote_id`),
-    INDEX (`tag_id`)
-  ) TYPE=MyISAM DEFAULT CHARSET=utf8;
-
-  CREATE TABLE `%prefix%vars` (
-    `name` VARCHAR(32) NOT NULL,
-    `value` VARCHAR(255) NOT NULL,
-    PRIMARY KEY (`name`)
-  ) TYPE=MyISAM DEFAULT CHARSET=utf8;
-
-After creating the tables, just upload the new files, perhaps take a look at
-the other new features so you can update your configuration file, and enjoy
-your upgraded Chirpy! installation!
+Additionally, as Chirpy! 0.2 offers quite a couple of new features, you will
+probably want to play with those. Most of them just come down to adding a line
+in the configuration file. For captchas, you will need to create a couple of
+directories; just scroll back to section 3.2, where the configuration file is
+explained--it's all there. Enjoy!
 
 
 5. RUN CHIRPY!
@@ -499,7 +483,7 @@ installation already. If not, append /index.cgi to your site URL and open that
 URL. That should give you a cute little start page. You should be able to leave
 off index.cgi in the URL now--try it. If it doesn't work, you should definitely
 turn short URLs off. If something else goes wrong, you should try the Support
-Tracker.
+Tracker; the URL is at the beginning of this file.
 
 Now, you're pretty much finished. Except that you should change the default
 password. Surf to the administration section, log in as "superuser" with the

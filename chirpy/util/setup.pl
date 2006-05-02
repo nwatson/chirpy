@@ -21,7 +21,7 @@
 
 ###############################################################################
 # setup.pl                                                                    #
-# Generic installation script                                                 #
+# Generic installation/upgrade script                                         #
 ###############################################################################
 
 use strict;
@@ -54,36 +54,34 @@ print $cgi->header(-type => 'text/html; charset=US-ASCII');
 
 if ($cgi->request_method() eq 'POST') {
 	print '<pre>';
+	
+	my $fresh = $cgi->param('fresh');
 
-	if ($cgi->param('remove')) {
-		&_log('Removing existing data (as requested) …');
+	if ($fresh) {
+		&_log('Removing old installation (if any) ...');
 		$ch->remove();
+		&_log('Setting up ' . Chirpy::FULL_PRODUCT_NAME . ' ...');
+		my $account = new Chirpy::Account(
+			undef,
+			DEFAULT_USERNAME,
+			Chirpy::Util::encrypt(DEFAULT_PASSWORD),
+			Chirpy::Account::USER_LEVEL_9
+		);
+		my $news = new Chirpy::NewsItem(
+			undef,
+			DEFAULT_NEWS_ITEM,
+			$account,
+			time
+		);
+		$ch->set_up([ $account ], [ $news ]);
+		&_log('Account "' . DEFAULT_USERNAME . '" and news item added.');
+		&_log('Setup completed!');
 	}
-
-	&_log('Setting up …');
-	my $account = new Chirpy::Account(
-		undef,
-		DEFAULT_USERNAME,
-		Chirpy::Util::encrypt(DEFAULT_PASSWORD),
-		Chirpy::Account::USER_LEVEL_9
-	);
-	$ch->set_up(
-		[
-			$account
-		],
-		[
-			new Chirpy::NewsItem(
-				undef,
-				DEFAULT_NEWS_ITEM,
-				$account,
-				time
-			)
-		]
-	);
-
-	&_log('Account "' . DEFAULT_USERNAME . '" and default news item added.');
-
-	&_log('Setup completed!');
+	else {
+		&_log('Upgrading to ' . Chirpy::FULL_PRODUCT_NAME . ' ...');
+		$ch->set_up();
+		&_log('Upgrade successful!');
+	}
 
 	print '</pre>', $/,
 		'<p><strong>Finally, you <em>must remove this file</em> (<code>',
@@ -104,15 +102,15 @@ else {
 		'present and that you have edited <code>chirpy.ini</code> ',
 		'to match your configuration. Otherwise, the setup process ',
 		'<em>will</em> fail.</strong></p>', $/,
-		'<p>Now, please decide if you want to remove any existing data ',
-		'from a previous installation. Note that if you are ',
-		'<strong>upgrading</strong>, you do <strong>not</strong> need to ',
-		'use this script at all.</p>', $/,
+		'<p>Now, please tell us if this is a fresh installation, or you ',
+		'are upgrading an existing installation.</p>', $/,
 		'<form method="POST" action="', $cgi->script_name(), '"><div>', $/,
-		'<input type="submit" name="keep" ',
-		'value="KEEP Existing Data &amp; Set Up">', $/,
-		'<input type="submit" name="remove" ',
-		'value="REMOVE Existing Data &amp; Set Up">', $/,
+		'<input type="submit" name="fresh" ',
+		'value="FRESH INSTALLATION" ',
+		'onclick="return confirm(&quot;This will DELETE all existing data. ',
+		'Are you sure?&quot;);">', $/,
+		'<input type="submit" name="upgrade" ',
+		'value="UPGRADE (a.k.a. Keep My Stuff!)">', $/,
 		'</div></form>';
 }
 
