@@ -233,7 +233,7 @@ sub run {
 				? Chirpy::Util::clean_up_submission($notes)
 				: undef);
 			$tags = Chirpy::Util::parse_tags($tags);
-			my $id = $self->parent()->add_quote(
+			my $quote = $self->parent()->add_quote(
 				$body,
 				$notes,
 				$approved,
@@ -241,7 +241,7 @@ sub run {
 			);
 			$self->confirm_quote_submission($approved);
 			$self->_log_event(Chirpy::Event::ADD_QUOTE, {
-				'id' => $id,
+				'id' => $quote->get_id(),
 				'body' => $body,
 				'notes' => $notes,
 				'approved' => $approved,
@@ -529,13 +529,13 @@ sub _provide_administration_interface {
 		else {
 			if (my $news = $self->get_news_item_to_add()) {
 				my $news = Chirpy::Util::clean_up_submission($news);
-				my $id = $self->parent()->add_news_item(
+				my $item = $self->parent()->add_news_item(
 					$news,
 					$self->get_logged_in_user_account()
 				);
 				$self->confirm_news_submission($news);
 				$self->_log_event(Chirpy::Event::ADD_NEWS, {
-					'id' => $id, 'body' => $news
+					'id' => $item->get_id(), 'body' => $news
 				});
 			}
 			else {
@@ -637,11 +637,11 @@ sub _provide_administration_interface {
 					$self->report_invalid_new_user_level();
 				}
 				else {
-					my $id = $self->parent()->add_account(
+					my $account = $self->parent()->add_account(
 						$username, $password, $level);
 					$self->confirm_account_creation();
 					$self->_log_event(Chirpy::Event::ADD_ACCOUNT, {
-						'id' => $id,
+						'id' => $account->get_id(),
 						'username' => $username,
 						'level' => $level
 					});

@@ -175,8 +175,9 @@ and vice versa.
 
 =item add_quote($quote)
 
-Adds the L<Chirpy::Quote|Chirpy::Quote> C<$quote> to the collection. Returns
-the quote's newly assigned ID.
+Adds the L<Chirpy::Quote|Chirpy::Quote> C<$quote> to the collection. Assigns an
+ID to the quote and updates the object with it. Returns a true value upon
+success.
 
 The properties to be saved by this method are I<body>, I<notes>, I<approved>
 and I<tags>.
@@ -252,7 +253,8 @@ L<Chirpy::NewsItem>, or C<undef> if no matching news items were found.
 =item add_news_item($news_item)
 
 Adds the L<Chirpy::NewsItem|Chirpy::NewsItem> C<$news_item> to the collection.
-Returns the news item's newly assigned ID.
+Assigns an ID to the news item and updates the object with it. Returns a true
+value upon success.
 
 The properties to be saved by this method are I<body> and I<poster>. I<poster>
 may be C<undef> if the poster is unknown.
@@ -312,7 +314,8 @@ L<Chirpy::Account>, or C<undef> if no matching accounts were found.
 =item add_account($account)
 
 Adds the L<Chirpy::Account|Chirpy::Account> C<$account> to the collection.
-Returns the account's newly assigned ID.
+Assigns an ID to the account and updates the object with it. Returns a true
+value upon success.
 
 The properties to be saved by this method are I<username>, I<password> and
 I<level>.

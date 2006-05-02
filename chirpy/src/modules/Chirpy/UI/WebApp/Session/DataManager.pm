@@ -53,7 +53,7 @@ are as follows:
 
 Stores the session with ID C<$id> and session data C<$data>. C<$data> is a hash
 reference, so you will probably have to serialize it. How you do that is up to
-you, but L<Data::Dumper> makes it easy.
+you, but L<Data::Dumper> makes it easy. Returns a true value upon success.
 
 =item get_sessions(@ids)
 

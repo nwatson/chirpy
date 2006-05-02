@@ -400,8 +400,9 @@ sub add_quote {
 		$quote->get_notes(),
 		$quote->get_approved() || 0);
 	my $id = $self->handle()->{'mysql_insertid'};
+	$quote->set_id($id);
 	$self->_tag($id, $quote->get_tags());
-	return $id;
+	return 1;
 }
 
 sub modify_quote {
@@ -539,7 +540,8 @@ sub add_news_item {
 		$news->get_body(), (defined $poster ? $poster->get_id() : undef),
 		$news->get_date());
 	my $id = $self->handle()->{'mysql_insertid'};
-	return $id;
+	$news->set_id($id);
+	return 1;
 }
 
 sub modify_news_item {
@@ -611,7 +613,8 @@ sub add_account {
 		. ' (`username`, `password`, `level`) VALUES (?, ?, ?)',
 		$user->get_username(), $user->get_password(), $user->get_level());
 	my $id = $self->handle()->{'mysql_insertid'};
-	return $id;
+	$user->set_id($id);
+	return 1;
 }
 
 sub modify_account {
@@ -687,6 +690,7 @@ sub add_session {
 	my $string = &_serialize($data);
 	$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'sessions`'
 		. ' (`id`, `data`) VALUES (?, ?)', $id, $string);
+	return 1;
 }
 
 sub get_sessions {

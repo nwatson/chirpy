@@ -496,9 +496,8 @@ sub add_quote {
 		0,
 		$tags
 	);
-	my $id = $self->_data_manager()->add_quote($quote);
-	$quote->set_id($id);
-	return $id;
+	$self->_data_manager()->add_quote($quote);
+	return $quote;
 }
 
 sub modify_quote {
@@ -567,9 +566,8 @@ sub add_news_item {
 		Chirpy::Util::clean_up_submission($text),
 		$author
 	);
-	my $id = $self->_data_manager()->add_news_item($item);
-	$item->set_id($id);
-	return 1;
+	$self->_data_manager()->add_news_item($item);
+	return $item;
 }
 
 sub modify_news_item {
@@ -632,9 +630,8 @@ sub add_account {
 		Chirpy::Util::encrypt($password),
 		$level
 	);
-	my $id = $self->_data_manager()->add_account($account);
-	$account->set_id($id);
-	return $id;
+	$self->_data_manager()->add_account($account);
+	return $account;
 }
 
 sub modify_account {
