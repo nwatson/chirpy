@@ -2095,7 +2095,7 @@ sub _get_manage_accounts_html {
 			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'ADD_ACCOUNT'},
 			1
 		) . '">' . $/
-		. '<div id="manage-accounts">' . $/
+		. '<div id="account-manager">' . $/
 		. '<div id="username-select-container">' . $/
 		. '<select name="id" id="username-select" size="16">' . $/
 		. '<option value="-1" id="username-new-user" selected="selected">'
@@ -2169,7 +2169,7 @@ sub _get_manage_accounts_html {
 		. '&quot;)" />' . $/
 		. '</div>' . $/
 		. (defined $status_message
-			? '<div id="manage-accounts-result">' . $/
+			? '<div id="account-manager-result">' . $/
 				. &_text_to_xhtml($status_message)
 				. $/ . '</div>' . $/
 			: '')

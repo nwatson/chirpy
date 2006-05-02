@@ -551,61 +551,61 @@ ul.tabbed-pane-contents > li {
 	width: 8ex;
 }
 
-#manage-accounts {
+#account-manager {
 	text-align: right;
 	padding: 0 1em;
 }
 
-#manage-accounts #username-select-container {
+#account-manager #username-select-container {
 	width: 40%;
 	float: left;
 }
 
-#manage-accounts #username-select {
+#account-manager #username-select {
 	width: 100%;
 	height: 20em;
 }
 
-#manage-accounts #username-select #username-new-user {
+#account-manager #username-select #username-new-user {
 	font-weight: bold;
 }
 
-#manage-accounts #username-select .user-level-9,
-#manage-accounts #level-select .user-level-9,
+#account-manager #username-select .user-level-9,
+#account-manager #level-select .user-level-9,
 #edit-news-item-form #news-item-poster-select .user-level-9 {
 	background: #FFF0F9;
 }
 
-#manage-accounts #username-select .user-level-6,
-#manage-accounts #level-select .user-level-6,
+#account-manager #username-select .user-level-6,
+#account-manager #level-select .user-level-6,
 #edit-news-item-form #news-item-poster-select .user-level-6  {
 	background: #FFF9F0;
 }
 
-#manage-accounts #username-select .user-level-3,
-#manage-accounts #level-select .user-level-3,
+#account-manager #username-select .user-level-3,
+#account-manager #level-select .user-level-3,
 #edit-news-item-form #news-item-poster-select .user-level-3  {
 	background: #F0FFE9;
 }
 
-#manage-accounts #username-field {
+#account-manager #username-field {
 	margin-top: 2em;
 }
 
-#manage-accounts #username-field,
-#manage-accounts #password-field,
-#manage-accounts #repeat-password-field {
+#account-manager #username-field,
+#account-manager #password-field,
+#account-manager #repeat-password-field {
 	width: 40%;
 }
 
-#manage-accounts #username-select-container,
-#manage-accounts #username-container,
-#manage-accounts #repeat-password-container,
-#manage-accounts #level-container {
+#account-manager #username-select-container,
+#account-manager #username-container,
+#account-manager #repeat-password-container,
+#account-manager #level-container {
 	margin-bottom: 0.75em;
 }
 
-#manage-accounts #manage-accounts-result {
+#account-manager #account-manager-result {
 	margin: 2em 0 0 0;
 	padding: 0.25em 0 0 0;
 	width: 45%;
