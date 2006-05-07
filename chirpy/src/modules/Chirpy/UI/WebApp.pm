@@ -537,7 +537,8 @@ sub welcome_user {
 		$template->param('MOTD' => $self->_process_template(
 			new HTML::Template(
 				'filename' => $motd_path,
-				'die_on_bad_params' => 0)));
+				'die_on_bad_params' => 0,
+				'global_vars' => 1)));
 	}
 	$self->_output_template($template);
 }
@@ -566,7 +567,8 @@ sub _generate_feed {
 	my $template = new HTML::Template(
 		'filename' => $self->{'templates_path'}
 			. '/feeds/' . ($type eq 'atom' ? 'atom10' : 'rss20') . '.xml',
-		'die_on_bad_params' => 0);
+		'die_on_bad_params' => 0,
+		'global_vars' => 1);
 	my @quotes = ();
 	my $date;
 	my $auto_link = $conf->get('ui', 'webapp.enable_autolink');
@@ -790,18 +792,18 @@ sub _generate_xhtml {
 			'ALLOW_UNFLAG'
 				=> $quote->get_flagged() && $self->administration_allowed(
 					Chirpy::UI::MANAGE_FLAGGED_QUOTES),
-			'EDIT_URL' => $self->_url(
+			'EDIT_URL' => sub { return $self->_url(
 				ADMIN_ACTIONS->{'EDIT_QUOTE'},
 				1,
-				'id' => $quote->get_id()),
-			'REMOVE_URL' => $self->_url(
+				'id' => $quote->get_id()) },
+			'REMOVE_URL' => sub { return $self->_url(
 				ADMIN_ACTIONS->{'REMOVE_QUOTE'},
 				1,
-				'id' => $quote->get_id()),
-			'UNFLAG_URL' => $self->_url(
+				'id' => $quote->get_id()) },
+			'UNFLAG_URL' => sub { return $self->_url(
 				ADMIN_ACTIONS->{'MANAGE_FLAGGED_QUOTES'},
 				1,
-				'action_' . $quote->get_id() => 1),
+				'action_' . $quote->get_id() => 1) },
 			'ADMINISTRATOR_LINKS'
 				=> defined($self->get_logged_in_user_account()),
 			%static_strings
@@ -2370,7 +2372,8 @@ sub _load_template {
 	my ($self, $name) = @_;
 	my $template = new HTML::Template(
 		'filename' => $self->{'templates_path'} . '/' . $name . '.html',
-		'die_on_bad_params' => 0
+		'die_on_bad_params' => 0,
+		'global_vars' => 1
 	);
 	Chirpy::die('Failed to load template: ' . $!) unless ($template);
 	return $template;
@@ -2431,7 +2434,7 @@ sub _process_template {
 			->get('general', 'title')));
 	$template->param('SITE_URL' => $self->_url());
 	$template->param('WEBMASTER_EMAIL'
-		=> &_hide_email($self->param('webmaster_email')));
+		=> sub { return &_hide_email($self->param('webmaster_email')) });
 	my $qt = $locale->get_string('quotes_of_the_week');
 	$template->param('FEEDS' => [
 		{
@@ -2454,12 +2457,12 @@ sub _process_template {
 	$template->param('TOTAL_QUOTE_COUNT' => sub {
 		return $self->parent()->total_quote_count();
 	});
-	$template->param('COOKIE_DOMAIN' => &_text_to_xhtml(
-		$self->param('cookie_domain')));
-	$template->param('COOKIE_PATH' => &_text_to_xhtml(
-		$self->param('cookie_path')));
-	$template->param('RESOURCES_URL' => &_text_to_xhtml(
-		$self->param('resources_url')) . '/themes/' . $self->param('theme'));
+	$template->param('COOKIE_DOMAIN' => sub { return &_text_to_xhtml(
+		$self->param('cookie_domain')) });
+	$template->param('COOKIE_PATH' => sub { return &_text_to_xhtml(
+		$self->param('cookie_path')) });
+	$template->param('RESOURCES_URL' => sub { return &_text_to_xhtml(
+		$self->param('resources_url')) . '/themes/' . $self->param('theme') });
 	foreach my $action (keys %{ACTIONS()}) {
 		$template->param($action . '_URL'
 			=> $self->_url(ACTIONS->{$action}));
@@ -2471,10 +2474,10 @@ sub _process_template {
 					. lc $name)));
 		}
 	}
-	$template->param('NEXT_PAGE_TITLE', &_text_to_xhtml(
-		$locale->get_string('webapp.next_page_title')));
-	$template->param('PREVIOUS_PAGE_TITLE', &_text_to_xhtml(
-		$locale->get_string('webapp.previous_page_title')));
+	$template->param('NEXT_PAGE_TITLE', sub { return &_text_to_xhtml(
+		$locale->get_string('webapp.next_page_title')) });
+	$template->param('PREVIOUS_PAGE_TITLE', sub { return &_text_to_xhtml(
+		$locale->get_string('webapp.previous_page_title')) });
 	if (my $account = $self->get_logged_in_user_account()) {
 		$template->param('LOGGED_IN' => 1);
 		$template->param('LOGGED_IN_NOTICE' => &_text_to_xhtml(

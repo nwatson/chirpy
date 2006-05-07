@@ -3,6 +3,9 @@
 | Chirpy! v0.3                                                     YYYY.MM.DD |
 \_____________________________________________________________________________/
 
+* Template parameters are now global, which means you can include parameters
+  from outside a loop
+* Optimized template parsing a little
 
  _____________________________________________________________________________
 /                                                                             \
