@@ -210,7 +210,7 @@ Decreases the rating of quote number C<$id> by 1. Returns the new rating.
 =item get_tag_use_counts()
 
 Returns a reference to a hash, mapping tags to the number of times they were
-used.
+used. Only tags for approved quotes should be counted.
 
 =item approve_quotes(@ids)
 

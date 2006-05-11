@@ -438,6 +438,9 @@ sub get_tag_use_counts {
 		. ' FROM `' . $self->table_name_prefix() . 'quote_tag` AS `qt`'
 		. ' JOIN `' . $self->table_name_prefix() . 'tags` AS `t`'
 			. ' ON `qt`.`tag_id` = `t`.`id`'
+		. ' JOIN `' . $self->table_name_prefix() . 'quotes` AS `q`'
+			. ' ON `qt`.`quote_id` = `q`.`id`'
+		. ' WHERE `approved` = 1'
 		. ' GROUP BY `tag`';
 	my $sth = $self->handle()->prepare($query);
 	$self->_db_error() unless (defined $sth);
