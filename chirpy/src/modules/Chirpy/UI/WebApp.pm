@@ -2504,10 +2504,16 @@ sub _process_template {
 }
 
 sub _text_to_xhtml {
-	my $str = shift;
+	my ($str, $leave_whitespaces) = @_;
 	return undef unless (defined $str);
 	return '' if ($str eq '');
 	$str = Chirpy::Util::encode_xml_entities($str);
+	$str = &_whitespaces_to_xhtml($str) unless ($leave_whitespaces);
+	return $str;
+}
+
+sub _whitespaces_to_xhtml {
+	my $str = shift;
 	$str =~ s|\r?\n|<br/>\n|g;
 	$str =~ s/(?:[ \t])([ \t]+)/' ' . ('&#xA0;' x length($1))/eg;
 	return $str;
@@ -2515,10 +2521,27 @@ sub _text_to_xhtml {
 
 sub _quick_style_to_xhtml {
 	my ($string, $quote_url_template) = @_;
-	$string = &_text_to_xhtml($string);
-	$string =~ s{(?<=&lt;)((?:mailto:|(?:https?|ftp|irc)://).*?)(?=&gt;)}{
-		'<a href="' . $1 . '">' . $1 . '</a>'
-	}eg;
+	$string = &_text_to_xhtml($string, 1);
+	$string =~ s{
+		&lt;
+		\s*
+		(
+			(?:mailto:|(?:https?|ftp|irc)://)
+			.*?
+		)
+		(?:
+			\s+
+			(.*?)
+		)?
+		&gt;
+	}{
+		my ($url, $description) = ($1, $2);
+		unless (defined $description && length $description) {
+			$description = $url;
+		}
+		'<a href="' . $url . '">' . $description . '</a>';
+	}esgx;
+	$string = &_whitespaces_to_xhtml($string);
 	1 while $string =~ s{([*_])(.*?)\1}{
 		my $tag = ($1 eq '*' ? 'strong' : 'em');
 		'<' . $tag . '>' . $2 . '</' . $tag . '>';
