@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConfigurationFile version="0.3">
+	<Section name="general">
+		<Description><![CDATA[
+			This section covers Chirpy!'s global configuration.
+		]]></Description>
+		<Parameter name="title" type="string">
+			<Description><![CDATA[
+				The title of your QDB.
+			]]></Description>
+			<DefaultValue>My Little QDB</DefaultValue>
+		</Parameter>
+		<Parameter name="base_path" type="string">
+			<Description><![CDATA[
+				The absolute or relative path to your src/ directory. Unless
+				you moved it, just keep the default.
+			]]></Description>
+			<DefaultValue>./src</DefaultValue>
+		</Parameter>
+		<Parameter name="locale" type="string">
+			<Description><![CDATA[
+				The locale (i.e. language) for your QDB. This must correspond
+				to a file in src/locales/.
+			]]></Description>
+			<DefaultValue>en-US</DefaultValue>
+		</Parameter>
+		<Parameter name="rating_limit_count" type="int">
+			<Description><![CDATA[
+				The maximum number of quotes a user is allowed to rate in a
+				given interval.
+			]]></Description>
+			<DefaultValue>2</DefaultValue>
+		</Parameter>
+		<Parameter name="rating_limit_time" type="int">
+			<Description><![CDATA[
+				The time interval for the maximum number of quote ratings, in
+				seconds. For example, if you set rating_limit_count to 3 and
+				rating_limit_time to 60, visitors will be able to rate 3 quotes
+				every minute.
+			]]></Description>
+			<DefaultValue>60</DefaultValue>
+		</Parameter>
+		<Parameter name="update_check" type="boolean">
+			<Description><![CDATA[
+				Whether or not to check for updates automatically. This feature
+				requires that LWP be installed; if it is not, Chirpy! will tell
+				you, so go ahead and enable it.
+			]]></Description>
+			<DefaultValue>true</DefaultValue>
+		</Parameter>
+	</Section>
+	
+	<Section name="data">
+		<Description><![CDATA[
+			This section defines how quotes are stored.
+		]]></Description>
+		<Parameter name="type" type="string">
+			<Description><![CDATA[
+				The type of data manager to use. You'll probably want to keep
+				the default.
+			]]></Description>
+			<DefaultValue>MySQL</DefaultValue>
+		</Parameter>
+		<Section name="mysql">
+			<Description><![CDATA[
+				This section configures the MySQL data manager.
+			]]></Description>
+			<Parameter name="hostname" type="string">
+				<Description><![CDATA[
+					The hostname of the MySQL server.
+				]]></Description>
+				<DefaultValue>localhost</DefaultValue>
+			</Parameter>
+			<Parameter name="port" type="int">
+				<Description><![CDATA[
+					The port number on which the MySQL server listens.
+				]]></Description>
+				<DefaultValue>3306</DefaultValue>
+			</Parameter>
+			<Parameter name="database" type="string">
+				<Description><![CDATA[
+					The name of the database to use.
+				]]></Description>
+				<DefaultValue>my_database</DefaultValue>
+			</Parameter>
+			<Parameter name="username" type="string">
+				<Description><![CDATA[
+					The MySQL username to use.
+				]]></Description>
+				<DefaultValue>my_username</DefaultValue>
+			</Parameter>
+			<Parameter name="password" type="string">
+				<Description><![CDATA[
+					The password that corresponds with the MySQL username.
+				]]></Description>
+				<DefaultValue>my_password</DefaultValue>
+			</Parameter>
+			<Parameter name="prefix" type="string">
+				<Description><![CDATA[
+					The table name prefix. This can be useful if multiple
+					applications are using the same database. A lot of hosts
+					limit their users to a single database; those users can
+					easily distinguish Chirpy!'s tables thanks to this prefix.
+				]]></Description>
+				<DefaultValue>chirpy_</DefaultValue>
+			</Parameter>
+		</Section>
+	</Section>
+
+	<Section name="ui">
+		<Description><![CDATA[
+			This section defines how quotes are presented to the end user.
+		]]></Description>
+		<Parameter name="type" type="string">
+			<Description><![CDATA[
+				The type of user interface to use. Unless you installed a
+				third-party UI, just go with the default.
+			]]></Description>
+			<DefaultValue>WebApp</DefaultValue>
+		</Parameter>
+		<Parameter name="date_time_format" type="string">
+			<Description><![CDATA[
+				The template for displaying date/time values. This is passed
+				to the POSIX strftime() function.
+			]]></Description>
+			<DefaultValue>%Y-%m-%d %H:%M GMT</DefaultValue>
+		</Parameter>
+		<Parameter name="date_format" type="string">
+			<Description><![CDATA[
+				The template for displaying dates. This is passed to the POSIX
+				strftime() function.
+			]]></Description>
+			<DefaultValue>%Y-%m-%d</DefaultValue>
+		</Parameter>
+		<Parameter name="time_format" type="string">
+			<Description><![CDATA[
+				The template for displaying times. This is passed to the POSIX
+				strftime() function.
+			]]></Description>
+			<DefaultValue>%H:%M GMT</DefaultValue>
+		</Parameter>
+		<Parameter name="use_gmt" type="boolean">
+			<Description><![CDATA[
+				Whether or not to display times in Greenwich Mean Time (UTC).
+				If disabled, times will be as in the server's local time zone.
+			]]></Description>
+			<DefaultValue>true</DefaultValue>
+		</Parameter>
+		<Parameter name="quotes_per_page" type="int">
+			<Description><![CDATA[
+				The maximum number of quotes to display on a page, before
+				resorting to page navigation.
+			]]></Description>
+			<DefaultValue>10</DefaultValue>
+		</Parameter>
+		<Parameter name="recent_news_items" type="int">
+			<Description><![CDATA[
+				The maximum number of news items to display.
+			]]></Description>
+			<DefaultValue>3</DefaultValue>
+		</Parameter>
+		<Section name="webapp">
+			<Description><![CDATA[
+				This section configures the Web Application user interface.
+			]]></Description>
+			<Parameter name="webmaster_name" type="string">
+				<Description><![CDATA[
+					The name of the site's webmaster.
+				]]></Description>
+				<DefaultValue>John Doe</DefaultValue>
+			</Parameter>
+			<Parameter name="webmaster_email" type="string">
+				<Description><![CDATA[
+					The e-mail address of the site's webmaster. Preferably a
+					valid e-mail address. Chirpy! will take care of spam
+					protection.
+				]]></Description>
+				<DefaultValue>you@yourserver.com</DefaultValue>
+			</Parameter>
+			<Parameter name="site_url" type="string">
+				<Description><![CDATA[
+					The full URL to your Chirpy! installation.
+				]]></Description>
+				<DefaultValue>http://www.yourserver.com/cgi-bin/chirpy</DefaultValue>
+			</Parameter>
+			<Parameter name="resources_url" type="string">
+				<Description><![CDATA[
+					The full URL to the resources directory.
+				]]></Description>
+				<DefaultValue>http://www.yourserver.com/chirpy/res</DefaultValue>
+			</Parameter>
+			<Parameter name="cookie_domain" type="string">
+				<Description><![CDATA[
+					The domain name to use when setting cookies. For example,
+					if your QDB is at http://www.yourserver.com/chirpy/, you
+					will want to enter "yourserver.com", in case people omit
+					the "www." However, if the QDB has its own subdomain, e.g.
+					qdb.yourserver.com, there is no point in sharing cookies
+					with the rest of the domain.
+				]]></Description>
+				<DefaultValue>yourserver.com</DefaultValue>
+			</Parameter>
+			<Parameter name="cookie_path" type="string">
+				<Description><![CDATA[
+					The path to use when setting cookies. For instance, if
+					your QDB is at http://www.yourserver.com/cgi-bin/chirpy,
+					then you enter /cgi-bin/chirpy.
+				]]></Description>
+				<DefaultValue>/cgi-bin/chirpy</DefaultValue>
+			</Parameter>
+			<Parameter name="theme" type="string">
+				<Description><![CDATA[
+					The identifier of the theme to use. This must correspond
+					to a directory under src/templates/.
+				]]></Description>
+				<DefaultValue>default</DefaultValue>
+			</Parameter>
+			<Parameter name="welcome_text_file" type="string">
+				<Description><![CDATA[
+					The path to the file where your welcome message is stored,
+					relative to the src/ directory. Most people should just
+					keep it where it is.
+				]]></Description>
+				<DefaultValue>welcome.html</DefaultValue>
+			</Parameter>
+			<Parameter name="session_expiry" type="string">
+				<Description><![CDATA[
+					How long to keep users' sessions before they expire. This
+					should either be a number, representing the number of
+					seconds until a session expires, or a number followed by
+					"m" for minutes, "h" for hours, "d" for days, "M" for
+					months or "y" for years.
+				]]></Description>
+				<DefaultValue>+3d</DefaultValue>
+			</Parameter>
+			<Parameter name="enable_short_urls" type="boolean">
+				<Description><![CDATA[
+					Whether or not to use short URLs. If your QDB is hosted on
+					an Apache! server with the Rewrite module installed, you
+					will want to enable this. Caution: if you turn this on
+					while the server does not support URL rewriting, most links
+					will not work.
+				]]></Description>
+				<DefaultValue>false</DefaultValue>
+			</Parameter>
+			<Parameter name="enable_autolink" type="boolean">
+				<Description><![CDATA[
+					Whether or not to automatically search for URLs in quotes
+					and turn them into hyperlinks. The search uses some relax
+					instructions and may therefore not always be accurate.
+				]]></Description>
+				<DefaultValue>false</DefaultValue>
+			</Parameter>
+			<Parameter name="enable_feeds" type="boolean">
+				<Description><![CDATA[
+					Whether or not to offer quote feeds. If this option is
+					enabled, users will be able to syndicate the quote feeds
+					straight from the QDB.
+				]]></Description>
+				<DefaultValue>false</DefaultValue>
+			</Parameter>
+			<Parameter name="quotes_per_feed" type="int">
+				<Description><![CDATA[
+					The maximum number of quotes to include in a feed. This is
+					different from the maximum number of quotes per page, as
+					feeds must be fetched as a whole.
+				]]></Description>
+				<DefaultValue>50</DefaultValue>
+			</Parameter>
+			<Parameter name="enable_gzip" type="boolean">
+				<Description><![CDATA[
+					Whether or not to compress output on the fly if the user's
+					browser supports it. This will add some strain on the
+					server, but greatly reduce bandwidth usage.
+				]]></Description>
+				<DefaultValue>false</DefaultValue>
+			</Parameter>
+			<Parameter name="enable_captchas" type="boolean">
+				<Description><![CDATA[
+					Whether or not to use captcha images to prevent spam bots
+					from submitting bogus quotes. This requires that the
+					Authen::Captcha module be installed.
+				]]></Description>
+				<DefaultValue>false</DefaultValue>
+			</Parameter>
+			<Parameter name="captcha_information_path" type="string">
+				<Description><![CDATA[
+					The physical path where to store captcha information. This
+					must be a writable directory.
+				]]></Description>
+				<DefaultValue>src/captcha</DefaultValue>
+			</Parameter>
+			<Parameter name="captcha_image_path" type="string">
+				<Description><![CDATA[
+					The physical path where to store captcha images. This must
+					be a writable directory that is accessible via the Web.
+				]]></Description>
+				<DefaultValue>res/captcha</DefaultValue>
+			</Parameter>
+			<Parameter name="captcha_image_url" type="string">
+				<Description><![CDATA[
+					The URL to the captcha image directory.
+				]]></Description>
+				<DefaultValue>http://www.yourserver.com/chirpy/res/captcha</DefaultValue>
+			</Parameter>
+			<Parameter name="captcha_code_length" type="int">
+				<Description><![CDATA[
+					The number of characters in captcha codes.
+				]]></Description>
+				<DefaultValue>4</DefaultValue>
+			</Parameter>
+			<Parameter name="captcha_expiry_time" type="int">
+				<Description><![CDATA[
+					The number of seconds between the moment when the captcha
+					image was generated and the moment when its code expires.
+				]]></Description>
+				<DefaultValue>600</DefaultValue>
+			</Parameter>
+			<Parameter name="webapp.captcha_source_image_path" type="string">
+				<Description><![CDATA[
+					The physical path to the source images to be used by the
+					Authen::Captcha module. The module comes with some default
+					images, but you can use your own if you like.
+				]]></Description>
+			</Parameter>
+			<Parameter name="webapp.captcha_character_width" type="int">
+				<Description><![CDATA[
+					The pixel width of each captcha character image. Only
+					required if you are not using the default image set.
+				]]></Description>
+			</Parameter>
+			<Parameter name="webapp.captcha_character_height" type="int">
+				<Description><![CDATA[
+					The pixel width of each captcha character image. Only
+					required if you are not using the default image set.
+				]]></Description>
+			</Parameter>
+		</Section>
+	</Section>
+</ConfigurationFile>
