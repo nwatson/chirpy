@@ -4,6 +4,7 @@
 \_____________________________________________________________________________/
 
 * Made tag cloud ignore unapproved quotes
+* Made templates use HTML::Template's caching feature, which is pretty fast
 * Template parameters are now global, which means you can include parameters
   from outside a loop
 * Optimized template parsing a little

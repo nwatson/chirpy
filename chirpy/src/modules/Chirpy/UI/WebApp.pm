@@ -76,6 +76,13 @@ domain name and path. For example, if your QDB is located at
 I<http://www.mysite.com/myname/qdb>, you would enter C<mysite.com> and
 C</myname/qdb>.
 
+=item webapp.template_cache_path
+
+The L<HTML::Template> module uses a cache of templates to speed things up. This
+cache is file-based and resides in the path specificed by this setting. Hence,
+it should be the physical path to a world-writable directory, typically
+F<src/cache/template>.
+
 =item webapp.session_expiry
 
 To keep track of users' actions, sessions are used. These are kept around for
@@ -538,7 +545,12 @@ sub welcome_user {
 			new HTML::Template(
 				'filename' => $motd_path,
 				'die_on_bad_params' => 0,
-				'global_vars' => 1)));
+				'global_vars' => 1,
+				'file_cache' => 1,
+				'file_cache_dir' => $self->param('template_cache_path'),
+				'file_cache_dir_mode' => 0777
+			)
+		));
 	}
 	$self->_output_template($template);
 }
@@ -568,7 +580,11 @@ sub _generate_feed {
 		'filename' => $self->{'templates_path'}
 			. '/feeds/' . ($type eq 'atom' ? 'atom10' : 'rss20') . '.xml',
 		'die_on_bad_params' => 0,
-		'global_vars' => 1);
+		'global_vars' => 1,
+		'file_cache' => 1,
+		'file_cache_dir' => $self->param('template_cache_path'),
+		'file_cache_dir_mode' => 0777
+	);
 	my @quotes = ();
 	my $date;
 	my $auto_link = $conf->get('ui', 'webapp.enable_autolink');
@@ -2373,7 +2389,10 @@ sub _load_template {
 	my $template = new HTML::Template(
 		'filename' => $self->{'templates_path'} . '/' . $name . '.html',
 		'die_on_bad_params' => 0,
-		'global_vars' => 1
+		'global_vars' => 1,
+		'file_cache' => 1,
+		'file_cache_dir' => $self->param('template_cache_path'),
+		'file_cache_dir_mode' => 0777
 	);
 	Chirpy::die('Failed to load template: ' . $!) unless ($template);
 	return $template;
@@ -2536,7 +2555,7 @@ sub _quick_style_to_xhtml {
 		&gt;
 	}{
 		my ($url, $description) = ($1, $2);
-		unless (defined $description && length $description) {
+		unless (defined $description && $description ne '') {
 			$description = $url;
 		}
 		'<a href="' . $url . '">' . $description . '</a>';

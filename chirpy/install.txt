@@ -170,6 +170,12 @@ outside the document root (if possible) is a MUCH safer choice.
 Alternatively, you can keep chirpy.ini, the configuration file, which we will
 cover later in this document, outside the document root and the src/ directory.
 
+Inside the src/ directory, you will find a directory called cache/. There
+should be two directories inside it, namely captcha/ and template/--if not,
+create them now. Like their names suggest, they are cache directories for the
+captcha feature and for the template parser. These directories need to be
+world-writable, i.e. their attributes must be set to "rwxrwxrwx" or 777.
+
 The util/ directory should NOT be uploaded. You are however likely to need the
 setup.pl script inside it, but we'll get to that in a moment.
 
@@ -226,6 +232,7 @@ webapp.theme=default
 webapp.welcome_text_file=welcome.html
 webapp.cookie_domain=yourserver.com
 webapp.cookie_path=/cgi-bin/chirpy
+webapp.template_cache_path=src/cache/template
 webapp.session_expiry=+3d
 webapp.enable_short_urls=0
 webapp.enable_feeds=0
@@ -284,6 +291,10 @@ webapp.cookie_domain
                     your site's URL. This will be used to store cookies.
 webapp.cookie_path  The part that comes after the domain in the site URL. This
                     will also be used to store cookies.
+webapp.template_cache_path
+                    The physical path to the directory where to keep the
+                    template cache. Typically, it is "src/cache/template". Make
+                    sure that the directory is world-writable, i.e. drwxrwxrwx!
 webapp.enable_short_urls
                     Change this to 1 to enable the short URLs feature described
                     above. If you get "Not Found" errors while browsing the QDB
@@ -316,8 +327,8 @@ test-drive Chirpy!'s other features before trying captcha support.
 webapp.captcha_information_path
                     The physical path to the directory where captcha information
                     is to be stored. This directory must not be accessible via
-                    HTTP. Typically, it is "src/captcha". Make sure that the
-                    directory is world-writable, i.e. drwxrwxrwx.
+                    HTTP. Typically, it is "src/cache/captcha". Make sure that
+                    the directory is world-writable, i.e. drwxrwxrwx.
 webapp.captcha_image_path
                     The physical path to the directory where captcha images are
                     to be stored. Since visitors will need to view these images,
@@ -456,15 +467,25 @@ there. If anything goes wrong, try the Support Tracker.
 4. UPGRADING
 ============
 
-If you are upgrading from Chirpy! version 0.1, you should just move the updated
-setup.pl script from the "util" directory into Chirpy!'s root directory for
-a second, make it executable, and surf to it. Chirpy! will then ask you if you
-want to perform a fresh installation or an upgrade. DO _NOT_ CLICK ON "FRESH
-INSTALLATION," because you would lose all your quotes, accounts, etc. Instead,
-click the "UPGRADE" button, wait for the page to load, watch Chirpy! inform you
-of the successful upgrade, and remove setup.pl again.
+If you are upgrading from Chirpy! version 0.1 or 0.2, you should just move the
+updated setup.pl script from the "util" directory into Chirpy!'s root directory
+for a second, make it executable, and surf to it. Chirpy! will then ask you if
+you want to perform a fresh installation or an upgrade. Now, DO *NOT* CLICK ON
+"FRESH INSTALLATION," because you would lose all your quotes, accounts, etc.
+Instead, click the "UPGRADE" button, wait for the page to load, watch Chirpy!
+inform you of the successful upgrade, and remove setup.pl again.
 
-Additionally, as Chirpy! 0.2 offers quite a couple of new features, you will
+Also, you will have to create the cache directory for templates, and tell
+Chirpy! where to find it. Typically, that is src/cache/template/. So, you just
+create that directory (you may have to create src/cache/ first) and make it
+world-writable, i.e. set its attributes to rwxrwxrwx. Next, add the line
+
+  webapp.template_cache_path=src/cache/template
+
+to your configuration file's "ui" section. Chirpy! will now cache parsed
+templates, which should make it work a lot faster.
+
+Additionally, as Chirpy! 0.3 offers quite a couple of new features, you will
 probably want to play with those. Most of them just come down to adding a line
 in the configuration file. For captchas, you will need to create a couple of
 directories; just scroll back to section 3.2, where the configuration file is
