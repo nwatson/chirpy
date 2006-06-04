@@ -83,7 +83,7 @@ function createChart (chartData) {
 		if (chartData.length < samples * 2) {
 			samples = Math.floor(chartData.length / 2);
 		}
-		sampleInterval = (chartData.length / samples);
+		sampleInterval = (chartData.length - 1) / samples;
 		labelWidth = 100 / samples;
 	}
 	else {
@@ -106,7 +106,7 @@ function createChart (chartData) {
 		column.title = text + " " + String.fromCharCode(0x2192) + " " + value;
 		column.appendChild(bar);
 		graph.appendChild(column);
-		if (!sample || Math.round((labelCount + 0.5) * sampleInterval) == i + 1) {
+		if (!sample || Math.round((labelCount + 0.5) * sampleInterval) == i) {
 			var label = document.createElement("div");
 			label.className = "bar-chart-label";
 			label.style.left = ((i + 0.5) * barWidth - labelWidth / 2) + "%";
