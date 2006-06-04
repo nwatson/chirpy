@@ -382,6 +382,22 @@ sub get_quotes {
 	return $result;
 }
 
+sub get_quote_submission_dates {
+	my $self = shift;
+	my $query = 'SELECT UNIX_TIMESTAMP(`submitted`)'
+		. ' FROM `' . $self->table_name_prefix() . 'quotes`'
+		. ' ORDER BY `submitted`';
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	my @result = ();
+	while (my $row = $sth->fetchrow_arrayref()) {
+		push @result, $row->[0];
+	}
+	return (@result ? \@result : undef);
+}
+
 sub quote_count {
 	my ($self, $params) = @_;
 	$params = {} unless (ref $params eq 'HASH');

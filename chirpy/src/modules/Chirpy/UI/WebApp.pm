@@ -286,6 +286,7 @@ use constant ACTIONS => {
 	'QUOTES_OF_THE_WEEK' => 'qotw',
 	'QUOTE_SEARCH' => 'search',
 	'TAG_CLOUD' => 'tags',
+	'STATISTICS' => 'statistics',
 	'SUBMIT_QUOTE' => 'submit',
 	'ADMINISTRATION' => 'admin',
 	'LOGIN' => 'login',
@@ -914,6 +915,48 @@ sub provide_tag_cloud {
 sub report_no_tagged_quotes {
 	my $self = shift;
 	$self->_report_error($self->locale()->get_string('no_tagged_quotes'));
+}
+
+sub provide_statistics {
+	my ($self, $quotes_by_date, $quotes_by_month, $quotes_by_week_day) = @_;
+	my $template = $self->_load_template('statistics');
+	my $locale = $self->locale();
+	my @by_date = ();
+	foreach my $d (sort keys %$quotes_by_date) {
+		push @by_date, { 'DATE' => $self->format_date($d),
+			'QUOTE_COUNT' => $quotes_by_date->{$d} };
+	}
+	my @by_month = ();
+	foreach my $m (sort keys %$quotes_by_month) {
+		push @by_month, { 'MONTH' => $self->format_month(split(/-/, $m)),
+			'QUOTE_COUNT' => $quotes_by_month->{$m} };
+	}
+	my @by_week_day = ();
+	my @days = qw(sunday monday tuesday wednesday thursday friday saturday);
+	foreach my $d (0..6) {
+		push @by_week_day, { 'WEEK_DAY' => $locale->get_string($days[$d]),
+			'QUOTE_COUNT' => $quotes_by_week_day->[$d] };
+	}
+	$template->param(
+		'PAGE_TITLE' => &_text_to_xhtml(
+			$locale->get_string('statistics')),
+		'QUOTES_BY_DATE_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_date')),
+		'QUOTES_BY_DATE' => \@by_date,
+		'QUOTES_BY_MONTH' => \@by_month,
+		'QUOTES_BY_MONTH_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_month')),
+		'QUOTES_BY_WEEK_DAY' => \@by_week_day,
+		'QUOTES_BY_WEEK_DAY_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_week_day'))
+		
+	);
+	$self->_output_template($template);
+}
+
+sub report_statistics_unavailable {
+	my $self = shift;
+	$self->_report_error($self->locale()->get_string('statistics_unavailable'));
 }
 
 sub report_no_search_results {
@@ -2353,6 +2396,9 @@ sub _get_page_name {
 	}
 	elsif ($page == Chirpy::UI::TAG_CLOUD) {
 		return 'tag_cloud';
+	}
+	elsif ($page == Chirpy::UI::STATISTICS) {
+		return 'statistics';
 	}
 	return undef;
 }

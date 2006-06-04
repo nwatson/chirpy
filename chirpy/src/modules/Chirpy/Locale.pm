@@ -122,6 +122,14 @@ it.
 Translation of I<Search for Quotes>, for the title of that section or links to
 it.
 
+=item tag_cloud
+
+Translation of I<Tag Cloud>, for the title of that section or links to it.
+
+=item statistics
+
+Translation of I<Statistics>, for the title of that section or links to it.
+
 =item administration
 
 Translation of I<Administration>, for the title of that section or links to it.
@@ -202,6 +210,18 @@ Brief description of what the quote search does, for tooltips and such.
 
 Abbreviated version of I<Quote Search>, for use in compact menus.
 
+=item tag_cloud_description
+
+Brief description of what the tag cloud is, for tooltips and such.
+
+=item tag_cloud_short_title
+
+Abbreviated version of I<Tag Cloud>, for use in compact menus.
+
+=item statistics_description
+
+Brief description of what the statistics do, for tooltips and such.
+
 =item submit_quote_description
 
 Brief description of what the quote submission interface does, for tooltips
@@ -278,6 +298,27 @@ Title of the tags section in the quote list, followed by a colon.
 =item no_tagged_quotes
 
 Message displayed instead of the tag cloud when no quotes have been tagged.
+
+=item statistics_unavailable
+
+Generic message, displayed when statistics are unavailable. Usually, this means
+there are no quotes in the database, but this may change.
+
+=item statistics_short_title
+
+Abbreviated version of I<Statistics>, for use in compact menus.
+
+=item quote_count_by_date
+
+Title of the I<Number of Quotes by Date> section in the statistics.
+
+=item quote_count_by_month
+
+Title of the I<Number of Quotes by Month> section in the statistics.
+
+=item quote_count_by_week_day
+
+Title of the I<Number of Quotes by Week Day> section in the statistics.
 
 =item tag_link_description
 
@@ -810,6 +851,48 @@ Title for the message indicating that checking for updates has failed.
 
 Message explaining that Chirpy! failed to check for updates, and indicating
 that an error report follows.
+
+=item sunday
+
+=item monday
+
+=item tuesday
+
+=item wednesday
+
+=item thursday
+
+=item friday
+
+=item saturday
+
+The full names of the days of the week.
+
+=item january
+
+=item february
+
+=item march
+
+=item april
+
+=item may
+
+=item june
+
+=item july
+
+=item august
+
+=item september
+
+=item october
+
+=item november
+
+=item december
+
+The full names of the months of the year
 
 =back
 

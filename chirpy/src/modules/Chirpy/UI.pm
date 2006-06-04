@@ -74,13 +74,14 @@ use constant BOTTOM_QUOTES            =>  6;
 use constant QUOTES_OF_THE_WEEK       =>  7;
 use constant QUOTE_SEARCH             =>  8;
 use constant TAG_CLOUD                =>  9;
-use constant SUBMIT_QUOTE             => 10;
-use constant QUOTE_RATING_UP          => 11;
-use constant QUOTE_RATING_DOWN        => 12;
-use constant REPORT_QUOTE             => 13;
-use constant LOGIN                    => 14;
-use constant LOGOUT                   => 15;
-use constant ADMINISTRATION           => 16;
+use constant STATISTICS               => 10;
+use constant SUBMIT_QUOTE             => 11;
+use constant QUOTE_RATING_UP          => 12;
+use constant QUOTE_RATING_DOWN        => 13;
+use constant REPORT_QUOTE             => 14;
+use constant LOGIN                    => 15;
+use constant LOGOUT                   => 16;
+use constant ADMINISTRATION           => 17;
 
 use constant CHANGE_PASSWORD          => 100;
 use constant MANAGE_UNAPPROVED_QUOTES => 110;
@@ -316,7 +317,16 @@ sub run {
 			$self->_provide_tag_cloud($tag_counts);
 		}
 		else {
-			$self->report_no_tagged_quotes;
+			$self->report_no_tagged_quotes();
+		}
+	}
+	elsif ($page eq STATISTICS) {
+		my $submission_dates = $self->parent()->get_quote_submission_dates();
+		if (@$submission_dates) {
+			$self->_provide_statistics($submission_dates);
+		}
+		else {
+			$self->report_statistics_unavailable();
 		}
 	}
 	elsif ($page == LOGIN) {
@@ -871,6 +881,44 @@ sub _provide_tag_cloud {
 	$self->provide_tag_cloud(\@tags);
 }
 
+sub _provide_statistics {
+	my ($self, $submission_dates) = @_;
+	my $by_date = {};
+	my $by_month = {};
+	my $by_week_day = [ 0, 0, 0, 0, 0, 0, 0 ];
+	my ($last_time, $last_date, $month, $week_day);
+	foreach my $time (@$submission_dates) {
+		my $date = Chirpy::Util::format_date_time($time, '%Y-%m-%d');
+		if (!defined $last_time || $date ne $last_date) {
+			($month = $date) =~ s/.{3}$//;
+			$week_day = Chirpy::Util::format_date_time($time, '%w');
+			if (defined $last_time) {
+				&_pad_statistics($last_time, $date, $by_date, $by_month);
+			}
+			$last_time = $time;
+			$last_date = $date;
+		}
+		$by_date->{$last_time}++;
+		$by_month->{$month}++;
+		$by_week_day->[$week_day]++;
+	}
+	$self->provide_statistics($by_date, $by_month, $by_week_day);
+}
+
+sub _pad_statistics {
+	my ($time, $to_date, $by_date, $by_month) = @_;
+	while (1) {
+		# 23 instead of 24 to compensate for DST
+		# Faster than Date::Manip, but more messy
+		$time += 23 * 60 * 60;
+		my $date = Chirpy::Util::format_date_time($time, '%Y-%m-%d');
+		last if ($date ge $to_date);
+		(my $month = $date) =~ s/.{3}$//;
+		$by_month->{$month} = 0 unless (exists $by_month->{$month});
+		$by_date->{$time} = 0;
+	}
+}
+
 sub _already_rated {
 	my ($self, $id) = @_;
 	my @list = $self->get_rated_quotes();
@@ -957,6 +1005,27 @@ sub format_date_time {
 		$self->configuration()->get('ui', 'use_gmt'));
 }
 
+sub format_date {
+	my ($self, $timestamp) = @_;
+	return Chirpy::Util::format_date_time($timestamp,
+		$self->configuration()->get('ui', 'date_format'),
+		$self->configuration()->get('ui', 'use_gmt'));
+}
+
+sub format_time {
+	my ($self, $timestamp) = @_;
+	return Chirpy::Util::format_date_time($timestamp,
+		$self->configuration()->get('ui', 'time_format'),
+		$self->configuration()->get('ui', 'use_gmt'));
+}
+
+sub format_month {
+	my ($self, $year, $month) = @_;
+	my @months = qw(january february march april may june
+		july august september october november december);
+	return $self->locale()->get_string($months[$month - 1]) . ' ' . $year;
+}
+
 sub locale {
 	my $self = shift;
 	return $self->parent()->locale();
@@ -1018,6 +1087,10 @@ sub param {
 *provide_tag_cloud = \&Chirpy::Util::abstract_method;
 
 *report_no_tagged_quotes = \&Chirpy::Util::abstract_method;
+
+*provide_statistics = \&Chirpy::Util::abstract_method;
+
+*report_statistics_unavailable = \&Chirpy::Util::abstract_method;
 
 *report_no_search_results = \&Chirpy::Util::abstract_method;
 

@@ -164,6 +164,12 @@ The number of quotes to maximally return.
 
 =back
 
+=item get_quote_submission_dates()
+
+Retrieves the date for each quote in the database. Returns a reference to an
+array containing the dates in ascending order, or C<undef> if there are no
+quotes in the database.
+
 =item quote_count($options)
 
 Returns the number of quotes in the database, either approved, unapproved, or
@@ -438,6 +444,8 @@ sub param {
 *get_quote = \&Chirpy::Util::abstract_method;
 
 *quote_count = \&Chirpy::Util::abstract_method;
+
+*get_quote_submission_dates = \&Chirpy::Util::abstract_method;
 
 *get_quotes = \&Chirpy::Util::abstract_method;
 

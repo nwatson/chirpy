@@ -3,6 +3,7 @@
 | Chirpy! v0.3                                                     YYYY.MM.DD |
 \_____________________________________________________________________________/
 
+* Added statistics page
 * Made tag cloud ignore unapproved quotes
 * Made templates use HTML::Template's caching feature, which is pretty fast
 * Template parameters are now global, which means you can include parameters

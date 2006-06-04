@@ -1,0 +1,27 @@
+<TMPL_INCLUDE NAME="_head.html">
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/css_graph.js"></script>
+	<h2>
+		<TMPL_VAR NAME="PAGE_TITLE">
+	</h2>
+	<h3><TMPL_VAR NAME="QUOTES_BY_DATE_TITLE"></h3>
+	<dl class="bar-chart-data" id="quotes-by-date">
+	<TMPL_LOOP NAME="QUOTES_BY_DATE">
+		<dt><TMPL_VAR NAME="DATE"></dt>
+		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
+	</TMPL_LOOP>
+	</dl>
+	<h3><TMPL_VAR NAME="QUOTES_BY_MONTH_TITLE"></h3>
+	<dl class="bar-chart-data" id="quotes-by-month">
+	<TMPL_LOOP NAME="QUOTES_BY_MONTH">
+		<dt><TMPL_VAR NAME="MONTH"></dt>
+		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
+	</TMPL_LOOP>
+	</dl>
+	<h3><TMPL_VAR NAME="QUOTES_BY_WEEK_DAY_TITLE"></h3>
+	<dl class="bar-chart-data" id="quotes-by-week-day">
+	<TMPL_LOOP NAME="QUOTES_BY_WEEK_DAY">
+		<dt><TMPL_VAR NAME="WEEK_DAY"></dt>
+		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
+	</TMPL_LOOP>
+	</dl>
+<TMPL_INCLUDE NAME="_foot.html">

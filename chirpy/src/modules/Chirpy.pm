@@ -532,6 +532,11 @@ sub get_tag_use_counts {
 	return $self->_data_manager()->get_tag_use_counts();
 }
 
+sub get_quote_submission_dates {
+	my $self = shift;
+	return $self->_data_manager()->get_quote_submission_dates();
+}
+
 sub flag_quotes {
 	my ($self, @ids) = @_;
 	return $self->_data_manager()->flag_quotes(@ids);

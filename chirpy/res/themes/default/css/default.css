@@ -686,3 +686,68 @@ ul.tabbed-pane-contents > li {
 	font-weight: normal;
 	font-style: italic;
 }
+
+.bar-chart {
+	position: relative;
+	width: 100ex;
+	height: 40ex;
+	overflow: hidden;
+	margin: 0 0 1em 0;
+	border: 1px solid #CCC;
+}
+
+.bar-chart, .bar-chart * {
+	cursor: default;
+}
+
+.bar-chart-graph {
+	position: absolute;
+	left: 2ex;
+	top: 2ex;
+	width: 96ex;
+	height: 33ex;
+}
+
+.bar-chart-labels {
+	position: absolute;
+	left: 2ex;
+	bottom: 2ex;
+	width: 96ex;
+}
+
+.bar-chart-label {
+	position: absolute;
+	bottom: 0;
+}
+
+.bar-chart-inner-label {
+	position: absolute;
+	left: 5%;
+	bottom: 0;
+	width: 90%;
+	line-height: 1.25em;
+	font-size: 80%;
+	color: #999;
+	text-align: center;
+}
+
+.bar-chart-column {
+	position: absolute;
+	bottom: 0;
+	height: 100%;
+}
+
+.bar-chart-bar {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+.bar-chart-inner-bar {
+	margin: 0 5%;
+	height: 100%;
+	background: #F0F0F0;
+	-moz-border-radius: 20% 20% 0 0;
+	border-radius: 20% 20% 0 0;
+}
