@@ -87,7 +87,7 @@ function createBarChart (chartData) {
 	values.appendChild(top);
 	values.appendChild(bottom);
 	var barWidth = 100 / chartData.length;
-	var samples = 7;
+	var samples = 5;
 	var sample = (chartData.length > samples);
 	var sampleInterval, labelWidth;
 	if (sample) {

@@ -689,8 +689,8 @@ ul.tabbed-pane-contents > li {
 
 .bar-chart {
 	position: relative;
-	width: 100ex;
-	height: 40ex;
+	width: 120ex;
+	height: 60ex;
 	overflow: hidden;
 	margin: 0 0 1em 0;
 	border: 1px solid #CCC;
@@ -708,8 +708,8 @@ ul.tabbed-pane-contents > li {
 	position: absolute;
 	left: 8ex;
 	top: 2ex;
-	width: 90ex;
-	height: 33ex;
+	width: 110ex;
+	height: 53ex;
 	border-bottom: 1px solid #666;
 	border-left: 1px solid #666;
 }
@@ -718,7 +718,7 @@ ul.tabbed-pane-contents > li {
 	position: absolute;
 	left: 8ex;
 	bottom: 2ex;
-	width: 90ex;
+	width: 110ex;
 }
 
 .bar-chart-values {
@@ -726,7 +726,7 @@ ul.tabbed-pane-contents > li {
 	left: 2ex;
 	top: 2ex;
 	width: 5ex;
-	height: 33ex;
+	height: 53ex;
 }
 
 .bar-chart-maximum {
