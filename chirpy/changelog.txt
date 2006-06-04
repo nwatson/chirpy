@@ -12,6 +12,7 @@
 * Extended quick style linking method: <> is now omitted and link text can be
   changed by separating it from URL by whitespace, e.g.
     Surf to <http://chirpy.sourceforge.net/ The Chirpy! web site>!
+* Bugfix: quote rating up log entry now includes quote ID (#1493589)
 
  _____________________________________________________________________________
 /                                                                             \
