@@ -922,14 +922,12 @@ sub provide_statistics {
 	my $template = $self->_load_template('statistics');
 	my $locale = $self->locale();
 	my @by_date = ();
-	foreach my $d (sort keys %$quotes_by_date) {
-		push @by_date, { 'DATE' => $self->format_date($d),
-			'QUOTE_COUNT' => $quotes_by_date->{$d} };
+	foreach my $line (@$quotes_by_date) {
+		push @by_date, { 'DATE' => $line->[0], 'QUOTE_COUNT' => $line->[1] };
 	}
 	my @by_month = ();
-	foreach my $m (sort keys %$quotes_by_month) {
-		push @by_month, { 'MONTH' => $self->format_month(split(/-/, $m)),
-			'QUOTE_COUNT' => $quotes_by_month->{$m} };
+	foreach my $line (@$quotes_by_month) {
+		push @by_month, { 'MONTH' => $line->[0], 'QUOTE_COUNT' => $line->[1] };
 	}
 	my @by_week_day = ();
 	my @days = qw(sunday monday tuesday wednesday thursday friday saturday);

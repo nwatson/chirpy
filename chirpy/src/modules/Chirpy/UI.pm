@@ -883,39 +883,59 @@ sub _provide_tag_cloud {
 
 sub _provide_statistics {
 	my ($self, $submission_dates) = @_;
-	my $by_date = {};
-	my $by_month = {};
+	my $by_date = [];
+	my $by_month = [];
 	my $by_week_day = [ 0, 0, 0, 0, 0, 0, 0 ];
-	my ($last_time, $last_date, $month, $week_day);
+	my ($date, $week_day, $month, $prev_time);
 	foreach my $time (@$submission_dates) {
-		my $date = Chirpy::Util::format_date_time($time, '%Y-%m-%d');
-		if (!defined $last_time || $date ne $last_date) {
-			($month = $date) =~ s/.{3}$//;
-			$week_day = Chirpy::Util::format_date_time($time, '%w');
-			if (defined $last_time) {
-				&_pad_statistics($last_time, $date, $by_date, $by_month);
+		my $d = $self->format_date($time);
+		if ($d ne $date) {
+			if (defined $prev_time) {
+				$self->_pad_statistics($prev_time, $date, $d, $by_date, $by_month);
 			}
-			$last_time = $time;
-			$last_date = $date;
+			$prev_time = $time;
+			$date = $d;
+			$month = $self->format_month($time);
+			$week_day = Chirpy::Util::format_date_time($time, '%w');
 		}
-		$by_date->{$last_time}++;
-		$by_month->{$month}++;
+		&_add_statistic($date, 1, $by_date);
+		&_add_statistic($month, 1, $by_month);
 		$by_week_day->[$week_day]++;
 	}
 	$self->provide_statistics($by_date, $by_month, $by_week_day);
 }
 
+sub _add_statistic {
+	my ($name, $value, $aref) = @_;
+	if (@$aref && $aref->[scalar(@$aref) - 1]->[0] eq $name) {
+		$aref->[scalar(@$aref) - 1]->[1] += $value;
+	}
+	else {
+		push @$aref, [$name, $value];
+	}
+}
+
 sub _pad_statistics {
-	my ($time, $to_date, $by_date, $by_month) = @_;
+	my ($self, $from, $from_date, $to, $by_date, $by_month) = @_;
 	while (1) {
-		# 23 instead of 24 to compensate for DST
-		# Faster than Date::Manip, but more messy
+		my ($next_date, $next_date_time)
+			= $self->_next_date($from, $from_date);
+		last if ($next_date eq $to);
+		&_add_statistic($next_date, 0, $by_date);
+		my $month = $self->format_month($next_date_time);
+		&_add_statistic($month, 0, $by_month);
+		$from = $next_date_time;
+		$from_date = $next_date;
+	}
+}
+
+sub _next_date {
+	my ($self, $time, $date) = @_;
+	while (1) {
 		$time += 23 * 60 * 60;
-		my $date = Chirpy::Util::format_date_time($time, '%Y-%m-%d');
-		last if ($date ge $to_date);
-		(my $month = $date) =~ s/.{3}$//;
-		$by_month->{$month} = 0 unless (exists $by_month->{$month});
-		$by_date->{$time} = 0;
+		my $d = $self->format_date($time);
+		next if ($d eq $date);
+		return ($d, $time);
 	}
 }
 
@@ -1020,7 +1040,9 @@ sub format_time {
 }
 
 sub format_month {
-	my ($self, $year, $month) = @_;
+	my ($self, $timestamp) = @_;
+	my ($year, $month) = split(' ',
+		Chirpy::Util::format_date_time($timestamp, '%Y %m'));
 	my @months = qw(january february march april may june
 		july august september october november december);
 	return $self->locale()->get_string($months[$month - 1]) . ' ' . $year;
