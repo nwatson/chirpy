@@ -753,6 +753,6 @@ ul.tabbed-pane-contents > li {
 	border-radius: 20% 20% 0 0;
 }
 
-.bar-chart-inner-bar:hover {
+.bar-chart-column:hover .bar-chart-inner-bar {
 	background: #E6E6E6;
 }
