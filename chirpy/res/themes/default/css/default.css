@@ -746,6 +746,7 @@ ul.tabbed-pane-contents > li {
 
 .bar-chart-inner-bar {
 	margin: 0 5%;
+	min-width: 1px;
 	height: 100%;
 	background: #ECECEC;
 	-moz-border-radius: 20% 20% 0 0;

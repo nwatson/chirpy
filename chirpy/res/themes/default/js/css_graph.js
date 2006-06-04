@@ -85,11 +85,9 @@ function createChart (chartData) {
 		}
 		sampleInterval = (chartData.length / samples);
 		labelWidth = 100 / samples;
-		displayBarWidth = Math.ceil(barWidth) + "%";
 	}
 	else {
 		labelWidth = barWidth;
-		displayBarWidth = barWidth + "%";
 	}
 	var labelCount = 0;
 	for (var i = 0; i < chartData.length; i++) {
@@ -104,7 +102,7 @@ function createChart (chartData) {
 		var column = document.createElement("div");
 		column.className = "bar-chart-column";
 		column.style.left = i * barWidth + "%";
-		column.style.width = displayBarWidth;
+		column.style.width = barWidth + "%";
 		column.title = text + " " + String.fromCharCode(0x2192) + " " + value;
 		column.appendChild(bar);
 		graph.appendChild(column);
