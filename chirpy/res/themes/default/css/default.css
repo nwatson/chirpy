@@ -694,6 +694,10 @@ ul.tabbed-pane-contents > li {
 	overflow: hidden;
 	margin: 0 0 1em 0;
 	border: 1px solid #CCC;
+	line-height: 1.25em;
+	font-size: 80%;
+	color: #666;
+	background: #FCFCFC;
 }
 
 .bar-chart, .bar-chart * {
@@ -702,17 +706,41 @@ ul.tabbed-pane-contents > li {
 
 .bar-chart-graph {
 	position: absolute;
-	left: 2ex;
+	left: 8ex;
 	top: 2ex;
-	width: 96ex;
+	width: 90ex;
 	height: 33ex;
+	border-bottom: 1px solid #666;
+	border-left: 1px solid #666;
 }
 
 .bar-chart-labels {
 	position: absolute;
-	left: 2ex;
+	left: 8ex;
 	bottom: 2ex;
-	width: 96ex;
+	width: 90ex;
+}
+
+.bar-chart-values {
+	position: absolute;
+	left: 2ex;
+	top: 2ex;
+	width: 5ex;
+	height: 33ex;
+}
+
+.bar-chart-maximum {
+	position: absolute;
+	right: 0;
+	top: 0;
+	text-align: right;
+}
+
+.bar-chart-minimum {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	text-align: right;
 }
 
 .bar-chart-label {
@@ -725,10 +753,6 @@ ul.tabbed-pane-contents > li {
 	left: 5%;
 	bottom: 0;
 	width: 90%;
-	line-height: 1.25em;
-	font-size: 80%;
-	color: #666;
-	text-align: center;
 }
 
 .bar-chart-column {

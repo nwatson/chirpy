@@ -34,7 +34,7 @@ function checkForBarCharts () {
 		var dl = dls[i];
 		if (!hasClassName(dl, "bar-chart-data")) continue;
 		var chartData = extractBarChartData(dl);
-		var chart = createChart(chartData);
+		var chart = createBarChart(chartData);
 		chart.id = dl.id;
 		dl.parentNode.replaceChild(chart, dl);
 	}
@@ -59,15 +59,18 @@ function extractBarChartData (dl) {
 	return pairs;
 }
 
-function createChart (chartData) {
+function createBarChart (chartData) {
 	var div = document.createElement("div");
 	div.className = "bar-chart";
 	var graph = document.createElement("div");
 	graph.className = "bar-chart-graph";
 	var labels = document.createElement("div");
 	labels.className = "bar-chart-labels";
+	var values = document.createElement("div");
+	values.className = "bar-chart-values";
 	div.appendChild(graph);
 	div.appendChild(labels);
+	div.appendChild(values);
 	var max = 0;
 	for (var i = 0; i < chartData.length; i++) {
 		var value = chartData[i][1];
@@ -75,6 +78,14 @@ function createChart (chartData) {
 			max = value;
 		}
 	}
+	var top = document.createElement("div");
+	top.className = "bar-chart-maximum";
+	top.appendChild(document.createTextNode(max));
+	var bottom = document.createElement("div");
+	bottom.className = "bar-chart-minimum";
+	bottom.appendChild(document.createTextNode("0"));
+	values.appendChild(top);
+	values.appendChild(bottom);
 	var barWidth = 100 / chartData.length;
 	var samples = 7;
 	var sample = (chartData.length > samples);
@@ -83,8 +94,12 @@ function createChart (chartData) {
 		if (chartData.length < samples * 2) {
 			samples = Math.floor(chartData.length / 2);
 		}
-		sampleInterval = (chartData.length - 1) / samples;
+		sampleInterval = chartData.length / samples;
 		labelWidth = 100 / samples;
+		var first = chartData[0];
+		labels.appendChild(createBarChartLabel(first[0], getBarChartTooltipText(first[0], first[1]), 0, labelWidth + "%", "left"));
+		var last = chartData[chartData.length - 1];
+		labels.appendChild(createBarChartLabel(last[0], getBarChartTooltipText(last[0], last[1]), (100 - labelWidth) + "%", labelWidth + "%", "right"));
 	}
 	else {
 		labelWidth = barWidth;
@@ -103,24 +118,35 @@ function createChart (chartData) {
 		column.className = "bar-chart-column";
 		column.style.left = i * barWidth + "%";
 		column.style.width = barWidth + "%";
-		column.title = text + " " + String.fromCharCode(0x2192) + " " + value;
+		column.title = getBarChartTooltipText(text, value);
 		column.appendChild(bar);
 		graph.appendChild(column);
 		if (!sample || Math.round((labelCount + 0.5) * sampleInterval) == i) {
-			var label = document.createElement("div");
-			label.className = "bar-chart-label";
-			label.style.left = ((i + 0.5) * barWidth - labelWidth / 2) + "%";
-			label.style.width = labelWidth + "%";
-			var innerLabel = document.createElement("div");
-			innerLabel.className = "bar-chart-inner-label";
-			innerLabel.appendChild(document.createTextNode(text));
-			innerLabel.title = column.title;
-			label.appendChild(innerLabel);
+			if (sample && (++labelCount == 1 || labelCount == samples)) continue;
+			var left = ((i + 0.5) * barWidth - labelWidth / 2) + "%";
+			var label = createBarChartLabel(text, column.title, left, labelWidth + "%", "center");
 			labels.appendChild(label);
-			labelCount++;
 		}
 	}
 	return div;
+}
+
+function createBarChartLabel (text, title, position, width, align) {
+	var label = document.createElement("div");
+	label.className = "bar-chart-label";
+	label.style.left = position;
+	label.style.width = width;
+	var innerLabel = document.createElement("div");
+	innerLabel.className = "bar-chart-inner-label";
+	innerLabel.appendChild(document.createTextNode(text));
+	innerLabel.title = title;
+	innerLabel.style.textAlign = align;
+	label.appendChild(innerLabel);
+	return label;
+}
+
+function getBarChartTooltipText (text, value) {
+	return text + " " + String.fromCharCode(0x2192) + " " + value;
 }
 
 function hasClassName (element, className) {
