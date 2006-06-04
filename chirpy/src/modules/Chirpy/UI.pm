@@ -267,7 +267,7 @@ sub run {
 					$new_rating);
 				$self->_add_to_rated_quotes($id);
 				$self->_log_event(Chirpy::Event::QUOTE_RATING_UP,
-					{ 'quote' => 'id', 'new_rating' => $new_rating });
+					{ 'id' => $id, 'new_rating' => $new_rating });
 			}
 			else {
 				$self->report_quote_rating_limit_excess();
