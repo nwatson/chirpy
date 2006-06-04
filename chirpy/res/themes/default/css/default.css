@@ -752,3 +752,7 @@ ul.tabbed-pane-contents > li {
 	-moz-border-radius: 20% 20% 0 0;
 	border-radius: 20% 20% 0 0;
 }
+
+.bar-chart-inner-bar:hover {
+	background: #E6E6E6;
+}
