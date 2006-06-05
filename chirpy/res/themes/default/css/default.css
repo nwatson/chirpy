@@ -689,7 +689,7 @@ ul.tabbed-pane-contents > li {
 
 .bar-chart {
 	position: relative;
-	width: 120ex;
+	width: 150ex;
 	height: 60ex;
 	overflow: hidden;
 	margin: 0 0 1em 0;
@@ -708,7 +708,7 @@ ul.tabbed-pane-contents > li {
 	position: absolute;
 	left: 8ex;
 	top: 2ex;
-	width: 110ex;
+	width: 140ex;
 	height: 53ex;
 	border-bottom: 1px solid #666;
 	border-left: 1px solid #666;
@@ -726,7 +726,7 @@ ul.tabbed-pane-contents > li {
 	position: absolute;
 	left: 8ex;
 	bottom: 2ex;
-	width: 110ex;
+	width: 140ex;
 }
 
 .bar-chart-values {
