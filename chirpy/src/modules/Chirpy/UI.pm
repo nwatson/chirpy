@@ -884,8 +884,9 @@ sub _provide_tag_cloud {
 sub _provide_statistics {
 	my ($self, $submission_dates) = @_;
 	my $by_date = [];
+	my $by_hour = &_init_array(0, 24);
 	my $by_month = [];
-	my $by_week_day = [ 0, 0, 0, 0, 0, 0, 0 ];
+	my $by_week_day = &_init_array(0, 7);
 	my ($date, $week_day, $month, $prev_time);
 	foreach my $time (@$submission_dates) {
 		my $d = $self->format_date($time);
@@ -901,8 +902,19 @@ sub _provide_statistics {
 		&_add_statistic($date, 1, $by_date);
 		&_add_statistic($month, 1, $by_month);
 		$by_week_day->[$week_day]++;
+		my $hour = Chirpy::Util::format_date_time($time, '%H');
+		$by_hour->[$hour]++;
 	}
-	$self->provide_statistics($by_date, $by_month, $by_week_day);
+	$self->provide_statistics($by_date, $by_hour, $by_month, $by_week_day);
+}
+
+sub _init_array {
+	my ($value, $length) = @_;
+	my @array = ();
+	foreach (1..$length) {
+		push @array, $value;
+	}
+	return \@array;
 }
 
 sub _add_statistic {

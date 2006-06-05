@@ -312,6 +312,10 @@ Abbreviated version of I<Statistics>, for use in compact menus.
 
 Title of the I<Number of Quotes by Date> section in the statistics.
 
+=item quote_count_by_hour
+
+Title of the I<Number of Quotes by Hour> section in the statistics.
+
 =item quote_count_by_month
 
 Title of the I<Number of Quotes by Month> section in the statistics.
