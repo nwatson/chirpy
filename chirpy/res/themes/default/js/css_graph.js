@@ -82,6 +82,13 @@ function createBarChart (chartData, samples) {
 	labels.className = "bar-chart-labels";
 	var values = document.createElement("div");
 	values.className = "bar-chart-values";
+	var lines = 5;
+	for (var i = 0; i < lines; i++) {
+		var line = document.createElement("div");
+		line.className = "bar-chart-line";
+		line.style.top = (100 / lines) * i + "%";
+		graph.appendChild(line);
+	}
 	div.appendChild(graph);
 	div.appendChild(labels);
 	div.appendChild(values);
