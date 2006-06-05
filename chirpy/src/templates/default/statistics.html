@@ -13,7 +13,7 @@
 	<h3><TMPL_VAR NAME="QUOTES_BY_HOUR_TITLE"></h3>
 	<dl class="bar-chart-data" id="quotes-by-hour">
 	<TMPL_LOOP NAME="QUOTES_BY_HOUR">
-		<dt title="<TMPL_VAR NAME="START_HOUR">"><TMPL_VAR NAME="START_HOUR">&ndash;<TMPL_VAR NAME="END_HOUR"></dt>
+		<dt title="<TMPL_VAR NAME="START_HOUR">"><TMPL_VAR NAME="START_HOUR">:00&ndash;<TMPL_VAR NAME="END_HOUR">:00</dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
