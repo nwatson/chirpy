@@ -884,28 +884,37 @@ sub _provide_tag_cloud {
 sub _provide_statistics {
 	my ($self, $submission_dates) = @_;
 	my $by_date = [];
+	my $by_year_month = [];
 	my $by_hour = &_init_array(0, 24);
-	my $by_month = [];
+	my $by_month = &_init_array(0, 12);
+	my $by_day = &_init_array(0, 31);
 	my $by_week_day = &_init_array(0, 7);
-	my ($date, $week_day, $month, $prev_time);
+	my ($date, $week_day, $year, $month, $day, $year_month, $prev_time);
 	foreach my $time (@$submission_dates) {
 		my $d = $self->format_date($time);
-		if ($d ne $date) {
+		my @time = $self->get_time($time);
+		if (!defined($date) || $d ne $date) {
 			if (defined $prev_time) {
-				$self->_pad_statistics($prev_time, $date, $d, $by_date, $by_month);
+				$self->_pad_statistics($prev_time, $date, $d,
+					$by_date, $by_year_month);
 			}
 			$prev_time = $time;
 			$date = $d;
-			$month = $self->format_month($time);
-			$week_day = Chirpy::Util::format_date_time($time, '%w');
+			$day = $time[3] - 1;
+			$month = $time[4];
+			$year = $time[5];
+			$year_month = $year * 100 + $month;
+			$week_day = $time[6];
 		}
 		&_add_statistic($date, 1, $by_date);
-		&_add_statistic($month, 1, $by_month);
+		&_add_statistic($year_month, 1, $by_year_month);
 		$by_week_day->[$week_day]++;
-		my $hour = Chirpy::Util::format_date_time($time, '%H');
-		$by_hour->[$hour]++;
+		$by_day->[$day]++;
+		$by_month->[$month]++;
+		$by_hour->[$time[2]]++;
 	}
-	$self->provide_statistics($by_date, $by_hour, $by_month, $by_week_day);
+	$self->provide_statistics(
+		$by_date, $by_year_month, $by_hour, $by_week_day, $by_day, $by_month);
 }
 
 sub _init_array {
@@ -928,14 +937,15 @@ sub _add_statistic {
 }
 
 sub _pad_statistics {
-	my ($self, $from, $from_date, $to, $by_date, $by_month) = @_;
+	my ($self, $from, $from_date, $to, $by_date, $by_year_month) = @_;
 	while (1) {
 		my ($next_date, $next_date_time)
 			= $self->_next_date($from, $from_date);
 		last if ($next_date eq $to);
 		&_add_statistic($next_date, 0, $by_date);
-		my $month = $self->format_month($next_date_time);
-		&_add_statistic($month, 0, $by_month);
+		my @time = $self->get_time($next_date_time);
+		my $month = $time[5] * 100 + $time[4];
+		&_add_statistic($month, 0, $by_year_month);
 		$from = $next_date_time;
 		$from_date = $next_date;
 	}
@@ -1052,12 +1062,23 @@ sub format_time {
 }
 
 sub format_month {
-	my ($self, $timestamp) = @_;
-	my ($year, $month) = split(' ',
-		Chirpy::Util::format_date_time($timestamp, '%Y %m'));
+	my ($self, $month_id) = @_;
 	my @months = qw(january february march april may june
 		july august september october november december);
-	return $self->locale()->get_string($months[$month - 1]) . ' ' . $year;
+	my $l = $self->locale();
+	my $month = $month_id % 100;
+	my $year = $month_id - $month;
+	my $m = $months[$month];
+	my $suffix = ($year ? ' ' . (1900 + $year / 100) : '');
+	my $long = $l->get_string($m) . $suffix;
+	my $short = $l->get_string($m . '_short') . $suffix;
+	return ($short, $long);
+}
+
+sub get_time {
+	my ($self, $timestamp) = @_;
+	return ($self->configuration()->get('ui', 'use_gmt')
+		? gmtime($timestamp) : localtime($timestamp));
 }
 
 sub locale {

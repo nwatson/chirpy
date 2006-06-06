@@ -312,6 +312,10 @@ Abbreviated version of I<Statistics>, for use in compact menus.
 
 Title of the I<Number of Quotes by Date> section in the statistics.
 
+=item quote_count_by_year_month
+
+Title of the I<Number of Quotes by Year and Month> section in the statistics.
+
 =item quote_count_by_hour
 
 Title of the I<Number of Quotes by Hour> section in the statistics.
@@ -319,6 +323,10 @@ Title of the I<Number of Quotes by Hour> section in the statistics.
 =item quote_count_by_month
 
 Title of the I<Number of Quotes by Month> section in the statistics.
+
+=item quote_count_by_day
+
+Title of the I<Number of Quotes by Day of the Month> section in the statistics.
 
 =item quote_count_by_week_day
 
@@ -896,7 +904,33 @@ The full names of the days of the week.
 
 =item december
 
-The full names of the months of the year
+The full names of the months of the year.
+
+=item january_short
+
+=item february_short
+
+=item march_short
+
+=item april_short
+
+=item may_short
+
+=item june_short
+
+=item july_short
+
+=item august_short
+
+=item september_short
+
+=item october_short
+
+=item november_short
+
+=item december_short
+
+The names of the months of the year, abbreviated however feels natural.
 
 =back
 

@@ -918,29 +918,57 @@ sub report_no_tagged_quotes {
 }
 
 sub provide_statistics {
-	my ($self, $quotes_by_date, $quotes_by_hour, $quotes_by_month,
-		$quotes_by_week_day) = @_;
+	my ($self, $quotes_by_date, $quotes_by_year_month, $quotes_by_hour,
+		$quotes_by_week_day, $quotes_by_day, $quotes_by_month) = @_;
 	my $template = $self->_load_template('statistics');
 	my $locale = $self->locale();
 	my @by_date = ();
 	foreach my $line (@$quotes_by_date) {
-		push @by_date, { 'DATE' => $line->[0], 'QUOTE_COUNT' => $line->[1] };
+		push @by_date, {
+			'DATE' => $line->[0],
+			'QUOTE_COUNT' => $line->[1]
+		};
+	}
+	my @by_ymonth = ();
+	foreach my $line (@$quotes_by_year_month) {
+		my ($short, $long) = $self->format_month($line->[0]);
+		push @by_ymonth, {
+			'MONTH_NAME_SHORT' => $short,
+			'MONTH_NAME' => $long,
+			'QUOTE_COUNT' => $line->[1]
+		};
 	}
 	my @by_hour = ();
 	foreach my $h (0..23) {
-		push @by_hour, { 'START_HOUR' => $h,
+		push @by_hour, {
+			'START_HOUR' => $h,
 			'END_HOUR' => ($h == 23 ? 0 : $h + 1),
-			'QUOTE_COUNT' => $quotes_by_hour->[$h] };
+			'QUOTE_COUNT' => $quotes_by_hour->[$h]
+		};
 	}
 	my @by_month = ();
-	foreach my $line (@$quotes_by_month) {
-		push @by_month, { 'MONTH' => $line->[0], 'QUOTE_COUNT' => $line->[1] };
+	foreach my $month (0..11) {
+		my ($short, $long) = $self->format_month($month);
+		push @by_month, {
+			'MONTH_NAME_SHORT' => $short,
+			'MONTH_NAME' => $long,
+			'QUOTE_COUNT' => $quotes_by_month->[$month]
+		};
+	}
+	my @by_day = ();
+	foreach my $day (0..30) {
+		push @by_day, {
+			'DAY' => $day + 1,
+			'QUOTE_COUNT' => $quotes_by_day->[$day]
+		};
 	}
 	my @by_week_day = ();
 	my @days = qw(sunday monday tuesday wednesday thursday friday saturday);
 	foreach my $d (0..6) {
-		push @by_week_day, { 'WEEK_DAY' => $locale->get_string($days[$d]),
-			'QUOTE_COUNT' => $quotes_by_week_day->[$d] };
+		push @by_week_day, {
+			'WEEK_DAY' => $locale->get_string($days[$d]),
+			'QUOTE_COUNT' => $quotes_by_week_day->[$d]
+		};
 	}
 	$template->param(
 		'PAGE_TITLE' => &_text_to_xhtml(
@@ -948,12 +976,18 @@ sub provide_statistics {
 		'QUOTES_BY_DATE' => \@by_date,
 		'QUOTES_BY_DATE_TITLE' => &_text_to_xhtml(
 			$locale->get_string('quote_count_by_date')),
+		'QUOTES_BY_YEAR_MONTH' => \@by_ymonth,
+		'QUOTES_BY_YEAR_MONTH_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_year_month')),
 		'QUOTES_BY_HOUR' => \@by_hour,
 		'QUOTES_BY_HOUR_TITLE' => &_text_to_xhtml(
 			$locale->get_string('quote_count_by_hour')),
 		'QUOTES_BY_MONTH' => \@by_month,
 		'QUOTES_BY_MONTH_TITLE' => &_text_to_xhtml(
 			$locale->get_string('quote_count_by_month')),
+		'QUOTES_BY_DAY' => \@by_day,
+		'QUOTES_BY_DAY_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_day')),
 		'QUOTES_BY_WEEK_DAY' => \@by_week_day,
 		'QUOTES_BY_WEEK_DAY_TITLE' => &_text_to_xhtml(
 			$locale->get_string('quote_count_by_week_day'))

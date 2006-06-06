@@ -161,7 +161,7 @@ function createBarChartLabel (data, position, width, align) {
 	innerLabel.className = "bar-chart-inner-label";
 	var text = (data[2] != null ? data[2] : data[0]);
 	innerLabel.appendChild(document.createTextNode(text));
-	innerLabel.title = data[1];
+	innerLabel.title = getBarChartTooltipText(data);
 	innerLabel.style.textAlign = align;
 	label.appendChild(innerLabel);
 	return label;

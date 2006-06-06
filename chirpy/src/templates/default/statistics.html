@@ -10,6 +10,13 @@
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	<h3><TMPL_VAR NAME="QUOTES_BY_YEAR_MONTH_TITLE"></h3>
+	<dl class="bar-chart-data label-count-9" id="quotes-by-year-month">
+	<TMPL_LOOP NAME="QUOTES_BY_YEAR_MONTH">
+		<dt title="<TMPL_VAR NAME="MONTH_NAME_SHORT">"><TMPL_VAR NAME="MONTH_NAME"></dt>
+		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
+	</TMPL_LOOP>
+	</dl>
 	<h3><TMPL_VAR NAME="QUOTES_BY_HOUR_TITLE"></h3>
 	<dl class="bar-chart-data" id="quotes-by-hour">
 	<TMPL_LOOP NAME="QUOTES_BY_HOUR">
@@ -17,17 +24,24 @@
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
-	<h3><TMPL_VAR NAME="QUOTES_BY_MONTH_TITLE"></h3>
-	<dl class="bar-chart-data label-count-5" id="quotes-by-month">
-	<TMPL_LOOP NAME="QUOTES_BY_MONTH">
-		<dt><TMPL_VAR NAME="MONTH"></dt>
-		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
-	</TMPL_LOOP>
-	</dl>
 	<h3><TMPL_VAR NAME="QUOTES_BY_WEEK_DAY_TITLE"></h3>
 	<dl class="bar-chart-data" id="quotes-by-week-day">
 	<TMPL_LOOP NAME="QUOTES_BY_WEEK_DAY">
 		<dt><TMPL_VAR NAME="WEEK_DAY"></dt>
+		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
+	</TMPL_LOOP>
+	</dl>
+	<h3><TMPL_VAR NAME="QUOTES_BY_DAY_TITLE"></h3>
+	<dl class="bar-chart-data" id="quotes-by-day">
+	<TMPL_LOOP NAME="QUOTES_BY_DAY">
+		<dt><TMPL_VAR NAME="DAY"></dt>
+		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
+	</TMPL_LOOP>
+	</dl>
+	<h3><TMPL_VAR NAME="QUOTES_BY_MONTH_TITLE"></h3>
+	<dl class="bar-chart-data" id="quotes-by-month">
+	<TMPL_LOOP NAME="QUOTES_BY_MONTH">
+		<dt title="<TMPL_VAR NAME="MONTH_NAME_SHORT">"><TMPL_VAR NAME="MONTH_NAME"></dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
