@@ -727,6 +727,7 @@ ul.tabbed-pane-contents > li {
 	left: 8ex;
 	bottom: 2ex;
 	width: 140ex;
+	margin-left: 1px;
 }
 
 .bar-chart-values {
