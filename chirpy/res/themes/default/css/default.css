@@ -692,7 +692,7 @@ ul.tabbed-pane-contents > li {
 	width: 150ex;
 	height: 60ex;
 	overflow: hidden;
-	margin: 0 0 1em 0;
+	margin: 0 0 1.5em 0;
 	border: 1px solid #CCC;
 	line-height: 1.25em;
 	font-size: 80%;
