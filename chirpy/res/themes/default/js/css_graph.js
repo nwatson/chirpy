@@ -112,7 +112,7 @@ function createBarChart (chartData, samples) {
 	var sampleInterval, labelWidth;
 	if (sample) {
 		if (chartData.length < samples * 2) {
-			samples = Math.floor(chartData.length / 2);
+			samples = Math.ceil(chartData.length / 2);
 		}
 		sampleInterval = chartData.length / samples;
 		labelWidth = 100 / samples;
@@ -142,7 +142,7 @@ function createBarChart (chartData, samples) {
 		column.title = getBarChartTooltipText(data);
 		column.appendChild(bar);
 		graph.appendChild(column);
-		if (!sample || Math.round((labelCount + 0.5) * sampleInterval) == i) {
+		if (!sample || Math.floor((labelCount + 0.5) * sampleInterval) == i) {
 			if (sample && (++labelCount == 1 || labelCount == samples)) continue;
 			var left = ((i + 0.5) * barWidth - labelWidth / 2) + "%";
 			var label = createBarChartLabel(data, left, labelWidth + "%", "center");
