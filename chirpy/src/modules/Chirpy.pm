@@ -265,15 +265,14 @@ use warnings;
 require Exporter;
 
 BEGIN {
-	use vars qw($VERSION @EXPORT @ISA $hires_timing);
+	use vars qw($VERSION @EXPORT @ISA $DEBUG $hires_timing);
 	$VERSION = '0.3';
 	@ISA = qw(Exporter);
 	@EXPORT = qw(chirpy);
 	eval 'use Time::HiRes qw//';
+	$DEBUG = 0;
 	$hires_timing = 1 unless ($@);
 }
-
-use constant DEBUG => 0;
 
 use constant PRODUCT_NAME => 'Chirpy!';
 use constant VERSION_STRING => 'v0.3a1';
@@ -301,7 +300,7 @@ sub new {
 	my $st = ($hires_timing ? Time::HiRes::time() : undef);
 	my $self = bless {}, $class;
 	$self->{'start_time'} = $st;
-	$self->{'debug_events'} = [] if (DEBUG && $hires_timing);
+	$self->{'debug_events'} = [] if ($DEBUG && $hires_timing);
 	unless (defined $configuration_file) {
 		foreach my $file (qw(src/chirpy.ini chirpy.ini)) {
 			next unless (-f $file);
@@ -720,7 +719,7 @@ sub remove {
 sub die {
 	my $message = shift;
 	$message = 'Unknown error' unless (defined $message);
-	if (DEBUG) {
+	if ($DEBUG) {
 		confess $message;
 	}
 	else {
