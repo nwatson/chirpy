@@ -342,7 +342,9 @@ sub run {
 	my $configuration = $self->configuration();
 	my $ui_type = $self->{'ui_type'};
 	my $ui_params = $configuration->get_parameter_hash('ui', $ui_type);
+	$self->mark_debug_event('Create user interface');
 	$self->{'ui'} = &_create_ui($ui_type, $self, $ui_params);
+	$self->mark_debug_event('User interface created');
 	$self->{'ui'}->run();
 }
 
