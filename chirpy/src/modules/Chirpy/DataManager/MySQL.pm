@@ -294,7 +294,7 @@ sub _table_exists {
 sub get_quotes {
 	my ($self, $params) = @_;
 	$params = {} unless (ref $params eq 'HASH');
-	my $query = 'SELECT `q`.`id` AS `id`, `body`, `notes`, `rating`,'
+	my $query = 'SELECT DISTINCT `q`.`id` AS `id`, `body`, `notes`, `rating`,'
 		. ' UNIX_TIMESTAMP(`submitted`) AS `submitted`, `approved`, `flagged`'
 		. ' FROM `' . $self->table_name_prefix() . 'quotes` AS `q`';
 	my @par = ();
