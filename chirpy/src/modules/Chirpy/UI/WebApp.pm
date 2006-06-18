@@ -2881,7 +2881,7 @@ sub _id {
 	my $id = $self->_url_param('id');
 	$id = $self->_cgi_param('id') unless (defined $id);
 	return undef unless (defined $id);
-	return eval $id if ($id =~ /^0(?:x[0-9A-Fa-f]|b[01]+)+$/);
+	return eval $id if ($id =~ /^0(?:x[0-9A-Fa-f]+|b[01]+)+$/);
 	return $id;
 }
 
