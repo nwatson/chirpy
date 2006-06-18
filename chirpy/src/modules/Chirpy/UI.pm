@@ -479,18 +479,16 @@ sub _provide_administration_interface {
 						$tags = Chirpy::Util::parse_tags($tags);
 						my $old_body = $quote->get_body();
 						my $old_notes = $quote->get_notes();
-						my $old_tags = $quote->get_tags();
+						my $old_tags = join('', @{$quote->get_tags()});
 						$self->parent()->modify_quote(
 							$quote, $body, $notes, $tags);
 						$self->confirm_quote_modification($quote);
+						$tags = join(' ', @$tags);
 						$self->_log_event(Chirpy::Event::EDIT_QUOTE, {
 							'id' => $id,
-							'old_body' => $old_body,
-							'old_notes' => $old_notes,
-							'old_tags' => $old_tags,
-							'new_body' => $body,
-							'new_notes' => $notes,
-							'new_tags' => $tags
+							($old_body ne $body ? ('new_body' => $body) : ()),
+							($old_notes ne $notes ? ('new_notes' => $notes) : ()),
+							($old_tags ne $tags ? ('new_tags' => $tags) : ())
 						});
 					}
 					else {
@@ -576,11 +574,10 @@ sub _provide_administration_interface {
 						$self->confirm_news_item_modification();
 						$self->_log_event(Chirpy::Event::EDIT_NEWS, {
 							'id' => $id,
-							'old_body' => $old_body,
-							'new_body' => $text,
-							'old_poster' => (defined $old_poster
-								? $old_poster->get_id() : undef),
-							'new_poster' => $poster_id
+							($old_body ne $text ? ('new_body' => $text) : ()),
+							(!defined $old_poster
+								|| $old_poster->get_id() != $poster_id
+								? ('new_poster' => $poster_id) : ())
 						});
 					}
 					else {
@@ -705,12 +702,12 @@ sub _provide_administration_interface {
 						$self->confirm_account_modification();
 						$self->_log_event(Chirpy::Event::EDIT_ACCOUNT, {
 							'id' => $id,
-							'old_username' => $old_username,
-							'old_level' => $old_level,
-							'new_username' => $account->get_username(),
-							'new_level' => $account->get_level(),
-							'password_changed'
-								=> ($account->get_password() ne $old_password)
+							($old_username ne $username
+								? ('new_username' => $username) : ()),
+							($old_level != $level
+								? ('new_level' => $level) : ()),
+							($account->get_password() ne $old_password
+								? ('password_changed' => 1) : ())
 						});
 					}
 				}
@@ -995,15 +992,15 @@ sub _update_rating_history {
 
 sub _log_event {
 	my ($self, $code, $params) = @_;
+	$params = {} unless (defined $params);
+	my $info = $self->get_user_information();
+	while (my ($k, $v) = each %$info) {
+		$params->{'user:' . $k} = $v;
+	}
 	$self->parent()->log_event(
 		$code,
 		$self->get_logged_in_user_account(),
-		{
-			'user' => $self->get_user_information(),
-			(defined $params
-				? ('parameters' => $params)
-				: ())
-		}
+		$params
 	);
 }
 

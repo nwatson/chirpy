@@ -111,7 +111,9 @@ else {
 		'Are you sure?&quot;);">', $/,
 		'<input type="submit" name="upgrade" ',
 		'value="UPGRADE (a.k.a. Keep My Stuff!)">', $/,
-		'</div></form>';
+		'</div></form>', $/,
+		'<p><strong>Please click the button only once!</strong> ',
+		'The operation might take a while to complete.</p>';
 }
 
 &_footer();

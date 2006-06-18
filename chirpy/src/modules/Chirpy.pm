@@ -667,11 +667,6 @@ sub remove_accounts {
 
 sub log_event {
 	my ($self, $code, $user, $data) = @_;
-	my $conf = $self->configuration();
-	$data->{'chirpy'} = {
-		'ui' => $conf->get('ui', 'type'),
-		'data_manager' => $conf->get('data', 'type')
-	};
 	return $self->_data_manager()->log_event(
 		new Chirpy::Event(undef, undef, $code, $user, $data)
 	);

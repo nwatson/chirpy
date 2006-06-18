@@ -220,7 +220,7 @@ sub set_up {
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
-	$table = $prefix . 'log';
+	$table = $prefix . 'events';
 	unless ($self->_table_exists($table)) {
 		$handle->do(q|
 			CREATE TABLE `| . $table . q|` (
@@ -228,10 +228,26 @@ sub set_up {
 				`date` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				`code` int unsigned NOT NULL,
 				`user` int unsigned,
-				`data` text,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	$table = $prefix . 'event_metadata';
+	unless ($self->_table_exists($table)) {
+		$handle->do(q|
+			CREATE TABLE `| . $table . q|` (
+			    `id` int unsigned NOT NULL,
+				`name` varchar(32) NOT NULL,
+				`value` text NOT NULL,
+				INDEX (`id`),
+				INDEX (`name`)
+			) TYPE=MyISAM DEFAULT CHARSET=utf8
+		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
+	}
+	if ($self->_table_exists($prefix . 'log')) {
+		$self->_migrate_log($prefix . 'log',
+			$prefix . 'events', $prefix . 'event_metadata');
+		$self->_remove_table($prefix . 'log');
 	}
 	$table = $prefix . 'sessions';
 	unless ($self->_table_exists($table)) {
@@ -247,8 +263,8 @@ sub set_up {
 	unless ($self->_table_exists($table)) {
 		$handle->do(q|
 			CREATE TABLE `| . $table . q|` (
-				`name` VARCHAR(32) NOT NULL,
-				`value` VARCHAR(255) NOT NULL,
+				`name` varchar(32) NOT NULL,
+				`value` varchar(255) NOT NULL,
 				PRIMARY KEY (`name`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
@@ -275,6 +291,70 @@ sub remove {
 	my @tables = qw/accounts news quotes tags quote_tag log sessions vars/;
 	foreach my $table (@tables) {
 		$self->_remove_table($self->table_name_prefix() . $table);
+	}
+}
+
+sub _migrate_log {
+	my ($self, $old_table, $event_table, $metadata_table) = @_;
+	my $query = 'SELECT * FROM `' . $old_table . '`';
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	while (my $row = $sth->fetchrow_hashref()) {
+		my $date = $row->{'date'};
+		my $code = $row->{'code'};
+		my $user = $row->{'user'};
+		my $data = $row->{'data'};
+		eval '$data = ' . $data;
+		if ($data && ref $data eq 'HASH') {
+			$self->_do('INSERT INTO `' . $event_table . '`'
+				. ' (`date`, `code`, `user`) VALUES (?, ?, ?)',
+				$date, $code, $user);
+			my $id = $self->handle()->{'mysql_insertid'};
+			my $params = (exists $data->{'parameters'}
+				? $data->{'parameters'} : {});
+			if (exists $data->{'user'}) {
+				while (my ($name, $value) = each %{$data->{'user'}}) {
+					$params->{'user:' . $name} = $value;
+				}
+			}
+			while (my ($name, $value) = each %$params) {
+				if (ref $value) {
+					if ($name eq 'old_tags' || $name eq 'new_tags') {
+						# Tags were stored as an arrayref.
+						$value = join(' ', @$value);
+					}
+					elsif ($name eq 'poster' || $name eq 'old_poster') {
+						# Old versions used the object instead of its ID.
+						$value = $value->{'id'};
+					}
+					else {
+						# This should never happen.
+						$value = Dumper($value);
+					}
+				}
+				elsif ($name eq 'quote' && $value eq 'id') {
+					# Bug 1493589. The quote ID is lost, so we use 0.
+					$name = 'id';
+					$value = 0;
+				}
+				next unless (defined $value && $value ne '');
+				my $query = 'INSERT INTO `' . $metadata_table . '`'
+					. ' (`id`, `name`, `value`) VALUES (?, ?, ?)';
+				my @params = ($id, $name, $value);
+				# XXX: This causes Unicode breakage sometimes.
+				#$self->_do($query, @params);
+				my $success = $self->handle()->do($query, undef, @params);
+				unless ($success) {
+					$params[2] = 'ERROR';
+					$self->_do($query, @params);
+				}
+			}
+		}
+		else {
+			# TODO: Failed to unserialize--report.
+		}
 	}
 }
 
@@ -693,14 +773,18 @@ sub log_event {
 	Chirpy::die('Not a Chirpy::Event')
 		unless (ref $event eq 'Chirpy::Event');
 	my $user = $event->get_user();
-	$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'log`'
-		. ' (`code`, `user`, `data`)'
-		. ' VALUES (?, ?, ?)',
+	my $prefix = $self->table_name_prefix();
+	$self->_do('INSERT INTO `' . $prefix . 'events`'
+		. ' (`code`, `user`) VALUES (?, ?)',
 		$event->get_code(),
-		(defined $user ? $user->get_id() : undef),
-		&_serialize($event->get_data()));
+		(defined $user ? $user->get_id() : undef));
 	my $id = $self->handle()->{'mysql_insertid'};
 	$event->set_id($id);
+	while (my ($name, $value) = each %{$event->get_data()}) {
+		$self->_do('INSERT INTO `' . $prefix . 'event_metadata`'
+			. ' (`id`, `name`, `value`) VALUES (?, ?, ?)',
+			$id, $name, $value);
+	}
 	return $id;
 }
 
