@@ -15,6 +15,8 @@
 * Simplified RSS feed: using HTML in <description> and removing
   <content:encoded> and <xhtml:body>, making feedvalidator.org like it more
 * Bugfix: quote rating up log entry now includes quote ID (#1493589)
+* Just for fun, quote IDs can now be in binary and hex notation too, as per
+  <http://quotes.burntelectrons.org/844>.
 
  _____________________________________________________________________________
 /                                                                             \

@@ -2878,7 +2878,11 @@ sub _output_type {
 
 sub _id {
 	my $self = shift;
-	return ($self->_url_param('id') || $self->_cgi_param('id'));
+	my $id = $self->_url_param('id');
+	$id = $self->_cgi_param('id') unless (defined $id);
+	return undef unless (defined $id);
+	return eval $id if ($id =~ /^0(?:x[0-9A-Fa-f]|b[01]+)+$/);
+	return $id;
 }
 
 sub _wants_xml {
