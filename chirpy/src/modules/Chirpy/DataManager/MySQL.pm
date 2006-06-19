@@ -190,7 +190,7 @@ sub set_up {
 		unless ($self->_column_exists($table, 'votes')) {
 			$handle->do(q|
 				ALTER TABLE `| . $table . q|`
-					ADD `votes` int unsigned NOT NULL AFTER `rating`
+					ADD `votes` int unsigned NOT NULL default 0 AFTER `rating`
 			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
 			$determine_votes = 1;
 		}
@@ -201,8 +201,8 @@ sub set_up {
 				`id` int unsigned NOT NULL auto_increment,
 				`body` text NOT NULL,
 				`notes` text,
-				`rating` int NOT NULL,
-				`votes` int unsigned NOT NULL,
+				`rating` int NOT NULL default 0,
+				`votes` int unsigned NOT NULL default 0,
 				`submitted` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				`approved` tinyint(1) unsigned NOT NULL,
 				`flagged` tinyint(1) unsigned NOT NULL,
