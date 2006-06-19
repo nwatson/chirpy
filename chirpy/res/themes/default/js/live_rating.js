@@ -115,6 +115,8 @@ function ratingRequestCompleted (req, result) {
 				req.setResult("");
 				setText(document.getElementById('quote-rating-' + req.id),
 					result["rating"]);
+				var vc = document.getElementById('quote-vote-count-' + req.id);
+				if (vc) setText(vc, result["votes"]);
 				req.setResult(okText, false, confirmationTimeout);
 				break;
 			case "2":

@@ -261,10 +261,12 @@ sub run {
 				$self->report_quote_already_rated($id);
 			}
 			elsif ($self->_update_rating_history()) {
-				my $new_rating = $self->parent()->increase_quote_rating($id);
+				my ($new_rating, $new_vote_count)
+					= $self->parent()->increase_quote_rating($id);
 				$self->confirm_quote_rating(
 					1,
-					$new_rating);
+					$new_rating,
+					$new_vote_count);
 				$self->_add_to_rated_quotes($id);
 				$self->_log_event(Chirpy::Event::QUOTE_RATING_UP,
 					{ 'id' => $id, 'new_rating' => $new_rating });
@@ -284,10 +286,12 @@ sub run {
 				$self->report_quote_already_rated($id);
 			}
 			elsif ($self->_update_rating_history()) {
-				my $new_rating = $self->parent()->decrease_quote_rating($id);
+				my ($new_rating, $new_vote_count)
+					= $self->parent()->decrease_quote_rating($id);
 				$self->confirm_quote_rating(
 					0,
-					$new_rating);
+					$new_rating,
+					$new_vote_count);
 				$self->_add_to_rated_quotes($id);
 				$self->_log_event(Chirpy::Event::QUOTE_RATING_DOWN,
 					{ 'id' => $id, 'new_rating' => $new_rating });

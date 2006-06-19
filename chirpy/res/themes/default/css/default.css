@@ -300,8 +300,13 @@ ul.quote-list h3.quote-header .quote-date,
 ul.quote-list h3.quote-header .quote-edit,
 ul.quote-list h3.quote-header .quote-remove,
 ul.quote-list h3.quote-header .quote-unflag,
-ul.quote-list h3.quote-header .quote-live-vote-result {
+ul.quote-list h3.quote-header .quote-live-vote-result,
+ul.quote-list h3.quote-header .quote-vote-count {
 	font-size: 80%;
+}
+
+ul.quote-list h3.quote-header .quote-vote-count:before {
+	content: "/";
 }
 
 ul.quote-list h3.quote-header .quote-live-vote-result {

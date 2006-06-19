@@ -24,7 +24,8 @@ Chirpy::Quote - Represents a quote
 =head1 SYNOPSIS
 
  $quote = new Chirpy::Quote(
-     $id, $body, $notes, $rating, $submitted, $approved, $flagged, $tags);
+     $id, $body, $notes, $rating, $vote_count,
+     $submitted, $approved, $flagged, $tags);
 
  $id = $quote->get_id();
  $quote->set_id($id);
@@ -37,6 +38,9 @@ Chirpy::Quote - Represents a quote
 
  $rating = $quote->get_rating();
  $quote->set_rating($rating);
+ 
+ $vote_count = $quote->get_vote_count();
+ $quote->set_vote_count($vote_count);
 
  $submitted = $quote->get_date_submitted();
  $quote->set_date_submitted($submitted);
@@ -72,6 +76,10 @@ The quote notes can be any text string, if any.
 
 The quote rating must be an integer.
 
+=item Vote Count
+
+The vote count must be a positive integer; a value of zero is allowed.
+
 =item Submitted
 
 The date when the quote was submitted must be a UNIX timestamp.
@@ -83,6 +91,11 @@ The quote approval status is 1 if the quote has been approved, 0 if it has not.
 =item Flagged
 
 The quote flag status is 1 if the quote has been reported, 0 if it has not.
+
+=item Tags
+
+Tags must be passed as a reference to an array of strings, each of which
+constructed of lowercase non-whitespace characters.
 
 =back
 
@@ -122,12 +135,13 @@ use Chirpy 0.3;
 
 sub new {
 	my ($class, $id, $body, $notes,
-		$rating, $submitted, $approved, $flagged, $tags) = @_;
+		$rating, $vote_count, $submitted, $approved, $flagged, $tags) = @_;
 	my $self = {
 		'id' => $id,
 		'body' => $body,
 		'notes' => (defined $notes && $notes ne '' ? $notes : undef),
 		'rating' => $rating,
+		'vote_count' => $vote_count,
 		'submitted' => $submitted,
 		'approved' => $approved,
 		'flagged' => $flagged,
@@ -170,6 +184,16 @@ sub set_notes {
 sub get_rating {
 	my $self = shift;
 	return $self->{'rating'};
+}
+
+sub set_vote_count {
+	my $self = shift;
+	return ($self->{'vote_count'} = shift);
+}
+
+sub get_vote_count {
+	my $self = shift;
+	return $self->{'vote_count'};
 }
 
 sub set_rating {

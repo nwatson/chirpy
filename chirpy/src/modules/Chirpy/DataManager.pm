@@ -213,6 +213,11 @@ Increases the rating of quote number C<$id> by 1. Returns the new rating.
 
 Decreases the rating of quote number C<$id> by 1. Returns the new rating.
 
+=item increase_quote_vote_count($id)
+
+Increases the number of votes for quote number C<$id> by 1. Returns the new
+vote count.
+
 =item get_tag_use_counts()
 
 Returns a reference to a hash, mapping tags to the number of times they were
@@ -456,6 +461,8 @@ sub param {
 *increase_quote_rating = \&Chirpy::Util::abstract_method;
 
 *decrease_quote_rating = \&Chirpy::Util::abstract_method;
+
+*increase_quote_vote_count = \&Chirpy::Util::abstract_method;
 
 *get_tag_use_counts = \&Chirpy::Util::abstract_method;
 

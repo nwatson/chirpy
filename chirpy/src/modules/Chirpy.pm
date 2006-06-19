@@ -493,6 +493,7 @@ sub add_quote {
 		$notes,
 		undef,
 		undef,
+		undef,
 		$approved,
 		0,
 		$tags
@@ -520,12 +521,16 @@ sub remove_quotes {
 
 sub increase_quote_rating {
 	my ($self, $id) = @_;
-	return $self->_data_manager()->increase_quote_rating($id);
+	my $rating = $self->_data_manager()->increase_quote_rating($id);
+	my $votes = $self->_data_manager()->increase_quote_vote_count($id);
+	return ($rating, $votes);
 }
 
 sub decrease_quote_rating {
 	my ($self, $id) = @_;
-	return $self->_data_manager()->decrease_quote_rating($id);
+	my $rating = $self->_data_manager()->decrease_quote_rating($id);
+	my $votes = $self->_data_manager()->increase_quote_vote_count($id);
+	return ($rating, $votes);
 }
 
 sub get_tag_use_counts {

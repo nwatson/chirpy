@@ -119,6 +119,7 @@ use Chirpy::UI::WebApp::Session::DataManager 0.3;
 use Chirpy::Quote 0.3;
 use Chirpy::Account 0.3;
 use Chirpy::NewsItem 0.3;
+use Chirpy::Event 0.3;
 
 use DBI;
 
@@ -184,13 +185,24 @@ sub set_up {
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'quotes';
-	unless ($self->_table_exists($table)) {
+	my $determine_votes = 0;
+	if ($self->_table_exists($table)) {
+		unless ($self->_column_exists($table, 'votes')) {
+			$handle->do(q|
+				ALTER TABLE `| . $table . q|`
+					ADD `votes` int unsigned NOT NULL AFTER `rating`
+			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
+			$determine_votes = 1;
+		}
+	}
+	else {
 		$handle->do(q|
 			CREATE TABLE `| . $table . q|` (
 				`id` int unsigned NOT NULL auto_increment,
 				`body` text NOT NULL,
 				`notes` text,
 				`rating` int NOT NULL,
+				`votes` int unsigned NOT NULL,
 				`submitted` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				`approved` tinyint(1) unsigned NOT NULL,
 				`flagged` tinyint(1) unsigned NOT NULL,
@@ -245,10 +257,10 @@ sub set_up {
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	if ($self->_table_exists($prefix . 'log')) {
-		$self->_migrate_log($prefix . 'log',
-			$prefix . 'events', $prefix . 'event_metadata');
+		$self->_migrate_log();
 		$self->_remove_table($prefix . 'log');
 	}
+	$self->_determine_votes() if ($determine_votes);
 	$table = $prefix . 'sessions';
 	unless ($self->_table_exists($table)) {
 		$handle->do(q|
@@ -295,7 +307,11 @@ sub remove {
 }
 
 sub _migrate_log {
-	my ($self, $old_table, $event_table, $metadata_table) = @_;
+	my $self = shift;
+	my $prefix = $self->table_name_prefix();
+	my $old_table = $prefix . 'log';
+	my $event_table = $prefix . 'events';
+	my $metadata_table = $prefix . 'event_metadata';
 	my $query = 'SELECT * FROM `' . $old_table . '`';
 	my $sth = $self->handle()->prepare($query);
 	$self->_db_error() unless (defined $sth);
@@ -358,6 +374,44 @@ sub _migrate_log {
 	}
 }
 
+sub _determine_votes {
+	my $self = shift;
+	my $prefix = $self->table_name_prefix();
+	my $query = 'SELECT `value`, COUNT(*)'
+		. ' FROM `' . $prefix . 'events` AS ev'
+		. ' JOIN `' . $prefix . 'event_metadata` AS md'
+		. ' ON ev.id = md.id'
+		. ' WHERE `code` = ' . Chirpy::Event::QUOTE_RATING_DOWN
+		. ' AND `name` = "id"'
+		. ' GROUP BY `value`';
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	my %neg = ();
+	while (my $row = $sth->fetchrow_arrayref()) {
+		my ($id, $votes) = @$row;
+		$neg{$id} = $votes;
+	}
+	$query = 'SELECT `id`, `rating` FROM `' . $prefix . 'quotes`';
+	$sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	$rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	$query = 'UPDATE `' . $prefix . 'quotes`'
+		. ' SET `votes` = ? WHERE `id` = ? LIMIT 1';
+	my $s = $self->handle()->prepare($query);
+	while (my $row = $sth->fetchrow_hashref()) {
+		my ($id, $rating) = ($row->{'id'}, $row->{'rating'});
+		my $votes = $rating;
+		$votes += $neg{$id} * 2 if (exists $neg{$id} && $neg{$id});
+		# This is only meaningful if the log is inconsistent.
+		$votes = abs($rating) if ($votes < 0);
+		$rows = $s->execute($votes, $id);
+		$self->_db_error() unless (defined $rows);
+	}
+}
+
 sub _remove_table {
 	my ($self, $table) = @_;
 	return unless ($self->_table_exists($table));
@@ -371,10 +425,24 @@ sub _table_exists {
 	return defined $self->_execute_scalar($query);
 }
 
+sub _column_exists {
+	my ($self, $table, $column) = @_;
+	my $query = "SHOW COLUMNS FROM $table";
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	while (my $row = $sth->fetchrow_hashref()) {
+		return 1 if ($row->{'Field'} eq $column);
+	}
+	return 0;
+}
+
 sub get_quotes {
 	my ($self, $params) = @_;
 	$params = {} unless (ref $params eq 'HASH');
-	my $query = 'SELECT DISTINCT `q`.`id` AS `id`, `body`, `notes`, `rating`,'
+	my $query = 'SELECT DISTINCT `q`.`id` AS `id`, `body`, `notes`,'
+		. ' `rating`, `votes`,'
 		. ' UNIX_TIMESTAMP(`submitted`) AS `submitted`, `approved`, `flagged`'
 		. ' FROM `' . $self->table_name_prefix() . 'quotes` AS `q`';
 	my @par = ();
@@ -452,7 +520,7 @@ sub get_quotes {
 		push @result, new Chirpy::Quote(
 			$row->{'id'}, Chirpy::Util::decode_utf8($row->{'body'}),
 			Chirpy::Util::decode_utf8($row->{'notes'}),
-			$row->{'rating'}, $row->{'submitted'},
+			$row->{'rating'}, $row->{'votes'}, $row->{'submitted'},
 			$row->{'approved'}, $row->{'flagged'},
 			$self->_quote_tags($row->{'id'})
 		);
@@ -526,6 +594,14 @@ sub decrease_quote_rating {
 		. ' SET `rating` = `rating` - 1 WHERE `id` = ' . $id . ' LIMIT 1')
 			or return undef;
 	return $self->_get_quote_rating($id);
+}
+
+sub increase_quote_vote_count {
+	my ($self, $id) = @_;
+	$self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
+		. ' SET `votes` = `votes` + 1 WHERE `id` = ' . $id . ' LIMIT 1')
+			or return undef;
+	return $self->_get_quote_vote_count($id);
 }
 
 sub get_tag_use_counts {
@@ -964,6 +1040,18 @@ sub _clean_up_tags {
 sub _get_quote_rating {
 	my ($self, $id) = @_;
 	my $sth = $self->handle()->prepare('SELECT `rating`'
+		. ' FROM `' . $self->table_name_prefix() . 'quotes`'
+		. ' WHERE `id` = ' . $id . ' LIMIT 1');
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	my @row = $sth->fetchrow_array();
+	return $row[0];
+}
+
+sub _get_quote_vote_count {
+	my ($self, $id) = @_;
+	my $sth = $self->handle()->prepare('SELECT `votes`'
 		. ' FROM `' . $self->table_name_prefix() . 'quotes`'
 		. ' WHERE `id` = ' . $id . ' LIMIT 1');
 	$self->_db_error() unless (defined $sth);

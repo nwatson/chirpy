@@ -721,6 +721,8 @@ sub _generate_xhtml {
 		$locale->get_string('quote_report_description'));
 	my $rating_desc = &_text_to_xhtml(
 		$locale->get_string('quote_rating_description'));
+	my $vote_count_desc = &_text_to_xhtml(
+		$locale->get_string('quote_vote_count_description'));
 	my $date_desc = &_text_to_xhtml(
 		$locale->get_string('quote_date_description'));
 	my $edit_desc = &_text_to_xhtml(
@@ -741,6 +743,7 @@ sub _generate_xhtml {
 		'REMOVE_DESCRIPTION' => $remove_desc,
 		'REPORT_DESCRIPTION' => $report_desc,
 		'RATING_DESCRIPTION' => $rating_desc,
+		'VOTE_COUNT_DESCRIPTION' => $vote_count_desc,
 		'DATE_DESCRIPTION' => $date_desc,
 		'EDIT_DESCRIPTION' => $edit_desc,
 		'REMOVE_DESCRIPTION' => $remove_desc,
@@ -793,6 +796,7 @@ sub _generate_xhtml {
 			'RATING_NUMBER' => $quote->get_rating(),
 			'RATING_TEXT'
 				=> Chirpy::Util::format_quote_rating($quote->get_rating()),
+			'VOTE_COUNT' => $quote->get_vote_count(),
 			'SUBMITTED_TEXT' => &_text_to_xhtml(
 				$self->format_date_time($quote->get_date_submitted())),
 			'IS_APPROVED' => $quote->get_approved(),
@@ -1096,11 +1100,12 @@ sub confirm_quote_submission {
 }
 
 sub confirm_quote_rating {
-	my ($self, $up, $new_rating) = @_;
+	my ($self, $up, $new_rating, $new_vote_count) = @_;
 	if ($self->_wants_xml()) {
 		$self->_output_xml('result',
 			'status' => STATUS_OK,
-			'rating' => Chirpy::Util::format_quote_rating($new_rating)
+			'rating' => Chirpy::Util::format_quote_rating($new_rating),
+			'votes' => $new_vote_count
 		);
 	}
 	else {

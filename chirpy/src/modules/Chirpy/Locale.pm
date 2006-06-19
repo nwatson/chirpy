@@ -274,6 +274,10 @@ such.
 
 Brief description of what the quote's rating is, for tooltips and such.
 
+=item quote_vote_count_description
+
+Brief description of what the quote's vote count is, for tooltips and such.
+
 =item quote_date_description
 
 Brief description of what the date when the quote was submitted is, for
