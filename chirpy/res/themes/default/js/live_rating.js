@@ -80,7 +80,8 @@ QuoteActionRequest.prototype.setResult = function (text, blink, timeout) {
 		this.resultField.style.textDecoration = blink ? "blink" : "";
 	var field = this.resultField;
 	if (timeout)
-		this.fadeTimeout = setTimeout(setText, timeout, field, "");
+		this.fadeTimeout = setTimeout(
+			function () { setText(field, ""); }, timeout);
 };
 
 function sendRating (anchor, id) {
