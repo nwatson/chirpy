@@ -21,7 +21,7 @@
 <summary type="text"><TMPL_VAR NAME="QUOTE_RATING"></summary>
 <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">
 <p><b><a href="<TMPL_VAR NAME="QUOTE_RATING_DOWN_URL">">[<TMPL_VAR NAME="QUOTE_RATING_DOWN_SHORT_TITLE">]</a>
-(<TMPL_VAR NAME="QUOTE_RATING">/<TMPL_VAR NAME="QUOTE_VOTE_COUNT">)
+(<TMPL_VAR NAME="QUOTE_RATING"><small>/<TMPL_VAR NAME="QUOTE_VOTE_COUNT"></small>)
 <a href="<TMPL_VAR NAME="QUOTE_RATING_UP_URL">">[<TMPL_VAR NAME="QUOTE_RATING_UP_SHORT_TITLE">]</a>
 <a href="<TMPL_VAR NAME="QUOTE_REPORT_URL">">[<TMPL_VAR NAME="QUOTE_REPORT_SHORT_TITLE">]</a></b></p>
 <p><tt><TMPL_VAR NAME="QUOTE_BODY"></tt></p>
