@@ -10,6 +10,8 @@
 * Template parameters are now global, which means you can include parameters
   from outside a loop
 * Optimized template parsing a little
+* Moved administration-related subs to a separate class, speeding up non-admin
+  pages somewhat
 * Extended quick style linking method: <> is now omitted and link text can be
   changed by separating it from URL by whitespace, e.g.
     Surf to <http://chirpy.sourceforge.net/ The Chirpy! web site>!
