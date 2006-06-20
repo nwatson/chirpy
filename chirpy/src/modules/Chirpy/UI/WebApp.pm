@@ -1653,7 +1653,7 @@ sub _output_administration_page {
 	my ($self, %params) = @_;
 	require Chirpy::UI::WebApp::Administration;
 	my $adm = new Chirpy::UI::WebApp::Administration($self);
-	$adm->output();
+	$adm->output(%params);
 }
 
 sub _provide_session {
