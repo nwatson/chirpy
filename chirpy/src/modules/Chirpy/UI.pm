@@ -706,11 +706,11 @@ sub _provide_administration_interface {
 						$self->confirm_account_modification();
 						$self->_log_event(Chirpy::Event::EDIT_ACCOUNT, {
 							'id' => $id,
-							($old_username ne $username
+							(defined $username && $old_username ne $username
 								? ('new_username' => $username) : ()),
-							($old_level != $level
+							(defined $level && $old_level != $level
 								? ('new_level' => $level) : ()),
-							($account->get_password() ne $old_password
+							(defined $password
 								? ('password_changed' => 1) : ())
 						});
 					}
