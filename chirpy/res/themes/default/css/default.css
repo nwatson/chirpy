@@ -258,6 +258,10 @@ ul.quote-list li h3.quote-header * {
 	padding: 0;
 }
 
+ul.quote-list li h3.quote-header * * {
+	margin: 0;
+}
+
 ul.quote-list li blockquote.quote-body {
 	margin: 0.5em 0.75em;
 	padding: 0;
@@ -303,10 +307,6 @@ ul.quote-list h3.quote-header .quote-unflag,
 ul.quote-list h3.quote-header .quote-live-vote-result,
 ul.quote-list h3.quote-header .quote-vote-count {
 	font-size: 80%;
-}
-
-ul.quote-list h3.quote-header .quote-vote-count:before {
-	content: "/";
 }
 
 ul.quote-list h3.quote-header .quote-live-vote-result {

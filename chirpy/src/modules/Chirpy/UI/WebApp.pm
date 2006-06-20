@@ -622,6 +622,7 @@ sub _generate_feed {
 				$locale->get_string('quote_tags_title')),
 			'QUOTE_RATING'
 				=> Chirpy::Util::format_quote_rating($quote->get_rating()),
+			'QUOTE_VOTE_COUNT' => $quote->get_vote_count(),
 			'QUOTE_RATING_UP_URL' => $up_url,
 			'QUOTE_RATING_DOWN_URL' => $down_url,
 			'QUOTE_REPORT_URL' => $report_url,
