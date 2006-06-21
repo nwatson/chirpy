@@ -862,7 +862,7 @@ sub _provide_tag_cloud {
 	my $max_increase
 		= $self->configuration()->get('ui', 'tag_cloud_percentage_delta')
 			|| 100;
-	my @tags = $self->$self->configuration()->get('ui', 'randomize_tag_cloud')
+	my @tags = $self->configuration()->get('ui', 'randomize_tag_cloud')
 		? Chirpy::Util::shuffle_array(keys %$tag_counts)
 		: sort keys %$tag_counts;
 	my @tag_info_list;
