@@ -927,7 +927,8 @@ sub report_no_tagged_quotes {
 
 sub provide_statistics {
 	my ($self, $quotes_by_date, $quotes_by_year_month, $quotes_by_hour,
-		$quotes_by_week_day, $quotes_by_day, $quotes_by_month) = @_;
+		$quotes_by_week_day, $quotes_by_day, $quotes_by_month,
+		$quotes_by_rating, $quotes_by_votes) = @_;
 	my $template = $self->_load_template('statistics');
 	my $locale = $self->locale();
 	my @by_date = ();
@@ -978,6 +979,20 @@ sub provide_statistics {
 			'QUOTE_COUNT' => $quotes_by_week_day->[$d]
 		};
 	}
+	my @by_rating = ();
+	foreach my $line (@$quotes_by_rating) {
+		push @by_rating, {
+			'RATING' => Chirpy::Util::format_quote_rating($line->[0]),
+			'QUOTE_COUNT' => $line->[1]
+		};
+	}
+	my @by_votes = ();
+	foreach my $line (@$quotes_by_votes) {
+		push @by_votes, {
+			'VOTE_COUNT' => $line->[0],
+			'QUOTE_COUNT' => $line->[1]
+		};
+	}
 	$template->param(
 		'PAGE_TITLE' => &_text_to_xhtml(
 			$locale->get_string('statistics')),
@@ -998,8 +1013,13 @@ sub provide_statistics {
 			$locale->get_string('quote_count_by_day')),
 		'QUOTES_BY_WEEK_DAY' => \@by_week_day,
 		'QUOTES_BY_WEEK_DAY_TITLE' => &_text_to_xhtml(
-			$locale->get_string('quote_count_by_week_day'))
-		
+			$locale->get_string('quote_count_by_week_day')),
+		'QUOTES_BY_RATING' => \@by_rating,
+		'QUOTES_BY_RATING_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_rating')),
+		'QUOTES_BY_VOTE_COUNT' => \@by_votes,
+		'QUOTES_BY_VOTE_COUNT_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_vote_count'))
 	);
 	$self->_output_template($template);
 }

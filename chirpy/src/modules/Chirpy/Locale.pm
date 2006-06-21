@@ -336,6 +336,14 @@ Title of the I<Number of Quotes by Day of the Month> section in the statistics.
 
 Title of the I<Number of Quotes by Week Day> section in the statistics.
 
+=item quote_count_by_rating
+
+Title of the I<Number of Quotes by Rating> section in the statistics.
+
+=item quote_count_by_vote_count
+
+Title of the I<Number of Quotes by Vote Count> section in the statistics.
+
 =item tag_link_description
 
 Description text for the link to the list of quotes with the current tag.

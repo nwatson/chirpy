@@ -34,8 +34,7 @@ Tim De Pauw E<lt>ceetee@users.sourceforge.netE<gt>
 
 =head1 SEE ALSO
 
-L<Chirpy::UI::WebApp>, L<Chirpy>,
-L<http://chirpy.sourceforge.net/>
+L<Chirpy::UI::WebApp>, L<Chirpy>, L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
@@ -325,9 +324,9 @@ sub run {
 		}
 	}
 	elsif ($page eq STATISTICS) {
-		my $submission_dates = $self->parent()->get_quote_submission_dates();
-		if (@$submission_dates) {
-			$self->_provide_statistics($submission_dates);
+		my $quotes = $self->parent()->get_quotes(0, 0, [ [ 'submitted', 0 ] ]);
+		if (@$quotes) {
+			$self->_provide_statistics($quotes);
 		}
 		else {
 			$self->report_statistics_unavailable();
@@ -883,15 +882,18 @@ sub _provide_tag_cloud {
 }
 
 sub _provide_statistics {
-	my ($self, $submission_dates) = @_;
+	my ($self, $quotes) = @_;
 	my $by_date = [];
 	my $by_year_month = [];
 	my $by_hour = &_init_array(0, 24);
 	my $by_month = &_init_array(0, 12);
 	my $by_day = &_init_array(0, 31);
 	my $by_week_day = &_init_array(0, 7);
+	my $by_rating = {};
+	my $by_votes = {};
 	my ($date, $week_day, $year, $month, $day, $year_month, $prev_time);
-	foreach my $time (@$submission_dates) {
+	foreach my $quote (@$quotes) {
+		my $time = $quote->get_date_submitted();
 		my $d = $self->format_date($time);
 		my @time = $self->get_time($time);
 		if (!defined($date) || $d ne $date) {
@@ -913,9 +915,30 @@ sub _provide_statistics {
 		$by_day->[$day]++;
 		$by_month->[$month]++;
 		$by_hour->[$time[2]]++;
+		$by_rating->{$quote->get_rating()}++;
+		$by_votes->{$quote->get_vote_count()}++;
 	}
 	$self->provide_statistics(
-		$by_date, $by_year_month, $by_hour, $by_week_day, $by_day, $by_month);
+		$by_date, $by_year_month, $by_hour, $by_week_day, $by_day, $by_month,
+		&_to_sorted_array($by_rating, 1), &_to_sorted_array($by_votes, 0));
+}
+
+sub _to_sorted_array {
+	my ($hashref, $negative) = @_;
+	my @keys = keys %$hashref;
+	my $highest = shift @keys;
+	$highest = abs $highest if ($negative);
+	foreach my $k (@keys) {
+		my $a = ($negative ? abs $k : $k);
+		if ($a > $highest) {
+			$highest = $a;
+		}
+	}
+	my @res = ();
+	for (my $i = ($negative ? - $highest : 0); $i <= $highest; $i++) {
+		push @res, [ $i, $hashref->{$i} || 0 ];
+	}
+	return \@res;
 }
 
 sub _init_array {

@@ -382,13 +382,13 @@ sub user_levels {
 }
 
 sub get_quotes {
-	my ($self, $start) = @_;
+	my ($self, $start, $count, $sort) = @_;
 	$self->mark_debug_event('Request quotes');
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
-		'sort'     => [ [ 'id', 1 ] ],
+		'sort'     => (defined $sort ? $sort : [ [ 'id', 1 ] ]),
 		'first'    => $start,
-		'count'    => $self->quotes_per_page()
+		'count'    => (defined $count ? $count : $self->quotes_per_page())
 	});
 }
 
@@ -536,11 +536,6 @@ sub decrease_quote_rating {
 sub get_tag_use_counts {
 	my $self = shift;
 	return $self->_data_manager()->get_tag_use_counts();
-}
-
-sub get_quote_submission_dates {
-	my $self = shift;
-	return $self->_data_manager()->get_quote_submission_dates();
 }
 
 sub flag_quotes {
