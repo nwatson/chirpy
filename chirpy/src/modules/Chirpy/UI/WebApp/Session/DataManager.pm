@@ -1,5 +1,5 @@
 ###############################################################################
-# Chirpy! v0.3, a quote management system                                     #
+# Chirpy!, a quote management system                                          #
 # Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
@@ -106,10 +106,10 @@ use vars qw($VERSION);
 
 use constant CLEANUP_INTERVAL => 24 * 60 * 60;
 
-$VERSION = '0.3';
+$VERSION = '';
 
-use Chirpy 0.3;
-use Chirpy::Util 0.3;
+use Chirpy;
+use Chirpy::Util;
 
 sub remove_expired_sessions {
 	my $self = shift;

@@ -1,5 +1,5 @@
 ###############################################################################
-# Chirpy! v0.3, a quote management system                                     #
+# Chirpy!, a quote management system                                          #
 # Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
@@ -30,7 +30,7 @@ First of all, it must be a class that extends this abstract class, and it must
 have something along the lines of
 
   use vars qw($VERSION @ISA);
-  $VERSION = '0.3';
+  $VERSION = '';
   @ISA = qw(Chirpy::DataManager);
 
 All you need to do then, really, is implement this class's abstract methods.
@@ -417,10 +417,10 @@ use warnings;
 
 use vars qw($VERSION);
 
-$VERSION = '0.3';
+$VERSION = '';
 
-use Chirpy 0.3;
-use Chirpy::Util 0.3;
+use Chirpy;
+use Chirpy::Util;
 
 sub new {
 	my ($class, $params) = @_;

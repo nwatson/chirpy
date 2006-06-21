@@ -1,5 +1,5 @@
 ###############################################################################
-# Chirpy! v0.3, a quote management system                                     #
+# Chirpy!, a quote management system                                          #
 # Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
@@ -267,7 +267,7 @@ require Exporter;
 
 BEGIN {
 	use vars qw($VERSION @EXPORT @ISA $DEBUG $hires_timing);
-	$VERSION = '0.3';
+	$VERSION = '';
 	@ISA = qw(Exporter);
 	@EXPORT = qw(chirpy);
 	eval 'use Time::HiRes qw//';
@@ -276,17 +276,17 @@ BEGIN {
 }
 
 use constant PRODUCT_NAME => 'Chirpy!';
-use constant VERSION_STRING => 'v0.3a1';
+use constant VERSION_STRING => 'v0.3a2';
 use constant FULL_PRODUCT_NAME => PRODUCT_NAME . ' ' . VERSION_STRING;
 use constant URL => 'http://chirpy.sourceforge.net/';
 
-use Chirpy::Configuration 0.3;
-use Chirpy::Locale 0.3;
+use Chirpy::Configuration;
+use Chirpy::Locale;
 
-use Chirpy::Quote 0.3;
-use Chirpy::NewsItem 0.3;
-use Chirpy::Account 0.3;
-use Chirpy::Event 0.3;
+use Chirpy::Quote;
+use Chirpy::NewsItem;
+use Chirpy::Account;
+use Chirpy::Event;
 
 use constant USER_LEVELS => [
 	Chirpy::Account::USER_LEVEL_9,

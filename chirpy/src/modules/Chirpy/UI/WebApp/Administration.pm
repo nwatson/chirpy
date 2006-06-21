@@ -1,5 +1,5 @@
 ###############################################################################
-# Chirpy! v0.3, a quote management system                                     #
+# Chirpy!, a quote management system                                          #
 # Copyright (C) 2005 Tim De Pauw <ceetee@users.sourceforge.net>               #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
@@ -55,14 +55,12 @@ package Chirpy::UI::WebApp::Administration;
 use strict;
 use warnings;
 
-use vars qw($VERSION $TARGET_VERSION);
+use vars qw($VERSION);
 
-$VERSION = '0.3';
+$VERSION = '';
 
-$TARGET_VERSION = 0.3;
-
-use Chirpy 0.3;
-use Chirpy::UI::WebApp 0.3;
+use Chirpy;
+use Chirpy::UI::WebApp;
 
 sub new {
 	my ($class, $parent) = @_;
