@@ -115,7 +115,10 @@ sub new {
 
 sub DESTROY {
 	my $self = shift;
-	$self->update() unless ($self->read_only());
+	unless ($self->read_only()) {
+		$self->atime(time);
+		$self->update();
+	}
 }
 
 sub param {
