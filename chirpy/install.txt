@@ -170,12 +170,9 @@ outside the document root (if possible) is a MUCH safer choice.
 Alternatively, you can keep chirpy.ini, the configuration file, which we will
 cover later in this document, outside the document root and the src/ directory.
 
-Inside the src/ directory, you will find a directory called cache/. There
-should be two directories inside it, namely captcha/ and template/--if not,
-create them now. Like their names suggest, they are cache directories for the
-captcha feature and for the template parser. These directories need to be
-world-writable, i.e. their attributes must be set to "rwxrwxrwx" or 777. Also,
-the cache/ directory itself should be world-writable.
+Inside the src/ directory, you will find a directory called cache/. Make sure
+it is empty. Also, it needs to be world-writable, i.e. its attributes must be
+set to "rwxrwxrwx" or 777.
 
 The util/ directory should NOT be uploaded. You are however likely to need the
 setup.pl script inside it, but we'll get to that in a moment.
@@ -225,8 +222,6 @@ time_format=%H:%M GMT
 use_gmt=1
 quotes_per_page=10
 recent_news_items=3
-statistics_update_interval=5
-statistics_cache_file=cache/statistics
 webapp.webmaster_name=John Doe
 webapp.webmaster_email=you@yourserver.com
 webapp.site_url=http://www.yourserver.com/cgi-bin/chirpy
@@ -235,7 +230,6 @@ webapp.theme=default
 webapp.welcome_text_file=welcome.html
 webapp.cookie_domain=yourserver.com
 webapp.cookie_path=/cgi-bin/chirpy
-webapp.template_cache_path=src/cache/template
 webapp.session_expiry=+3d
 webapp.enable_short_urls=0
 webapp.enable_feeds=0
@@ -281,16 +275,6 @@ mysql.prefix        If you only have one MySQL database, Chirpy! can make its
 3.2.3. The [ui] Section
 -----------------------
 
-statistics_update_interval
-                    The number of minutes between statistics update intervals.
-                    If set to a non-positive value, statistics will be updated
-                    in real time, which is not recommended. Typically, they
-                    are updated every 5 minutes.
-statistics_cache_file
-                    The physical path to the file in which to keep a cache of
-                    the statistics. Typically, it is "src/cache/statistics".
-                    Make sure the containing directory is writable, so Chirpy!
-                    can create the file.
 webapp.webmaster_name
                     Your name.
 webapp.webmaster_email
@@ -304,10 +288,6 @@ webapp.cookie_domain
                     your site's URL. This will be used to store cookies.
 webapp.cookie_path  The part that comes after the domain in the site URL. This
                     will also be used to store cookies.
-webapp.template_cache_path
-                    The physical path to the directory where to keep the
-                    template cache. Typically, it is "src/cache/template". Make
-                    sure that the directory is world-writable, i.e. drwxrwxrwx!
 webapp.enable_short_urls
                     Change this to 1 to enable the short URLs feature described
                     above. If you get "Not Found" errors while browsing the QDB
@@ -337,11 +317,6 @@ If you enable the captcha feature, you will need to define some of the following
 values as well. You may want to turn the feature off at first, so you can
 test-drive Chirpy!'s other features before trying captcha support.
 
-webapp.captcha_information_path
-                    The physical path to the directory where captcha information
-                    is to be stored. This directory must not be accessible via
-                    HTTP. Typically, it is "src/cache/captcha". Make sure that
-                    the directory is world-writable, i.e. drwxrwxrwx.
 webapp.captcha_image_path
                     The physical path to the directory where captcha images are
                     to be stored. Since visitors will need to view these images,
@@ -487,16 +462,6 @@ you want to perform a fresh installation or an upgrade. Now, DO *NOT* CLICK ON
 "FRESH INSTALLATION," because you would lose all your quotes, accounts, etc.
 Instead, click the "UPGRADE" button, wait for the page to load, watch Chirpy!
 inform you of the successful upgrade, and remove setup.pl again.
-
-Also, you will have to create the cache directory for templates, and tell
-Chirpy! where to find it. Typically, that is src/cache/template/. So, you just
-create that directory (you may have to create src/cache/ first) and make it
-world-writable, i.e. set its attributes to rwxrwxrwx. Next, add the line
-
-  webapp.template_cache_path=src/cache/template
-
-to your configuration file's "ui" section. Chirpy! will now cache parsed
-templates, which should make it work a lot faster.
 
 Additionally, as Chirpy! 0.3 offers quite a couple of new features, you will
 probably want to play with those. Most of them just come down to adding a line

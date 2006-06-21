@@ -240,6 +240,7 @@ sub run {
 				$approved,
 				$tags
 			);
+			$self->clear_statistics() if ($approved);
 			$self->confirm_quote_submission($approved);
 			$self->_log_event(Chirpy::Event::ADD_QUOTE, {
 				'id' => $quote->get_id(),
@@ -366,7 +367,7 @@ sub run {
 
 sub _provide_administration_interface {
 	my $self = shift;
-	if ($self->configuration->get('general', 'update_check')
+	if ($self->configuration()->get('general', 'update_check')
 	&& $self->administration_allowed(CHECK_FOR_UPDATE)) {
 		$self->_maybe_check_for_update();
 	}
@@ -417,6 +418,7 @@ sub _provide_administration_interface {
 					$self->_log_event(Chirpy::Event::APPROVE_QUOTE,
 						{ 'id' => $id });
 				}
+				$self->clear_statistics();
 			}
 			if (@remove) {
 				$self->parent()->remove_quotes(@remove);
@@ -453,6 +455,7 @@ sub _provide_administration_interface {
 					$self->_log_event(Chirpy::Event::REMOVE_QUOTE,
 						{ 'id' => $id });
 				}
+				$self->clear_statistics();
 			}
 			$self->provide_quote_flag_management_interface(
 				@unflag ? \@unflag : undef,
@@ -513,6 +516,7 @@ sub _provide_administration_interface {
 					my $body = $quote->get_body();
 					my $notes = $quote->get_notes();
 					$self->parent()->remove_quotes($id);
+					$self->clear_statistics();
 					$self->confirm_quote_removal();
 					$self->_log_event(Chirpy::Event::REMOVE_QUOTE, {
 						'id' => $id,
@@ -856,8 +860,10 @@ sub _provide_tag_cloud {
 	}
 	my $difference = $highest - $lowest;
 	my @tag_info = ();
-	my $max_increase = $self->param('ui', 'tag_cloud_percentage_delta') || 100;
-	my @tags = $self->param('ui', 'randomize_tag_cloud')
+	my $max_increase
+		= $self->configuration()->get('ui', 'tag_cloud_percentage_delta')
+			|| 100;
+	my @tags = $self->$self->configuration()->get('ui', 'randomize_tag_cloud')
 		? Chirpy::Util::shuffle_array(keys %$tag_counts)
 		: sort keys %$tag_counts;
 	my @tag_info_list;
@@ -878,27 +884,19 @@ sub _provide_tag_cloud {
 sub _provide_statistics {
 	my $self = shift;
 	my $stats;
-	my $interval = $self->param('ui', 'statistics_update_interval');
-	$interval = 5 unless (defined $interval);
-	if ($interval > 0) {
-		require Storable;
-		my $file = $self->param('ui', 'statistics_cache_file');
-		$file = 'src/cache/statistics' unless (defined $file);
-		if (!-e $file || (stat($file))[9] < time - $interval * 60) {
-			$stats = $self->_compute_statistics();
-			if (defined $stats) {
-				Storable::store($stats, $file);
-			}
-			else {
-				unlink $file;
-			}
+	require Storable;
+	my $file = $self->_statistics_cache_file();
+	if (!-e $file) {
+		$stats = $self->_compute_statistics();
+		if (defined $stats) {
+			Storable::store($stats, $file);
 		}
 		else {
-			$stats = Storable::retrieve($file);
+			unlink $file;
 		}
 	}
 	else {
-		$stats = $self->_compute_statistics();
+		$stats = Storable::retrieve($file);
 	}
 	if (defined $stats) {
 		$self->provide_statistics(@$stats);
@@ -1059,6 +1057,17 @@ sub _log_event {
 		$self->get_logged_in_user_account(),
 		$params
 	);
+}
+
+sub _statistics_cache_file {
+	my $self = shift;
+	return $self->configuration()->get('general', 'base_path')
+		. '/cache/statistics';
+}
+
+sub clear_statistics {
+	my $self = shift;
+	unlink $self->_statistics_cache_file();
 }
 
 sub get_news_posters {

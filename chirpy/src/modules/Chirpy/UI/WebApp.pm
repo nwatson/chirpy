@@ -76,13 +76,6 @@ domain name and path. For example, if your QDB is located at
 I<http://www.mysite.com/myname/qdb>, you would enter C<mysite.com> and
 C</myname/qdb>.
 
-=item webapp.template_cache_path
-
-The L<HTML::Template> module uses a cache of templates to speed things up. This
-cache is file-based and resides in the path specificed by this setting. Hence,
-it should be the physical path to a world-writable directory, typically
-F<src/cache/template>.
-
 =item webapp.session_expiry
 
 To keep track of users' actions, sessions are used. These are kept around for
@@ -115,10 +108,6 @@ Apply gzip compression on output if possible.
 =item webapp.enable_captchas
 
 Use captchas to prevent spam on the quote submission interface.
-
-=item webapp.captcha_information_path
-
-The physical path to the directory where captcha information is to be stored.
 
 =item webapp.captcha_image_path
 
@@ -320,6 +309,8 @@ use constant STATUS_SESSION_REQUIRED       => 5;
 sub new {
 	my $class = shift;
 	my $self = $class->SUPER::new(@_);
+	my $path = $self->_template_cache_path(1);
+	$path = $self->_captcha_data_path(1);
 	$self->{'templates_path'}
 		= $self->configuration()->get('general', 'base_path')
 			. '/templates/' . $self->param('theme');
@@ -551,7 +542,7 @@ sub welcome_user {
 				'die_on_bad_params' => 0,
 				'global_vars' => 1,
 				'file_cache' => 1,
-				'file_cache_dir' => $self->param('template_cache_path'),
+				'file_cache_dir' => $self->_template_cache_path(),
 				'file_cache_dir_mode' => 0777
 			)
 		));
@@ -586,7 +577,7 @@ sub _generate_feed {
 		'die_on_bad_params' => 0,
 		'global_vars' => 1,
 		'file_cache' => 1,
-		'file_cache_dir' => $self->param('template_cache_path'),
+		'file_cache_dir' => $self->_template_cache_path(),
 		'file_cache_dir_mode' => 0777
 	);
 	my @quotes = ();
@@ -1807,7 +1798,7 @@ sub _load_template {
 		'die_on_bad_params' => 0,
 		'global_vars' => 1,
 		'file_cache' => 1,
-		'file_cache_dir' => $self->param('template_cache_path'),
+		'file_cache_dir' => $self->_template_cache_path(),
 		'file_cache_dir_mode' => 0777
 	);
 	Chirpy::die('Failed to load template: ' . $!) unless ($template);
@@ -1936,6 +1927,43 @@ sub _process_template {
 		})
 	);
 	return $template->output();
+}
+
+sub _template_cache_path {
+	my $self = shift;
+	my $path = $self->configuration()->get('general', 'base_path')
+		. '/cache/template';
+	&_ensure_writable_directory($path);
+	return $path;
+}
+
+sub _captcha_data_path {
+	my $self = shift;
+	my $path = $self->configuration()->get('general', 'base_path')
+		. '/cache/captcha';
+	&_ensure_writable_directory($path);
+	return $path;
+}
+
+sub _ensure_writable_directory {
+	my $path = shift;
+	if (-e $path) {
+		if (-d $path) {
+			if (!-w $path) {
+				chmod 0777, $path;
+				if (!-w $path) {
+					Chirpy::die('Directory "' . $path . '" not writable');
+				}
+			}
+		}
+		else {
+			Chirpy::die('Path "' . $path . '" must be a directory');
+		}
+	}
+	else {
+		mkdir $path
+			or die('Cannot create directory "' . $path . '": ' . $!);
+	}
 }
 
 sub _text_to_xhtml {
@@ -2090,7 +2118,7 @@ sub _captcha {
 	my $self = shift;
 	require Authen::Captcha;
 	return new Authen::Captcha(
-		'data_folder' => $self->param('captcha_information_path'),
+		'data_folder' => $self->_captcha_data_path(),
 		'output_folder' => $self->param('captcha_image_path'),
 	);
 }
