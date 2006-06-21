@@ -34,6 +34,7 @@ Perl distributions. The base classes require these modules:
  Digest::MD5
  Encode
  POSIX
+ Storable
 
 Additionally, the default data manager and user interface classes have their
 own requirements. Before using them, please consult

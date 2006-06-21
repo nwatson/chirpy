@@ -324,13 +324,7 @@ sub run {
 		}
 	}
 	elsif ($page eq STATISTICS) {
-		my $quotes = $self->parent()->get_quotes(0, 0, [ [ 'submitted', 0 ] ]);
-		if (@$quotes) {
-			$self->_provide_statistics($quotes);
-		}
-		else {
-			$self->report_statistics_unavailable();
-		}
+		$self->_provide_statistics();
 	}
 	elsif ($page == LOGIN) {
 		if ($self->attempting_login()) {
@@ -882,7 +876,42 @@ sub _provide_tag_cloud {
 }
 
 sub _provide_statistics {
-	my ($self, $quotes) = @_;
+	my $self = shift;
+	my $stats;
+	my $interval = $self->param('ui', 'statistics_update_interval');
+	$interval = 5 unless (defined $interval);
+	if ($interval > 0) {
+		require Storable;
+		my $file = $self->param('ui', 'statistics_cache_file');
+		$file = 'src/cache/statistics' unless (defined $file);
+		if (!-e $file || (stat($file))[9] < time - $interval * 60) {
+			$stats = $self->_compute_statistics();
+			if (defined $stats) {
+				Storable::store($stats, $file);
+			}
+			else {
+				unlink $file;
+			}
+		}
+		else {
+			$stats = Storable::retrieve($file);
+		}
+	}
+	else {
+		$stats = $self->_compute_statistics();
+	}
+	if (defined $stats) {
+		$self->provide_statistics(@$stats);
+	}
+	else {
+		$self->report_statistics_unavailable();
+	}
+}
+
+sub _compute_statistics {
+	my $self = shift;
+	my $quotes = $self->parent()->get_quotes(0, 0, [ [ 'submitted', 0 ] ]);
+	return undef unless (@$quotes);
 	my $by_date = [];
 	my $by_year_month = [];
 	my $by_hour = &_init_array(0, 24);
@@ -918,9 +947,10 @@ sub _provide_statistics {
 		$by_rating->{$quote->get_rating()}++;
 		$by_votes->{$quote->get_vote_count()}++;
 	}
-	$self->provide_statistics(
+	return [
 		$by_date, $by_year_month, $by_hour, $by_week_day, $by_day, $by_month,
-		&_to_sorted_array($by_rating, 1), &_to_sorted_array($by_votes, 0));
+		&_to_sorted_array($by_rating, 1), &_to_sorted_array($by_votes, 0)
+	];
 }
 
 sub _to_sorted_array {

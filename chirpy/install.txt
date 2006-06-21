@@ -79,7 +79,7 @@ In addition, you'll need these Perl modules:
 Carp                Data::Dumper        HTML::Template
 Digest::MD5         DBD::mysql          HTTP::Date
 Encode              DBI                 URI::Escape
-POSIX               
+POSIX               Storable
 
 It seems like a long list, but most of them are common and come with standard
 distributions of Perl. Other modules will need to be installed separately; you
@@ -174,7 +174,8 @@ Inside the src/ directory, you will find a directory called cache/. There
 should be two directories inside it, namely captcha/ and template/--if not,
 create them now. Like their names suggest, they are cache directories for the
 captcha feature and for the template parser. These directories need to be
-world-writable, i.e. their attributes must be set to "rwxrwxrwx" or 777.
+world-writable, i.e. their attributes must be set to "rwxrwxrwx" or 777. Also,
+the cache/ directory itself should be world-writable.
 
 The util/ directory should NOT be uploaded. You are however likely to need the
 setup.pl script inside it, but we'll get to that in a moment.
@@ -224,6 +225,8 @@ time_format=%H:%M GMT
 use_gmt=1
 quotes_per_page=10
 recent_news_items=3
+statistics_update_interval=5
+statistics_cache_file=cache/statistics
 webapp.webmaster_name=John Doe
 webapp.webmaster_email=you@yourserver.com
 webapp.site_url=http://www.yourserver.com/cgi-bin/chirpy
@@ -278,6 +281,16 @@ mysql.prefix        If you only have one MySQL database, Chirpy! can make its
 3.2.3. The [ui] Section
 -----------------------
 
+statistics_update_interval
+                    The number of minutes between statistics update intervals.
+                    If set to a non-positive value, statistics will be updated
+                    in real time, which is not recommended. Typically, they
+                    are updated every 5 minutes.
+statistics_cache_file
+                    The physical path to the file in which to keep a cache of
+                    the statistics. Typically, it is "src/cache/statistics".
+                    Make sure the containing directory is writable, so Chirpy!
+                    can create the file.
 webapp.webmaster_name
                     Your name.
 webapp.webmaster_email

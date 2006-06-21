@@ -124,8 +124,6 @@ use Chirpy::Event 0.3;
 use DBI;
 
 use Data::Dumper;
-$Data::Dumper::Indent = 0;
-$Data::Dumper::Terse = 1;
 
 sub new {
 	my $class = shift;
@@ -347,7 +345,7 @@ sub _migrate_log {
 					}
 					else {
 						# This should never happen.
-						$value = Dumper($value);
+						$value = &_serialize($value);
 					}
 				}
 				elsif ($name eq 'quote' && $value eq 'id') {
@@ -1064,7 +1062,8 @@ sub _execute_scalar {
 }
 
 sub _serialize {
-	return Dumper(@_);
+	my $dumper = new Data::Dumper(\@_)->Terse(1)->Indent(0);
+	return $dumper->Dump();
 }
 
 sub _unserialize {
