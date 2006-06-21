@@ -719,7 +719,7 @@ sub get_manage_accounts_html {
 sub get_access_disallowed_html {
 	my $self = shift;
 	return '<p id="insufficient-administrator-privileges-notification">'
-		. &_text_to_xhtml($self->locale()->get_string(
+		. &_text_to_xhtml($self->parent()->locale()->get_string(
 			'insufficient_administrative_privileges'))
 		. '</p>';
 }
