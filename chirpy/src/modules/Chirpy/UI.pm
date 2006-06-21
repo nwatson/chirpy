@@ -519,8 +519,7 @@ sub _provide_administration_interface {
 					$self->clear_statistics();
 					$self->confirm_quote_removal();
 					$self->_log_event(Chirpy::Event::REMOVE_QUOTE, {
-						'id' => $id,
-						'body' => $body, 'notes' => $notes
+						'id' => $id
 					});
 				}
 				else {
