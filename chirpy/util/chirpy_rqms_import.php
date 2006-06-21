@@ -1,4 +1,4 @@
-<?
+<?php
 ###############################################################################
 # Chirpy! v0.3, a quote management system                                     #
 # Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
