@@ -35,53 +35,21 @@ function checkForGraphs () {
 	var dls = document.getElementsByTagName("dl");
 	for (var i = dls.length - 1; i >= 0; i--) {
 		var dl = dls[i];
+		var func;
 		if (hasClassName(dl, "bar-chart-data")) {
-			var chartData = extractChartData(dl);
-			var samples = extractChartLabelCount(dl);
-			var chart = createBarChart(chartData, samples);
-			chart.id = dl.id;
-			dl.parentNode.replaceChild(chart, dl);
+			func = createBarChart;
 		}
 		else if (hasClassName(dl, "ogive-data")) {
+			func = createOgive;
+		}
+		if (func) {
 			var chartData = extractChartData(dl);
 			var samples = extractChartLabelCount(dl);
-			var chart = createOgive(chartData, samples);
+			var chart = func(chartData, samples);
 			chart.id = dl.id;
 			dl.parentNode.replaceChild(chart, dl);
 		}
 	}
-}
-
-function extractChartData (dl) {
-	var name, label;
-	var data = new Array();
-	for (var i = 0; i < dl.childNodes.length; i++) {
-		var child = dl.childNodes[i];
-		var eln = child.nodeName.toLowerCase();
-		switch (eln) {
-			case "dt":
-				name = child.firstChild.nodeValue;
-				label = (child.title ? child.title : null);
-				break;
-			case "dd":
-				var value = parseInt(child.firstChild.nodeValue);
-				data.push(new Array(name, value, label));
-				break;
-		}
-	}
-	return data;
-}
-
-function extractChartLabelCount (dl) {
-	var classNames = dl.className.split(/\s+/);
-	var prefix = "label-count-";
-	for (var i = 0; i < classNames.length; i++) {
-		var className = classNames[i];
-		if (className.indexOf(prefix) == 0) {
-			return parseInt(className.substring(prefix.length));
-		}
-	}
-	return 0;
 }
 
 function createBarChart (chartData, samples) {
@@ -114,22 +82,22 @@ function createBarChart (chartData, samples) {
 		column.className = "bar-chart-column";
 		column.style.left = i * barWidth + "%";
 		column.style.width = barWidth + "%";
-		column.title = getBarChartTooltipText(data);
+		column.title = data[0] + " "
+			+ String.fromCharCode(0x2192) + " " + data[1];
 		column.appendChild(bar);
 		graph.appendChild(column);
 	}
 	return div;
 }
 
-function getBarChartTooltipText (data) {
-	return data[0] + " " + String.fromCharCode(0x2192) + " " + data[1];
-}
-
 function createOgive (chartData, samples) {
 	var cnv = document.createElement("canvas");
-	if (!cnv.getContext) {
-		// Somewhat ugly fallback, mostly for IE.
-		// TODO: Use excanvas instead.
+	cnv.width = graphConfig["ogive_chart_width"];
+	cnv.height = graphConfig["ogive_chart_height"];
+	var graph = document.createElement("div");
+	graph.appendChild(cnv);
+	cnv = ensureCanvas(cnv);
+	if (!cnv) {
 		var total = 0;
 		for (var i = 0; i < chartData.length; i++) {
 			var old = chartData[i][1];
@@ -140,19 +108,15 @@ function createOgive (chartData, samples) {
 	}
 	var div = document.createElement("div");
 	div.className = "ogive";
-	var graph = document.createElement("div");
 	graph.className = "ogive-graph";
-	cnv.width = graphConfig["ogive_chart_width"];
-	cnv.height = graphConfig["ogive_chart_height"];
-	drawOgive(cnv, chartData);
 	var total = 0;
 	for (var i = 0; i < chartData.length; i++) {
 		total += chartData[i][1];
 	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
-	graph.appendChild(cnv);
 	div.appendChild(graph);
+	drawOgive(cnv, chartData);
 	return div;
 }
 
@@ -166,6 +130,7 @@ function drawOgive (canvas, chartData) {
 	var graphHeight = graphConfig["ogive_chart_height"];
 	var x0 = 0;
 	var y0 = graphHeight;
+	ctx.fillStyle = graphConfig["ogive_chart_color"];
 	ctx.beginPath();
 	ctx.moveTo(x0, y0);
 	var runningTotal = 0;
@@ -179,9 +144,39 @@ function drawOgive (canvas, chartData) {
 		ctx.lineTo(x, y);
 	}
 	ctx.lineTo(graphWidth, graphHeight);
-	ctx.closePath();
-	ctx.fillStyle = graphConfig["ogive_chart_color"];
 	ctx.fill();
+}
+
+function extractChartData (dl) {
+	var name, label;
+	var data = new Array();
+	for (var i = 0; i < dl.childNodes.length; i++) {
+		var child = dl.childNodes[i];
+		var eln = child.nodeName.toLowerCase();
+		switch (eln) {
+			case "dt":
+				name = child.firstChild.nodeValue;
+				label = (child.title ? child.title : null);
+				break;
+			case "dd":
+				var value = parseInt(child.firstChild.nodeValue);
+				data.push(new Array(name, value, label));
+				break;
+		}
+	}
+	return data;
+}
+
+function extractChartLabelCount (dl) {
+	var classNames = dl.className.split(/\s+/);
+	var prefix = "label-count-";
+	for (var i = 0; i < classNames.length; i++) {
+		var className = classNames[i];
+		if (className.indexOf(prefix) == 0) {
+			return parseInt(className.substring(prefix.length));
+		}
+	}
+	return 0;
 }
 
 function createChartPane (div, graph, chartData, samples, values, min, max) {
@@ -276,6 +271,17 @@ function createChartLabel (data, position, width, align) {
 	innerLabel.style.textAlign = align;
 	label.appendChild(innerLabel);
 	return label;
+}
+
+function ensureCanvas (canvas) {
+	if (useExCanvas()) {
+		canvas = G_vmlCanvasManager.initElement(canvas);
+	}
+	return (canvas.getContext ? canvas : null);
+}
+
+function useExCanvas () {
+	return (typeof G_vmlCanvasManager != "undefined");
 }
 
 function hasClassName (element, className) {
