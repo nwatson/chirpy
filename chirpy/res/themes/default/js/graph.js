@@ -31,7 +31,7 @@ graphConfig["pie_chart_colors"] = new Array(
 	"#DCDCDC", "#CCCCCC", "#BCBCBC", "#ACACAC"
 );
 graphConfig["pie_chart_border_width"] = 1;
-graphConfig["pie_chart_border_color"] = "#999";
+graphConfig["pie_chart_border_color"] = "#ACACAC";
 graphConfig["ogive_values"] = 5;
 graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
