@@ -29,7 +29,8 @@ var confirmationTimeout = 3000;
 var errorTimeout = 10000;
 var connectionTimeout = 30000;
 var pollingInterval = 1000;
-var okText = String.fromCharCode(0x2713);
+var okText = (/MSIE/.test(navigator.userAgent) && !window.opera
+	? "OK" : String.fromCharCode(0x2713));
 
 var ajaxMethods = new Array(
 	function() { return new ActiveXObject("Msxml2.XMLHTTP") },
