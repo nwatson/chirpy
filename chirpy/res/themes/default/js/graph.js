@@ -26,7 +26,8 @@
 
 var graphConfig = new Array();
 graphConfig["bar_chart_values"] = 5;
-graphConfig["pie_chart_radius"] = 180;
+graphConfig["pie_chart_radius"] = 175;
+graphConfig["pie_chart_extrusion"] = 5;
 graphConfig["pie_chart_colors"] = new Array(
 	"#DCDCDC", "#CCCCCC", "#BCBCBC", "#ACACAC"
 );
@@ -103,7 +104,9 @@ function createBarChart (chartData, samples) {
 
 function createPieChart (chartData) {
 	var cnv = document.createElement("canvas");
-	cnv.width = cnv.height = graphConfig["pie_chart_radius"] * 2;
+	var rad = graphConfig["pie_chart_radius"];
+	var ext = graphConfig["pie_chart_extrusion"];
+	cnv.width = cnv.height = (rad + ext) * 2;
 	var graph = document.createElement("div");
 	graph.appendChild(cnv);
 	cnv = ensureCanvas(cnv);
@@ -128,9 +131,11 @@ function drawPieChart (canvas, legend, data) {
 		total += data[i][1];
 	}
 	var runningTotal = 0;
-	var x = graphConfig["pie_chart_radius"];
-	var y = graphConfig["pie_chart_radius"];
-	var radius = graphConfig["pie_chart_radius"];
+	var rad = graphConfig["pie_chart_radius"];
+	var ext = graphConfig["pie_chart_extrusion"];
+	var xCenter = rad + ext;
+	var yCenter = rad + ext;
+	var radius = rad;
 	var colors = graphConfig["pie_chart_colors"];
 	var stroke;
 	if (graphConfig["pie_chart_border_width"]) {
@@ -151,6 +156,9 @@ function drawPieChart (canvas, legend, data) {
 			var startAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
 			runningTotal += value;
 			var endAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
+			var diff = (startAngle + endAngle) / 2;
+			var x = xCenter + Math.cos(diff) * ext;
+			var y = yCenter + Math.sin(diff) * ext;
 			ctx.fillStyle = color;
 			ctx.beginPath();
 			ctx.moveTo(x, y);
