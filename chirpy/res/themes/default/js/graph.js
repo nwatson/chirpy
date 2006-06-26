@@ -30,6 +30,8 @@ graphConfig["pie_chart_radius"] = 180;
 graphConfig["pie_chart_colors"] = new Array(
 	"#DCDCDC", "#CCCCCC", "#BCBCBC", "#ACACAC"
 );
+graphConfig["pie_chart_border_width"] = 1;
+graphConfig["pie_chart_border_color"] = "#999";
 graphConfig["ogive_values"] = 5;
 graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
@@ -130,6 +132,15 @@ function drawPieChart (canvas, legend, data) {
 	var y = graphConfig["pie_chart_radius"];
 	var radius = graphConfig["pie_chart_radius"];
 	var colors = graphConfig["pie_chart_colors"];
+	var stroke;
+	if (graphConfig["pie_chart_border_width"]) {
+		ctx.strokeStyle = graphConfig["pie_chart_border_color"];
+		ctx.lineWidth = graphConfig["pie_chart_border_width"];
+		stroke = true;
+	}
+	else {
+		stroke = false;
+	}
 	for (var i = 0; i < data.length; i++) {
 		var name = data[i][0];
 		var value = data[i][1];
@@ -144,6 +155,9 @@ function drawPieChart (canvas, legend, data) {
 		ctx.lineTo(x, y);
 		ctx.closePath();
 		ctx.fill();
+		if (stroke) {
+			ctx.stroke();
+		}
 		var block = document.createElement("div");
 		block.style.backgroundColor = color;
 		var dt = document.createElement("dt");
