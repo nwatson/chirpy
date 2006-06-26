@@ -127,7 +127,14 @@ function getBarChartTooltipText (data) {
 function createOgive (chartData, samples) {
 	var cnv = document.createElement("canvas");
 	if (!cnv.getContext) {
-		// Ugly fallback.
+		// Somewhat ugly fallback, mostly for IE.
+		// TODO: Use excanvas instead.
+		var total = 0;
+		for (var i = 0; i < chartData.length; i++) {
+			var old = chartData[i][1];
+			chartData[i][1] += total;
+			total += old;
+		}
 		return createBarChart(chartData, samples);
 	}
 	var div = document.createElement("div");
