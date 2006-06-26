@@ -799,6 +799,7 @@ ul.tabbed-pane-contents > li {
 	right: 20px;
 	top: 70px;
 	border: 1px solid #CCC;
+	background: #FEFEFE;
 	margin: 0;
 	padding: 8px 10px;
 	width: 280px;
