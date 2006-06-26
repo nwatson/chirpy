@@ -758,9 +758,9 @@ ul.tabbed-pane-contents > li {
 
 .chart-inner-label {
 	position: absolute;
-	left: 5%;
+	left: 0;
 	bottom: 0;
-	width: 90%;
+	width: 100%;
 }
 
 .bar-chart-column {
