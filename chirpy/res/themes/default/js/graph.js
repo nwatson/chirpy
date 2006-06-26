@@ -351,7 +351,7 @@ function createChartLabel (data, position, width, align) {
 }
 
 function ensureCanvas (canvas) {
-	if (useExCanvas()) {
+	if (!canvas.getContext && useExCanvas()) {
 		canvas = G_vmlCanvasManager.initElement(canvas);
 	}
 	return (canvas.getContext ? canvas : null);
