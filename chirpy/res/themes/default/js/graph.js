@@ -135,7 +135,9 @@ function drawPieChart (canvas, legend, data) {
 	var stroke;
 	if (graphConfig["pie_chart_border_width"]) {
 		ctx.strokeStyle = graphConfig["pie_chart_border_color"];
-		ctx.lineWidth = graphConfig["pie_chart_border_width"];
+		var w = graphConfig["pie_chart_border_width"];
+		ctx.lineWidth = w;
+		radius -= 2 * w;
 		stroke = true;
 	}
 	else {
