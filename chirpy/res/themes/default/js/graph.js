@@ -146,19 +146,21 @@ function drawPieChart (canvas, legend, data) {
 	for (var i = 0; i < data.length; i++) {
 		var name = data[i][0];
 		var value = data[i][1];
-		var startAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
-		runningTotal += value;
-		var endAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
 		var color = colors[i % colors.length];
-		ctx.fillStyle = color;
-		ctx.beginPath();
-		ctx.moveTo(x, y);
-		ctx.arc(x, y, radius, startAngle, endAngle, false);
-		ctx.lineTo(x, y);
-		ctx.closePath();
-		ctx.fill();
-		if (stroke) {
-			ctx.stroke();
+		if (value > 0) {
+			var startAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
+			runningTotal += value;
+			var endAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
+			ctx.fillStyle = color;
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.arc(x, y, radius, startAngle, endAngle, false);
+			ctx.lineTo(x, y);
+			ctx.closePath();
+			ctx.fill();
+			if (stroke) {
+				ctx.stroke();
+			}
 		}
 		var block = document.createElement("div");
 		block.style.backgroundColor = color;
