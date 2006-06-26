@@ -97,7 +97,8 @@ function createBarChart (chartData, samples) {
 			max = value;
 		}
 	}
-	createChartPane(div, graph, chartData, samples, graphConfig["bar_chart_values"], 0, max);
+	createChartPane(div, graph, chartData, samples,
+		graphConfig["bar_chart_values"], 0, max);
 	var barWidth = 100 / chartData.length;
 	for (var i = 0; i < chartData.length; i++) {
 		var data = chartData[i];
@@ -148,7 +149,8 @@ function createOgive (chartData, samples) {
 	for (var i = 0; i < chartData.length; i++) {
 		total += chartData[i][1];
 	}
-	createChartPane(div, graph, chartData, samples, graphConfig["ogive_values"], 0, total);
+	createChartPane(div, graph, chartData, samples,
+		graphConfig["ogive_values"], 0, total);
 	graph.appendChild(cnv);
 	div.appendChild(graph);
 	return div;
@@ -183,32 +185,36 @@ function drawOgive (canvas, chartData) {
 }
 
 function createChartPane (div, graph, chartData, samples, values, min, max) {
-	for (var i = 0; i < values; i++) {
-		var line = document.createElement("div");
-		line.className = "chart-line";
-		line.style.top = (100 / values) * i + "%";
-		graph.appendChild(line);
-	}
-	div.appendChild(createChartValues(0, max, values));
+	div.appendChild(createChartValues(0, max, values, graph));
 	div.appendChild(createChartLabels(chartData, samples));
 }
 
-function createChartValues (min, max, count) {
+function createChartValues (min, max, count, graph) {
 	var values = document.createElement("div");
 	values.className = "chart-values";
 	var top = createChartValue(max);
 	top.style.top = "0";
+	top.style.marginTop = "0";
 	var bottom = createChartValue(min);
 	bottom.style.bottom = "0";
 	bottom.style.marginBottom = "0";
 	values.appendChild(top);
-	var step = (max - min) / count;
-	for (var i = 1; i < count; i++) {
+	var step = (max - min) / (count - 1);
+	for (var i = 1; i < count - 1; i++) {
 		var val = Math.round(step * i);
+		var perc = 100 / (count - 1) * i + "%";
 		var v = createChartValue(val);
-		v.style.bottom = 100 * i / count + "%";
+		v.style.bottom = perc;
 		values.appendChild(v);
+		var line = document.createElement("div");
+		line.className = "chart-line";
+		line.style.top = perc;
+		graph.appendChild(line);
 	}
+	var line = document.createElement("div");
+	line.className = "chart-line";
+	line.style.top = "0";
+	graph.appendChild(line);
 	values.appendChild(bottom);
 	return values;
 }
