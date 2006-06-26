@@ -818,8 +818,9 @@ ul.tabbed-pane-contents > li {
 }
 
 .pie-chart-legend dt div {
-	width: 16px;
-	height: 16px;
+	width: 14px;
+	height: 14px;
+	border: 1px solid #ACACAC;
 	margin: 2px 0 0 0;
 }
 
