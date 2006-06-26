@@ -919,7 +919,7 @@ sub report_no_tagged_quotes {
 sub provide_statistics {
 	my ($self, $quotes_by_date,
 		$quotes_by_hour, $quotes_by_week_day, $quotes_by_day, $quotes_by_month,
-		$quotes_by_rating, $quotes_by_votes) = @_;
+		$quotes_by_rating, $quotes_by_votes, $votes_by_rating) = @_;
 	my $template = $self->_load_template('statistics');
 	my $locale = $self->locale();
 	my @by_date = ();
@@ -975,6 +975,18 @@ sub provide_statistics {
 			'QUOTE_COUNT' => $line->[1]
 		};
 	}
+	my @votes_by_rating = (
+		{
+			'RATING' => &_text_to_xhtml(
+				$locale->get_string('quote_rating_up_short_title')),
+			'VOTE_COUNT' => $votes_by_rating->[0]
+		},
+		{
+			'RATING' => &_text_to_xhtml(
+				$locale->get_string('quote_rating_down_short_title')),
+			'VOTE_COUNT' => $votes_by_rating->[1]
+		}
+	);
 	$template->param(
 		'PAGE_TITLE' => &_text_to_xhtml(
 			$locale->get_string('statistics')),
@@ -998,7 +1010,10 @@ sub provide_statistics {
 			$locale->get_string('quote_count_by_rating')),
 		'QUOTES_BY_VOTE_COUNT' => \@by_votes,
 		'QUOTES_BY_VOTE_COUNT_TITLE' => &_text_to_xhtml(
-			$locale->get_string('quote_count_by_vote_count'))
+			$locale->get_string('quote_count_by_vote_count')),
+		'VOTES_BY_RATING' => \@votes_by_rating,
+		'VOTES_BY_RATING_TITLE' => &_text_to_xhtml(
+			$locale->get_string('vote_count_by_rating'))
 	);
 	$self->_output_template($template);
 }

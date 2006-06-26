@@ -53,4 +53,11 @@
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	<h3><TMPL_VAR NAME="VOTES_BY_RATING_TITLE"></h3>
+	<dl class="pie-chart-data" id="votes-by-rating">
+	<TMPL_LOOP NAME="VOTES_BY_RATING">
+		<dt><TMPL_VAR NAME="RATING"></dt>
+		<dd><TMPL_VAR NAME="VOTE_COUNT"></dd>
+	</TMPL_LOOP>
+	</dl>
 <TMPL_INCLUDE NAME="_foot.html">

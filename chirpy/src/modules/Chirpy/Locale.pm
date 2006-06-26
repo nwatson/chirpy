@@ -340,6 +340,10 @@ Title of the I<Number of Quotes by Rating> section in the statistics.
 
 Title of the I<Number of Quotes by Vote Count> section in the statistics.
 
+=item vote_count_by_rating
+
+Title of the I<Number of Votes per Rating> section in the statistics.
+
 =item tag_link_description
 
 Description text for the link to the list of quotes with the current tag.

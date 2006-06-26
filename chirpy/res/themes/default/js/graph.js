@@ -26,6 +26,10 @@
 
 var graphConfig = new Array();
 graphConfig["bar_chart_values"] = 5;
+graphConfig["pie_chart_radius"] = 180;
+graphConfig["pie_chart_colors"] = new Array(
+	"#DCDCDC", "#CCCCCC", "#BCBCBC", "#ACACAC"
+);
 graphConfig["ogive_values"] = 5;
 graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
@@ -38,6 +42,9 @@ function checkForGraphs () {
 		var func;
 		if (hasClassName(dl, "bar-chart-data")) {
 			func = createBarChart;
+		}
+		else if (hasClassName(dl, "pie-chart-data")) {
+			func = createPieChart;
 		}
 		else if (hasClassName(dl, "ogive-data")) {
 			func = createOgive;
@@ -54,7 +61,7 @@ function checkForGraphs () {
 
 function createBarChart (chartData, samples) {
 	var div = document.createElement("div");
-	div.className = "bar-chart";
+	div.className = "chart bar-chart";
 	var graph = document.createElement("div");
 	graph.className = "bar-chart-graph";
 	div.appendChild(graph);
@@ -90,6 +97,74 @@ function createBarChart (chartData, samples) {
 	return div;
 }
 
+function createPieChart (chartData) {
+	var cnv = document.createElement("canvas");
+	cnv.width = cnv.height = graphConfig["pie_chart_radius"] * 2;
+	var graph = document.createElement("div");
+	graph.appendChild(cnv);
+	cnv = ensureCanvas(cnv);
+	if (!cnv) {
+		return createBarChart(chartData, samples);
+	}
+	var div = document.createElement("div");
+	div.className = "chart pie-chart";
+	graph.className = "pie-chart-graph";
+	var legend = document.createElement("dl");
+	legend.className = "pie-chart-legend";
+	div.appendChild(graph);
+	div.appendChild(legend);
+	drawPieChart(cnv, legend, chartData);
+	return div;
+}
+
+function drawPieChart (canvas, legend, data) {
+	var ctx = canvas.getContext("2d");
+	var total = 0;
+	for (var i = 0; i < data.length; i++) {
+		total += data[i][1];
+	}
+	var runningTotal = 0;
+	var x = graphConfig["pie_chart_radius"];
+	var y = graphConfig["pie_chart_radius"];
+	var radius = graphConfig["pie_chart_radius"];
+	var colors = graphConfig["pie_chart_colors"];
+	for (var i = 0; i < data.length; i++) {
+		var name = data[i][0];
+		var value = data[i][1];
+		var startAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
+		runningTotal += value;
+		var endAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
+		var color = colors[i % colors.length];
+		ctx.fillStyle = color;
+		ctx.beginPath();
+		ctx.moveTo(x, y);
+		ctx.arc(x, y, radius, startAngle, endAngle, false);
+		ctx.lineTo(x, y);
+		ctx.closePath();
+		ctx.fill();
+		var block = document.createElement("div");
+		block.style.backgroundColor = color;
+		var dt = document.createElement("dt");
+		dt.appendChild(block);
+		legend.appendChild(dt);
+		var dd = document.createElement("dd");
+		var l = document.createElement("span");
+		l.className = "label";
+		l.appendChild(document.createTextNode(name));
+		dd.appendChild(l);
+		var v = document.createElement("span");
+		v.className = "value";
+		v.appendChild(document.createTextNode(value));
+		dd.appendChild(v);
+		var p = document.createElement("span");
+		p.className = "percentage";
+		p.appendChild(document.createTextNode(
+			Math.round(100 * value / total) + "%"));
+		dd.appendChild(p);
+		legend.appendChild(dd);
+	}
+}
+
 function createOgive (chartData, samples) {
 	var cnv = document.createElement("canvas");
 	cnv.width = graphConfig["ogive_chart_width"];
@@ -107,7 +182,7 @@ function createOgive (chartData, samples) {
 		return createBarChart(chartData, samples);
 	}
 	var div = document.createElement("div");
-	div.className = "ogive";
+	div.className = "chart ogive";
 	graph.className = "ogive-graph";
 	var total = 0;
 	for (var i = 0; i < chartData.length; i++) {

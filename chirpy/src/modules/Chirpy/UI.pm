@@ -916,6 +916,7 @@ sub _compute_statistics {
 	my $by_week_day = &_init_array(0, 7);
 	my $by_rating = {};
 	my $by_votes = {};
+	my $votes_by_rating = [ 0, 0 ];
 	my ($date, $week_day, $year, $month, $day, $prev_time);
 	foreach my $quote (@$quotes) {
 		my $time = $quote->get_date_submitted();
@@ -937,12 +938,19 @@ sub _compute_statistics {
 		$by_day->[$day]++;
 		$by_month->[$month]++;
 		$by_hour->[$time[2]]++;
-		$by_rating->{$quote->get_rating()}++;
-		$by_votes->{$quote->get_vote_count()}++;
+		my $rating = $quote->get_rating();
+		my $votes = $quote->get_vote_count();
+		$by_rating->{$rating}++;
+		$by_votes->{$votes}++;
+		my $votes_down = ($votes - $rating) / 2;
+		my $votes_up = $votes - $votes_down;
+		$votes_by_rating->[0] += $votes_up;
+		$votes_by_rating->[1] += $votes_down;
 	}
 	return [
 		$by_date, $by_hour, $by_week_day, $by_day, $by_month,
-		&_to_sorted_array($by_rating, 1), &_to_sorted_array($by_votes, 0)
+		&_to_sorted_array($by_rating, 1), &_to_sorted_array($by_votes, 0),
+		$votes_by_rating
 	];
 }
 

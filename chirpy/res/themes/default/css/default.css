@@ -692,12 +692,11 @@ ul.tabbed-pane-contents > li {
 	font-style: italic;
 }
 
-.bar-chart, .ogive,
-.bar-chart *, .ogive * {
+.chart, .chart * {
 	cursor: default;
 }
 
-.bar-chart, .ogive {
+.chart {
 	position: relative;
 	width: 720px;
 	height: 400px;
@@ -787,4 +786,64 @@ ul.tabbed-pane-contents > li {
 
 .bar-chart-column:hover .bar-chart-inner-bar {
 	background: #D6D6D6;
+}
+
+.pie-chart-graph {
+	position: absolute;
+	left: 20px;
+	top: 20px;
+}
+
+.pie-chart-legend {
+	position: absolute;
+	right: 20px;
+	top: 70px;
+	border: 1px solid #CCC;
+	margin: 0;
+	padding: 8px 10px;
+	width: 280px;
+	white-space: nowrap;
+}
+
+.pie-chart-legend dt, .pie-chart-legend dd {
+	margin: 0;
+	padding: 0;
+}
+
+.pie-chart-legend dt {
+	float: left;
+	width: 21px;
+	height: 20px;
+}
+
+.pie-chart-legend dt div {
+	width: 16px;
+	height: 16px;
+	margin: 2px 0 0 0;
+}
+
+.pie-chart-legend dd {
+	height: 15px;
+	padding: 5px 0 0 0;
+	text-align: right;
+}
+
+.pie-chart-legend dd .label {
+	float: left;
+	text-align: left;
+	width: 180px;
+}
+
+.pie-chart-legend dd .value, .pie-chart-legend dd .percentage {
+	color: #999;
+	width: 35px;
+}
+
+.pie-chart-legend dd .value {
+	float: left;
+	text-align: right;
+}
+
+.pie-chart-legend dd .percentage {
+	float: right;
 }
