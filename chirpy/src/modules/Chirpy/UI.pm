@@ -910,33 +910,29 @@ sub _compute_statistics {
 	my $quotes = $self->parent()->get_quotes(0, 0, [ [ 'submitted', 0 ] ]);
 	return undef unless (@$quotes);
 	my $by_date = [];
-	my $by_year_month = [];
 	my $by_hour = &_init_array(0, 24);
 	my $by_month = &_init_array(0, 12);
 	my $by_day = &_init_array(0, 31);
 	my $by_week_day = &_init_array(0, 7);
 	my $by_rating = {};
 	my $by_votes = {};
-	my ($date, $week_day, $year, $month, $day, $year_month, $prev_time);
+	my ($date, $week_day, $year, $month, $day, $prev_time);
 	foreach my $quote (@$quotes) {
 		my $time = $quote->get_date_submitted();
 		my $d = $self->format_date($time);
 		my @time = $self->get_time($time);
 		if (!defined($date) || $d ne $date) {
 			if (defined $prev_time) {
-				$self->_pad_statistics($prev_time, $date, $d,
-					$by_date, $by_year_month);
+				$self->_pad_statistics($prev_time, $date, $d, $by_date);
 			}
 			$prev_time = $time;
 			$date = $d;
 			$day = $time[3] - 1;
 			$month = $time[4];
 			$year = $time[5];
-			$year_month = $year * 100 + $month;
 			$week_day = $time[6];
 		}
 		&_add_statistic($date, 1, $by_date);
-		&_add_statistic($year_month, 1, $by_year_month);
 		$by_week_day->[$week_day]++;
 		$by_day->[$day]++;
 		$by_month->[$month]++;
@@ -945,7 +941,7 @@ sub _compute_statistics {
 		$by_votes->{$quote->get_vote_count()}++;
 	}
 	return [
-		$by_date, $by_year_month, $by_hour, $by_week_day, $by_day, $by_month,
+		$by_date, $by_hour, $by_week_day, $by_day, $by_month,
 		&_to_sorted_array($by_rating, 1), &_to_sorted_array($by_votes, 0)
 	];
 }
@@ -988,15 +984,13 @@ sub _add_statistic {
 }
 
 sub _pad_statistics {
-	my ($self, $from, $from_date, $to, $by_date, $by_year_month) = @_;
+	my ($self, $from, $from_date, $to, $by_date) = @_;
 	while (1) {
 		my ($next_date, $next_date_time)
 			= $self->_next_date($from, $from_date);
 		last if ($next_date eq $to);
 		&_add_statistic($next_date, 0, $by_date);
 		my @time = $self->get_time($next_date_time);
-		my $month = $time[5] * 100 + $time[4];
-		&_add_statistic($month, 0, $by_year_month);
 		$from = $next_date_time;
 		$from_date = $next_date;
 	}
