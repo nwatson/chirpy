@@ -79,19 +79,21 @@ function createBarChart (chartData, samples) {
 		var data = chartData[i];
 		var text = data[0];
 		var value = data[1];
-		var bar = document.createElement("div");
-		bar.className = "bar-chart-bar";
-		bar.style.height = Math.round(100 * value / max) + "%";
-		var innerBar = document.createElement("div");
-		innerBar.className = "bar-chart-inner-bar";
-		bar.appendChild(innerBar);
 		var column = document.createElement("div");
 		column.className = "bar-chart-column";
 		column.style.left = i * barWidth + "%";
 		column.style.width = barWidth + "%";
 		column.title = data[0] + " "
 			+ String.fromCharCode(0x2192) + " " + data[1];
-		column.appendChild(bar);
+		if (value > 0) {
+			var bar = document.createElement("div");
+			bar.className = "bar-chart-bar";
+			bar.style.height = Math.round(100 * value / max) + "%";
+			var innerBar = document.createElement("div");
+			innerBar.className = "bar-chart-inner-bar";
+			bar.appendChild(innerBar);
+			column.appendChild(bar);
+		}
 		graph.appendChild(column);
 	}
 	return div;
