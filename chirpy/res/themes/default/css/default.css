@@ -692,34 +692,35 @@ ul.tabbed-pane-contents > li {
 	font-style: italic;
 }
 
-.bar-chart {
-	position: relative;
-	width: 150ex;
-	height: 60ex;
-	overflow: hidden;
-	margin: 0 0 1.5em 0;
-	border: 1px solid #CCC;
-	line-height: 1.25em;
-	font-size: 80%;
-	color: #666;
-	background: #FCFCFC;
-}
-
-.bar-chart, .bar-chart * {
+.bar-chart, .ogive,
+.bar-chart *, .ogive * {
 	cursor: default;
 }
 
-.bar-chart-graph {
+.bar-chart, .ogive {
+	position: relative;
+	width: 720px;
+	height: 400px;
+	overflow: hidden;
+	border: 1px solid #CCC;
+	line-height: 1em;
+	font-size: 10px;
+	color: #666;
+	background: #FCFCFC;
+	margin: 0 0 1.5em 0;
+}
+
+.bar-chart-graph, .ogive-graph {
 	position: absolute;
-	left: 8ex;
-	top: 2ex;
-	width: 140ex;
-	height: 53ex;
+	left: 50px;
+	top: 10px;
+	width: 660px;
+	height: 360px;
 	border-bottom: 1px solid #666;
 	border-left: 1px solid #666;
 }
 
-.bar-chart-line {
+.chart-line {
 	position: absolute;
 	left: 0;
 	width: 100%;
@@ -727,42 +728,35 @@ ul.tabbed-pane-contents > li {
 	border-top: 1px dashed #E0E0E0;
 }
 
-.bar-chart-labels {
+.chart-labels {
 	position: absolute;
-	left: 8ex;
-	bottom: 2ex;
-	width: 140ex;
+	left: 50px;
+	bottom: 10px;
+	width: 660px;
 	margin-left: 1px;
 }
 
-.bar-chart-values {
+.chart-values {
 	position: absolute;
-	left: 2ex;
-	top: 2ex;
-	width: 5ex;
-	height: 53ex;
+	left: 10px;
+	top: 10px;
+	width: 30px;
+	height: 360px;
 }
 
-.bar-chart-maximum {
-	position: absolute;
-	right: 0;
-	top: 0;
-	text-align: right;
-}
-
-.bar-chart-minimum {
+.chart-value {
 	position: absolute;
 	right: 0;
-	bottom: 0;
 	text-align: right;
+	margin-bottom: -5px;
 }
 
-.bar-chart-label {
+.chart-label {
 	position: absolute;
 	bottom: 0;
 }
 
-.bar-chart-inner-label {
+.chart-inner-label {
 	position: absolute;
 	left: 5%;
 	bottom: 0;
