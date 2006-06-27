@@ -259,7 +259,6 @@ sub run {
 				$approved,
 				$tags
 			);
-			$self->clear_statistics() if ($approved);
 			$self->confirm_quote_submission($approved);
 			$self->_log_event(Chirpy::Event::ADD_QUOTE, {
 				'id' => $quote->get_id(),
@@ -437,7 +436,6 @@ sub _provide_administration_interface {
 					$self->_log_event(Chirpy::Event::APPROVE_QUOTE,
 						{ 'id' => $id });
 				}
-				$self->clear_statistics();
 			}
 			if (@remove) {
 				$self->parent()->remove_quotes(@remove);
@@ -474,7 +472,6 @@ sub _provide_administration_interface {
 					$self->_log_event(Chirpy::Event::REMOVE_QUOTE,
 						{ 'id' => $id });
 				}
-				$self->clear_statistics();
 			}
 			$self->provide_quote_flag_management_interface(
 				@unflag ? \@unflag : undef,
@@ -535,7 +532,6 @@ sub _provide_administration_interface {
 					my $body = $quote->get_body();
 					my $notes = $quote->get_notes();
 					$self->parent()->remove_quotes($id);
-					$self->clear_statistics();
 					$self->confirm_quote_removal();
 					$self->_log_event(Chirpy::Event::REMOVE_QUOTE, {
 						'id' => $id
@@ -904,14 +900,19 @@ sub _provide_statistics {
 	my $stats;
 	require Storable;
 	my $file = $self->_statistics_cache_file();
-	if (!-e $file || (stat($file))[9] + STATISTICS_UPDATE_INTERVAL < time) {
+	my $exists = (-e $file);
+	my $tag_file = $file . '.tag';
+	if ((!$exists || (stat($file))[9] + STATISTICS_UPDATE_INTERVAL < time)
+	&& !-e $tag_file) {
+		local *TAG;
+		open(TAG, '>', $tag_file) and close(TAG);
 		$stats = $self->_compute_statistics();
-		unlink $file;
+		unlink $tag_file;
 		if (defined $stats) {
 			Storable::store($stats, $file);
 		}
 	}
-	else {
+	elsif ($exists) {
 		$stats = Storable::retrieve($file);
 	}
 	if (defined $stats) {
@@ -1081,11 +1082,6 @@ sub _statistics_cache_file {
 	my $self = shift;
 	return $self->configuration()->get('general', 'base_path')
 		. '/cache/statistics';
-}
-
-sub clear_statistics {
-	my $self = shift;
-	unlink $self->_statistics_cache_file();
 }
 
 sub moderation_queue_is_public {
