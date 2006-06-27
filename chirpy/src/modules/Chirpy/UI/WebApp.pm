@@ -280,6 +280,7 @@ use constant ACTIONS => {
 	'QUOTE_SEARCH' => 'search',
 	'TAG_CLOUD' => 'tags',
 	'STATISTICS' => 'statistics',
+	'MODERATION_QUEUE' => 'queue',
 	'SUBMIT_QUOTE' => 'submit',
 	'ADMINISTRATION' => 'admin',
 	'LOGIN' => 'login',
@@ -1764,6 +1765,9 @@ sub _get_page_name {
 	elsif ($page == Chirpy::UI::STATISTICS) {
 		return 'statistics';
 	}
+	elsif ($page == Chirpy::UI::MODERATION_QUEUE) {
+		return 'unmoderated_quotes';
+	}
 	return undef;
 }
 
@@ -1907,6 +1911,8 @@ sub _process_template {
 		$locale->get_string('webapp.next_page_title')) });
 	$template->param('PREVIOUS_PAGE_TITLE', sub { return &_text_to_xhtml(
 		$locale->get_string('webapp.previous_page_title')) });
+	$template->param('MODERATION_QUEUE_PUBLIC' => 1)
+		if ($self->moderation_queue_is_public());
 	if (my $account = $self->get_logged_in_user_account()) {
 		$template->param('LOGGED_IN' => 1);
 		$template->param('LOGGED_IN_NOTICE' => &_text_to_xhtml(

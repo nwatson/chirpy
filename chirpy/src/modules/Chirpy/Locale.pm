@@ -231,6 +231,14 @@ and such.
 
 Abbreviated version of I<Submit Quote>, for use in compact menus.
 
+=item moderation_queue_description
+
+Brief description of the quote moderation queue, for tooltips and such.
+
+=item moderation_queue_short_title
+
+Abbreviated version of I<Quote Moderation Queue>, for use in compact menus.
+
 =item administration_description
 
 Brief description of what the administration interface does, for tooltips and
@@ -364,6 +372,11 @@ Translation of I<Search Results>, for the title of that section or links to it.
 =item submit_quote
 
 Translation of I<Submit Quote>, for the title of that section or links to it.
+
+=item unmoderated_quotes
+
+Translation of I<Unmoderated Quotes>, for the title of that section or links to
+it.
 
 =item submission_title
 

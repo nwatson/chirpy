@@ -81,6 +81,7 @@ use constant REPORT_QUOTE             => 14;
 use constant LOGIN                    => 15;
 use constant LOGOUT                   => 16;
 use constant ADMINISTRATION           => 17;
+use constant MODERATION_QUEUE         => 18;
 
 use constant CHANGE_PASSWORD          => 100;
 use constant MANAGE_UNAPPROVED_QUOTES => 110;
@@ -161,13 +162,13 @@ sub new {
 sub run {
 	my $self = shift;
 	my $page = $self->get_current_page();
-	my $start = $self->get_first_quote_index();
 	if ($page == START_PAGE) {
 		$self->welcome_user(
 			$self->parent()->get_latest_news_items()
 		);
 	}
 	elsif ($page == QUOTE_BROWSER) {
+		my $start = $self->get_first_quote_index();
 		$self->_browse_quotes_segmented(
 			$page,
 			$start,
@@ -175,6 +176,7 @@ sub run {
 		);
 	}
 	elsif ($page == QUOTES_OF_THE_WEEK) {
+		my $start = $self->get_first_quote_index();
 		$self->_browse_quotes_segmented(
 			$page,
 			$start,
@@ -182,6 +184,7 @@ sub run {
 		);
 	}
 	elsif ($page == QUOTE_SEARCH) {
+		my $start = $self->get_first_quote_index();
 		my ($queries, $tags) = $self->get_search_instruction();
 		if (@$queries || @$tags) {
 			$self->_browse_quotes_segmented(
@@ -211,6 +214,7 @@ sub run {
 			: $self->report_no_quotes_to_display($page));
 	}
 	elsif ($page == TOP_QUOTES) {
+		my $start = $self->get_first_quote_index();
 		$self->_browse_quotes_segmented(
 			$page,
 			$start,
@@ -218,11 +222,25 @@ sub run {
 		);
 	}
 	elsif ($page == BOTTOM_QUOTES) {
+		my $start = $self->get_first_quote_index();
 		$self->_browse_quotes_segmented(
 			$page,
 			$start,
 			$self->parent()->get_bottom_quotes($start),
 		);
+	}
+	elsif ($page == MODERATION_QUEUE) {
+		if ($self->moderation_queue_is_public()) {
+			my $start = $self->get_first_quote_index();
+			$self->_browse_quotes_segmented(
+				$page,
+				$start,
+				$self->parent()->get_unapproved_quotes($start),
+			);
+		}
+		else {
+			$self->report_unknown_action();
+		}
 	}
 	elsif ($page == SUBMIT_QUOTE) {
 		my ($body, $notes, $tags) = $self->get_submitted_quote();
@@ -1069,6 +1087,11 @@ sub _statistics_cache_file {
 sub clear_statistics {
 	my $self = shift;
 	unlink $self->_statistics_cache_file();
+}
+
+sub moderation_queue_is_public {
+	my $self = shift;
+	return $self->configuration()->get('ui', 'public_moderation_queue');
 }
 
 sub get_news_posters {

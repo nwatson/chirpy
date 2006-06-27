@@ -33,6 +33,7 @@
 		<li>
 			<div class="quote-container">
 				<h3 class="quote-header<TMPL_IF NAME="IS_FLAGGED"> flagged</TMPL_IF>" id="quote-header-<TMPL_VAR NAME="ID">">
+				<TMPL_IF NAME="IS_APPROVED">
 					<span id="quote-live-vote-result-<TMPL_VAR NAME="ID">" class="quote-live-vote-result"></span>
 					<a href="<TMPL_VAR NAME="LINK_URL">"
 					title="<TMPL_VAR NAME="LINK_DESCRIPTION">" class="quote-permalink"><span class="quote-id">#<TMPL_VAR NAME="ID"></span></a>
@@ -65,6 +66,10 @@
 					title="<TMPL_VAR NAME="REMOVE_DESCRIPTION">"
 					onclick="return confirm(&quot;<TMPL_VAR NAME="REMOVAL_CONFIRMATION">&quot;)">[<TMPL_VAR NAME="REMOVE">]</a>
 					</TMPL_IF>
+				<TMPL_ELSE>
+					<span class="quote-id">#<TMPL_VAR NAME="ID"></span>
+					<span class="quote-date" title="<TMPL_VAR NAME="DATE_DESCRIPTION">"><TMPL_VAR NAME="SUBMITTED_TEXT"></span>
+				</TMPL_IF>
 				</h3>
 				<blockquote class="quote-body">
 					<p><TMPL_VAR NAME="BODY"></p>
