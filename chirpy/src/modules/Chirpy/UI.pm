@@ -281,7 +281,6 @@ sub run {
 			elsif ($self->_update_rating_history()) {
 				my ($new_rating, $new_vote_count)
 					= $self->parent()->increase_quote_rating($id);
-				$self->_add_vote_statistic(0);
 				$self->confirm_quote_rating(
 					1,
 					$new_rating,
@@ -307,7 +306,6 @@ sub run {
 			elsif ($self->_update_rating_history()) {
 				my ($new_rating, $new_vote_count)
 					= $self->parent()->decrease_quote_rating($id);
-				$self->_add_vote_statistic(1);
 				$self->confirm_quote_rating(
 					0,
 					$new_rating,
@@ -923,18 +921,6 @@ sub _provide_statistics {
 	else {
 		$self->report_statistics_unavailable();
 	}
-}
-
-sub _add_vote_statistic {
-	my ($self, $down) = @_;
-	my $file = $self->_statistics_cache_file();
-	return unless (-f $file);
-	require Storable;
-	my $stats = Storable::retrieve($file);
-	return unless (defined $stats
-		&& ref $stats eq 'ARRAY' && ref $stats->[7] eq 'ARRAY');
-	$stats->[7]->[$down ? 1 : 0]++;
-	Storable::store($stats, $file);
 }
 
 sub _compute_statistics {
