@@ -632,7 +632,9 @@ sub _generate_feed {
 			},
 			'QUOTE_DATE_ISO8601' => sub {
 				return &_format_date_time_iso8601($d);
-			}
+			},
+			'QUOTE_IS_APPROVED' => $quote->get_approved(),
+			'QUOTE_IS_FLAGGED' => $quote->get_flagged()
 		};
 	}
 	$date = time unless (defined $date);
