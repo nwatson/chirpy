@@ -149,6 +149,7 @@ use constant ADMIN_PERMISSIONS => {
 	}
 };
 
+use constant STATISTICS_UPDATE_INTERVAL => 60 * 60;
 use constant UPDATE_CHECK_INTERVAL => 7 * 24 * 60 * 60;
 
 sub new {
@@ -903,13 +904,11 @@ sub _provide_statistics {
 	my $stats;
 	require Storable;
 	my $file = $self->_statistics_cache_file();
-	if (!-e $file) {
+	if (!-e $file || (stat($file))[9] + STATISTICS_UPDATE_INTERVAL < time) {
 		$stats = $self->_compute_statistics();
+		unlink $file;
 		if (defined $stats) {
 			Storable::store($stats, $file);
-		}
-		else {
-			unlink $file;
 		}
 	}
 	else {
