@@ -907,10 +907,10 @@ sub _provide_statistics {
 		local *TAG;
 		open(TAG, '>', $tag_file) and close(TAG);
 		$stats = $self->_compute_statistics();
-		unlink $tag_file;
 		if (defined $stats) {
 			Storable::store($stats, $file);
 		}
+		unlink $tag_file;
 	}
 	elsif ($exists) {
 		$stats = Storable::retrieve($file);
