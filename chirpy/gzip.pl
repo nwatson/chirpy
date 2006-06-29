@@ -65,7 +65,7 @@ unless (-d CACHE_DIR) {
 my $file_date = (stat($filename))[9];
 
 my $md5 = Digest::MD5::md5_hex($filename);
-my $etag = '"' . $md5 . '-' . $file_date . '"';
+my $etag = '"' . $md5 . '-' . sprintf('%x', $file_date) . '"';
 
 my $ims = $cgi->http('If-Modified-Since');
 my $inm = $cgi->http('If-None-Match');
