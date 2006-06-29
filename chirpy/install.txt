@@ -119,6 +119,8 @@ util/               Contains some utilities that you may find useful while
 changelog.txt       All the stuff that's changed between Chirpy! releases.
 index.cgi           The main script. Will be the only URL that is accessed
                     directly by visitors.
+gzip.pl             A helper script that allows for the compression of certain
+                    static files, which reduces bandwidth usage.
 install.txt         This document.
 license.txt         The GNU General Public License, under which Chirpy! is
                     distributed.
@@ -133,9 +135,17 @@ anywhere, but yours might require that you put it inside a cgi-bin/ directory,
 which may even be outside the document root on the FTP server. This is no
 problem--just make sure it wants to execute it and not display the contents.
 
-The index.cgi file needs some attributes. This is done by issueing a SITE CHMOD
-command on the FTP server. If you use a graphical FTP client, you can probably
-right-click on the file and tick off the necessary attributes. They are:
+If you wish to reduce bandwidth usage, you should also upload the gzip.pl file.
+This script, in combination with the file called .htaccess in the directory
+res/, which we will cover next, will compress JavaScript and CSS files before
+sending them to the user. If you do not wish to use this feature, for instance
+because it is unsupported or because it slows the server down a little, make
+sure you remove the .htaccess file in the res/ directory!
+
+The index.cgi and gzip.pl files need some attributes. This is done by issueing
+a SITE CHMOD command on the FTP server. If you use a graphical FTP client, you
+can probably right-click on the file and tick off the necessary attributes.
+They are:
 
                     Owner     READ      WRITE     EXECUTE
                     Group     READ      -         EXECUTE
@@ -144,8 +154,8 @@ right-click on the file and tick off the necessary attributes. They are:
 This translates to the string representation "rwxr-xr-x" or, numerically, 755
 on UNIX systems. On most systems, this step is essential. You will get an error
 page if you fail to change the file's attributes. Also, if you are using an FTP
-client, make sure you have uploaded index.cgi in ASCII (text) mode, not image
-(binary).
+client, make sure you have uploaded the two files in ASCII (text) mode, not
+image (binary).
 
 You may want to copy the .htaccess file from the package root as well. Make
 sure you don't confuse it with the one in the src/ directory! The one covered
@@ -160,7 +170,8 @@ have it anyway; we will cover that configuration file in a moment.
 The res/ directory only holds static files and should reside in a public path
 on the server, like <http://www.yourserver.com/chirpy/res>. You can upload it
 anywhere, even on a different server. We'll need the URL later for the
-configuration.
+configuration. Don't forget to remove res/.htaccess if you don't want to
+compress static files, as explained above.
 
 Next up: the src/ directory. This one does not have to be publicly accessible
 and for security reasons, it really shouldn't be either. Chirpy! takes some
@@ -304,6 +315,9 @@ webapp.quotes_per_feed
 webapp.enable_gzip  Chirpy! can greatly decrease bandwidth usage by compressing
                     output on the fly if the browser supports it. Set this to 1
                     to enable that. It requires the Compress::Zlib Perl module.
+                    Note that this feature is independent from the compression
+                    feature covered above; that one compressed static files,
+                    while this one is for script output.
 webapp.enable_captchas
                     If you wish to prevent malicious users from spamming the
                     quote submission page, you will want to use captcha images.
