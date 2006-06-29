@@ -70,14 +70,9 @@ my $etag = '"' . $md5 . '-' . sprintf('%x', $file_date) . '"';
 my $ims = $cgi->http('If-Modified-Since');
 my $inm = $cgi->http('If-None-Match');
 
-my $not_modified = 0;
-if (defined $ims) {
-	$not_modified = ($file_date <= HTTP::Date::str2time($ims));
-}
-if (!$not_modified && defined $inm) {
-	$not_modified = ($etag eq $inm);
-}
-if ($not_modified) {
+if ((defined $ims || defined $inm)
+&& (defined $ims && $file_date <= HTTP::Date::str2time($ims))
+&& (defined $inm && $etag eq $inm)) {
 	print $cgi->header(-status => '304 Not Modified');
 	exit;
 }
