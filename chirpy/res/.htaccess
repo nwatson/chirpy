@@ -2,5 +2,6 @@
 RewriteEngine On
 RewriteCond %{HTTP:Accept-Encoding} \bgzip\b
 RewriteCond %{QUERY_STRING} =""
+RewriteCond %{REQUEST_FILENAME} -s
 RewriteRule \.(css|js)$ ../gzip.pl?filename=%{REQUEST_FILENAME}&uri=%{REQUEST_URI}
 </IfModule>

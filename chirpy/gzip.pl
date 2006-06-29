@@ -60,7 +60,7 @@ unless (-d CACHE_DIR) {
 	unless ($ENV{'REDIRECT_URL'} eq $uri);
 
 &redirect()
-	unless (-f $filename);
+	unless (defined $filename && -s $filename);
 
 my $file_date = (stat($filename))[9];
 
