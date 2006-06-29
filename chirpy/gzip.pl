@@ -57,7 +57,7 @@ unless (-d CACHE_DIR) {
 }
 
 &redirect()
-	unless ($ENV{'REDIRECT_URL'} eq $uri);
+	unless (defined $uri && $ENV{'REDIRECT_URL'} eq $uri);
 
 &redirect()
 	unless (defined $filename && -s $filename);
