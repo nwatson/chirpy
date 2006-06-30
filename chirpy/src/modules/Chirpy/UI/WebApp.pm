@@ -2097,7 +2097,10 @@ sub _spam_protect_email_addresses {
 
 sub _hide_email {
 	my $email = shift;
-	$email =~ s/(.)/'&#'.ord($1).';'/eg;
+	$email =~ s{(.)}{
+		my $n = ord $1;
+		'&#' . (int rand 2 ? sprintf('x%X', $n) : $n) . ';';
+	}eg;
 	return $email;
 }
 
