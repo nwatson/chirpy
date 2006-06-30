@@ -171,6 +171,14 @@ sub get_approve_quotes_html {
 				. '<div class="quote-container">' . $/
 				. '<h3 class="quote-header">'
 				. '<span class="quote-id">#' . $quote->get_id() . '</span> '
+				. ($self->parent()->moderation_queue_is_public()
+					? '<span class="quote-rating">'
+					. Chirpy::Util::format_quote_rating($quote->get_rating())
+					. '</span>'
+					. '<span class="quote-vote-count">/<span>'
+					. $quote->get_vote_count()
+					. '</span></span> '
+					: '')
 				. '<span class="quote-date">'
 				. $self->parent()->format_date_time($quote->get_date_submitted())
 				. '</span>'
@@ -283,6 +291,12 @@ sub get_flagged_quotes_html {
 				. '<div class="quote-container">' . $/
 				. '<h3 class="quote-header">'
 				. '<span class="quote-id">#' . $quote->get_id() . '</span> '
+				. '<span class="quote-rating">'
+					. Chirpy::Util::format_quote_rating($quote->get_rating())
+					. '</span>'
+					. '<span class="quote-vote-count">/<span>'
+					. $quote->get_vote_count()
+					. '</span></span> '
 				. '<span class="quote-date">'
 				. $self->parent()->format_date_time($quote->get_date_submitted())
 				. '</span>'

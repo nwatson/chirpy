@@ -201,7 +201,7 @@ sub run {
 	elsif ($page == SINGLE_QUOTE) {
 		my $quote = $self->parent()->get_quote(
 			$self->get_selected_quote_id());
-		if (defined $quote) {
+		if (defined $quote && ($quote->is_approved() || $self->moderation_queue_is_public())) {
 			$self->browse_quotes([ $quote ], $page);
 		}
 		else {
@@ -274,11 +274,13 @@ sub run {
 	}
 	elsif ($page == QUOTE_RATING_UP) {
 		my $id = $self->get_selected_quote_id();
-		if (defined $self->parent()->get_quote($id)) {
+		my $quote = $self->parent()->get_quote($id);
+		if (defined $quote) {
 			if ($self->_already_rated($id)) {
 				$self->report_quote_already_rated($id);
 			}
-			elsif ($self->_update_rating_history()) {
+			elsif (($quote->is_approved() || $self->moderation_queue_is_public())
+			&& $self->_update_rating_history()) {
 				my ($new_rating, $new_vote_count)
 					= $self->parent()->increase_quote_rating($id);
 				$self->confirm_quote_rating(
@@ -299,11 +301,13 @@ sub run {
 	}
 	elsif ($page == QUOTE_RATING_DOWN) {
 		my $id = $self->get_selected_quote_id();
-		if (defined $self->parent()->get_quote($id)) {
+		my $quote = $self->parent()->get_quote($id);
+		if (defined $quote) {
 			if ($self->_already_rated($id)) {
 				$self->report_quote_already_rated($id);
 			}
-			elsif ($self->_update_rating_history()) {
+			elsif (($quote->is_approved() || $self->moderation_queue_is_public())
+			&& $self->_update_rating_history()) {
 				my ($new_rating, $new_vote_count)
 					= $self->parent()->decrease_quote_rating($id);
 				$self->confirm_quote_rating(
@@ -324,7 +328,8 @@ sub run {
 	}
 	elsif ($page == REPORT_QUOTE) {
 		my $id = $self->get_selected_quote_id();
-		if (defined $self->parent()->get_quote($id)) {
+		my $quote = $self->parent()->get_quote($id);
+		if (defined $quote && $quote->is_approved()) {
 			$self->parent()->flag_quotes($id);
 			$self->confirm_quote_report($id);
 			$self->_log_event(Chirpy::Event::REPORT_QUOTE, { 'id' => $id });
@@ -486,7 +491,7 @@ sub _provide_administration_interface {
 			my $id = $self->get_quote_to_edit();
 			if ($id) {
 				my $quote = $self->parent()->get_quote($id);
-				if (defined $quote) {
+				if (defined $quote && $quote->is_approved()) {
 					my ($body, $notes, $tags)
 						= $self->get_modified_quote_information();
 					if ($body) {
@@ -528,7 +533,7 @@ sub _provide_administration_interface {
 			my $id = $self->get_quote_to_remove();
 			if ($id) {
 				my $quote = $self->parent()->get_quote($id);
-				if (defined $quote) {
+				if (defined $quote && $quote->is_approved()) {
 					my $body = $quote->get_body();
 					my $notes = $quote->get_notes();
 					$self->parent()->remove_quotes($id);

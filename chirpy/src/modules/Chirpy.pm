@@ -439,7 +439,6 @@ sub get_quotes_of_the_week {
 sub get_quote {
 	my ($self, $id) = @_;
 	my $quotes = $self->_data_manager()->get_quotes({
-		'approved' => 1,
 		'id'       => $id
 	});
 	return undef unless (defined $quotes);

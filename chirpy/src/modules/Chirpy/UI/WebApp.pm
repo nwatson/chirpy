@@ -633,8 +633,8 @@ sub _generate_feed {
 			'QUOTE_DATE_ISO8601' => sub {
 				return &_format_date_time_iso8601($d);
 			},
-			'QUOTE_IS_APPROVED' => $quote->get_approved(),
-			'QUOTE_IS_FLAGGED' => $quote->get_flagged()
+			'QUOTE_IS_APPROVED' => $quote->is_approved(),
+			'QUOTE_IS_FLAGGED' => $quote->is_flagged()
 		};
 	}
 	$date = time unless (defined $date);
@@ -797,8 +797,8 @@ sub _generate_xhtml {
 			'VOTE_COUNT' => $quote->get_vote_count(),
 			'SUBMITTED_TEXT' => &_text_to_xhtml(
 				$self->format_date_time($quote->get_date_submitted())),
-			'IS_APPROVED' => $quote->get_approved(),
-			'IS_FLAGGED' => $quote->get_flagged(),
+			'IS_APPROVED' => $quote->is_approved(),
+			'IS_FLAGGED' => $quote->is_flagged(),
 			'LINK_URL' => &_text_to_xhtml(
 				$self->_quote_url($quote->get_id())),
 			'RATING_UP_URL' => $up_url,
@@ -809,7 +809,7 @@ sub _generate_xhtml {
 			'ALLOW_REMOVE'
 				=> $self->administration_allowed(Chirpy::UI::REMOVE_QUOTE),
 			'ALLOW_UNFLAG'
-				=> $quote->get_flagged() && $self->administration_allowed(
+				=> $quote->is_flagged() && $self->administration_allowed(
 					Chirpy::UI::MANAGE_FLAGGED_QUOTES),
 			'EDIT_URL' => sub { return $self->_url(
 				ADMIN_ACTIONS->{'EDIT_QUOTE'},

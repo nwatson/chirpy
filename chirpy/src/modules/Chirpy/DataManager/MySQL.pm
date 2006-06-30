@@ -545,7 +545,7 @@ sub add_quote {
 		. ' VALUES (?, ?, ?)',
 		$quote->get_body(),
 		$quote->get_notes(),
-		$quote->get_approved() || 0);
+		$quote->is_approved() || 0);
 	my $id = $self->handle()->{'mysql_insertid'};
 	$quote->set_id($id);
 	$self->_tag($id, $quote->get_tags());

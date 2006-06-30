@@ -248,11 +248,6 @@ ul.quote-list li h3.quote-header {
 	border-radius: 0.5em 0.5em 0 0;
 }
 
-ul.quote-list li h3.flagged {
-	border: 1px #E9E9E9 solid;
-	background: #ECECEC;
-}
-
 ul.quote-list li h3.quote-header * {
 	margin: 0 0.125em;
 	padding: 0;
@@ -304,14 +299,28 @@ ul.quote-list h3.quote-header .quote-date,
 ul.quote-list h3.quote-header .quote-edit,
 ul.quote-list h3.quote-header .quote-remove,
 ul.quote-list h3.quote-header .quote-unflag,
-ul.quote-list h3.quote-header .quote-live-vote-result,
-ul.quote-list h3.quote-header .quote-vote-count {
+ul.quote-list h3.quote-header .quote-live-vote-result {
 	font-size: 80%;
+}
+
+ul.quote-list h3.quote-header .quote-vote-count {
+	margin-left: 0;
+	font-size: 90%;
 }
 
 ul.quote-list h3.quote-header .quote-live-vote-result {
 	float: right;
 	text-transform: uppercase;
+}
+
+ul.quote-list li.flagged h3.quote-header {
+	border: 1px #E9E9E9 solid;
+	background: #ECECEC;
+}
+
+ul.quote-list li.unapproved h3.quote-header {
+	border: 1px #F9E9E9 solid;
+	background: #FCF0F0;
 }
 
 .flag-options label, .approval-options label {

@@ -30,9 +30,9 @@
 	</h2>
 	<ul class="quote-list">
 	<TMPL_LOOP NAME="QUOTES">
-		<li>
+		<li id="quote-<TMPL_VAR NAME="ID">" class="<TMPL_UNLESS NAME="IS_APPROVED">unapproved</TMPL_UNLESS> <TMPL_IF NAME="IS_FLAGGED">flagged</TMPL_IF>">
 			<div class="quote-container">
-				<h3 class="quote-header<TMPL_IF NAME="IS_FLAGGED"> flagged</TMPL_IF>" id="quote-header-<TMPL_VAR NAME="ID">">
+				<h3 class="quote-header" id="quote-header-<TMPL_VAR NAME="ID">">
 				<TMPL_IF NAME="IS_APPROVED">
 					<span id="quote-live-vote-result-<TMPL_VAR NAME="ID">" class="quote-live-vote-result"></span>
 					<a href="<TMPL_VAR NAME="LINK_URL">"
@@ -40,8 +40,8 @@
 					<a href="<TMPL_VAR NAME="RATING_UP_URL">" rel="nofollow"
 					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
 					title="<TMPL_VAR NAME="RATING_UP_DESCRIPTION">" class="quote-rating-up"><TMPL_VAR NAME="UP">&uarr;</a>
-					<span id="quote-rating-<TMPL_VAR NAME="ID">" class="quote-rating" title="<TMPL_VAR NAME="RATING_DESCRIPTION">"><TMPL_VAR NAME="RATING_TEXT"></span>
-					<span class="quote-vote-count" title="<TMPL_VAR NAME="VOTE_COUNT_DESCRIPTION">">/<span id="quote-vote-count-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="VOTE_COUNT"></span></span>
+					<span id="quote-rating-<TMPL_VAR NAME="ID">" class="quote-rating" title="<TMPL_VAR NAME="RATING_DESCRIPTION">"><TMPL_VAR NAME="RATING_TEXT"></span><span
+					class="quote-vote-count" title="<TMPL_VAR NAME="VOTE_COUNT_DESCRIPTION">">/<span id="quote-vote-count-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="VOTE_COUNT"></span></span>
 					<a href="<TMPL_VAR NAME="RATING_DOWN_URL">" rel="nofollow"
 					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
 					title="<TMPL_VAR NAME="RATING_DOWN_DESCRIPTION">" class="quote-rating-down"><TMPL_VAR NAME="DOWN">&darr;</a>
@@ -67,7 +67,17 @@
 					onclick="return confirm(&quot;<TMPL_VAR NAME="REMOVAL_CONFIRMATION">&quot;)">[<TMPL_VAR NAME="REMOVE">]</a>
 					</TMPL_IF>
 				<TMPL_ELSE>
-					<span class="quote-id">#<TMPL_VAR NAME="ID"></span>
+					<span id="quote-live-vote-result-<TMPL_VAR NAME="ID">" class="quote-live-vote-result"></span>
+					<a href="<TMPL_VAR NAME="LINK_URL">"
+					title="<TMPL_VAR NAME="LINK_DESCRIPTION">" class="quote-permalink"><span class="quote-id">#<TMPL_VAR NAME="ID"></span></a>
+					<a href="<TMPL_VAR NAME="RATING_UP_URL">" rel="nofollow"
+					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
+					title="<TMPL_VAR NAME="RATING_UP_DESCRIPTION">" class="quote-rating-up"><TMPL_VAR NAME="UP">&uarr;</a>
+					<span id="quote-rating-<TMPL_VAR NAME="ID">" class="quote-rating" title="<TMPL_VAR NAME="RATING_DESCRIPTION">"><TMPL_VAR NAME="RATING_TEXT"></span><span
+					class="quote-vote-count" title="<TMPL_VAR NAME="VOTE_COUNT_DESCRIPTION">">/<span id="quote-vote-count-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="VOTE_COUNT"></span></span>
+					<a href="<TMPL_VAR NAME="RATING_DOWN_URL">" rel="nofollow"
+					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
+					title="<TMPL_VAR NAME="RATING_DOWN_DESCRIPTION">" class="quote-rating-down"><TMPL_VAR NAME="DOWN">&darr;</a>
 					<span class="quote-date" title="<TMPL_VAR NAME="DATE_DESCRIPTION">"><TMPL_VAR NAME="SUBMITTED_TEXT"></span>
 				</TMPL_IF>
 				</h3>

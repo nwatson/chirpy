@@ -45,10 +45,10 @@ Chirpy::Quote - Represents a quote
  $submitted = $quote->get_date_submitted();
  $quote->set_date_submitted($submitted);
 
- $approved = $quote->get_approved();
+ $approved = $quote->is_approved();
  $quote->set_approved($approved);
 
- $flagged = $quote->get_flagged();
+ $flagged = $quote->is_flagged();
  $quote->set_flagged($flagged);
  
  $tags = $quote->get_tags();
@@ -211,7 +211,7 @@ sub set_date_submitted {
 	return ($self->{'submitted'} = shift);
 }
 
-sub get_approved {
+sub is_approved {
 	my $self = shift;
 	return $self->{'approved'};
 }
@@ -221,7 +221,7 @@ sub set_approved {
 	return ($self->{'approved'} = shift);
 }
 
-sub get_flagged {
+sub is_flagged {
 	my $self = shift;
 	return $self->{'flagged'};
 }
@@ -240,6 +240,10 @@ sub set_tags {
 	my $self = shift;
 	return ($self->{'tags'} = shift);
 }
+
+*get_approved = \&is_approved;
+
+*get_flagged = \&is_flagged;
 
 1;
 
