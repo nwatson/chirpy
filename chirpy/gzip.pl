@@ -71,8 +71,8 @@ my $ims = $cgi->http('If-Modified-Since');
 my $inm = $cgi->http('If-None-Match');
 
 if ((defined $ims || defined $inm)
-&& (defined $ims && $file_date <= HTTP::Date::str2time($ims))
-&& (defined $inm && $etag eq $inm)) {
+&& ((defined $ims && $file_date <= HTTP::Date::str2time($ims))
+|| (defined $inm && $etag eq $inm))) {
 	print $cgi->header(-status => '304 Not Modified');
 	exit;
 }
@@ -80,8 +80,7 @@ if ((defined $ims || defined $inm)
 my $cache_file = CACHE_DIR . '/' . $md5;
 my $contents;
 if (!-f $cache_file || (stat($cache_file))[9] < $file_date) {
-	my $contents = &get_file_contents($filename);
-	$contents = Compress::Zlib::memGzip($contents);
+	$contents = Compress::Zlib::memGzip(&get_file_contents($filename));
 	&put_file_contents($cache_file, $contents);
 }
 else {
