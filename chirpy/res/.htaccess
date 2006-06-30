@@ -1,7 +1,39 @@
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{HTTP:Accept-Encoding} \bgzip\b
-RewriteCond %{QUERY_STRING} =""
-RewriteCond %{REQUEST_FILENAME} -s
-RewriteRule \.(css|js)$ ../gzip.pl?filename=%{REQUEST_FILENAME}&uri=%{REQUEST_URI}
-</IfModule>
+###############################################################################
+# This file adds support for compressing static text content, such as CSS and #
+# JavaScript files, in order to reduce traffic. To use it, you must perform   #
+# the following steps:                                                        #
+#                                                                             #
+# 1. Move gzip.pl from the util/ directory to the root directory. If you had  #
+#    to move index.cgi, e.g. because it had to be inside a cgi-bin, then move #
+#    gzip.pl there too.                                                       #
+# 2. Modify the line use constant CACHE_DIR => '...'; in gzip.pl, setting the #
+#    cache directory to a writable path, where it can keep compressed files.  #
+#    By default, this is a directory called "gzip" in your already present    #
+#    "cache" directory. However, the path must be relative to the directory   #
+#    where you puth gzip.pl!                                                  #
+# 3. Change gzip.pl's attributes to rwxr-xr-x (755), like index.cgi.          #
+# 4. Comment out the lines below by removing the # in front of them.          #
+# 5. If gzip.pl is not in the root directory, modify its path in the line     #
+#    that calls it below.                                                     #
+# 6. Test! Obtain a tool that allows you to view HTTP headers and look at the #
+#    HTTP headers for a .js or .css file inside the res/ directory. If the    #
+#    headers contain the line "Content-Encoding: gzip," the installation was  #
+#    successful. No luck? Here are some common explanations:                  #
+#    a. Got an Internal Server Error? Verify that you uploaded gzip.pl in     #
+#       ASCII mode and that you set its attributes. If you did, obtain an     #
+#       error log from your host and see what that tells you.                 #
+#    b. If the server redirected the request to the same URL, with "?nogzip"  #
+#       appended to it, the gzip.pl script did run, but decided compression   #
+#       was not possible because of an incompatibility.                       #
+#    c. If the server neither compressed the file, nor redirected, then       #
+#       gzip.pl didn't get invoked at all. The server might not support the   #
+#       Rewrite module, or had trouble interpreting the directives below.     #
+###############################################################################
+
+#<IfModule mod_rewrite.c>
+#RewriteEngine On
+#RewriteCond %{HTTP:Accept-Encoding} \bgzip\b
+#RewriteCond %{QUERY_STRING} =""
+#RewriteCond %{REQUEST_FILENAME} -s
+#RewriteRule \.(css|js)$ ../gzip.pl?filename=%{REQUEST_FILENAME}&uri=%{REQUEST_URI}
+#</IfModule>
