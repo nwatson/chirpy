@@ -151,7 +151,7 @@ function reportRequestCompleted (req, result) {
 		switch (result["status"]) {
 			case "1":
 				req.setResult("");
-				document.getElementById('quote-header-' + req.id).className
+				document.getElementById('quote-' + req.id).className
 					+= " flagged";
 				var rep = document.getElementById('quote-report-' + req.id);
 				var el = document.createElement("span");
