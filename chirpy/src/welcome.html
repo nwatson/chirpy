@@ -2,7 +2,9 @@
 <p>This web site is a collection of quotes from the Internet Relay Chat
 network. Currently, the database contains a total of <TMPL_VAR NAME="APPROVED_QUOTE_COUNT"> quote(s).
 <TMPL_IF NAME="UNAPPROVED_QUOTE_COUNT">
-We also have <TMPL_VAR NAME="UNAPPROVED_QUOTE_COUNT"> quote(s) awaiting moderation.
+We also have <TMPL_IF NAME="MODERATION_QUEUE_PUBLIC"><a
+href="<TMPL_VAR NAME="MODERATION_QUEUE_URL">"></TMPL_IF><TMPL_VAR NAME="UNAPPROVED_QUOTE_COUNT">
+quote(s)<TMPL_IF NAME="MODERATION_QUEUE_PUBLIC"></a></TMPL_IF> awaiting moderation.
 </TMPL_IF>
 </p>
 <p>Feel free to look around! Don&rsquo;t forget to vote for the quotes
