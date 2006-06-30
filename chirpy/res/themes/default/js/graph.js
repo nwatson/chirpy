@@ -33,6 +33,7 @@ graphConfig["pie_chart_colors"] = new Array(
 );
 graphConfig["pie_chart_border_width"] = 1;
 graphConfig["pie_chart_border_color"] = "#ACACAC";
+graphConfig["pie_chart_random_rotation"] = false;
 graphConfig["ogive_values"] = 5;
 graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
@@ -148,14 +149,17 @@ function drawPieChart (canvas, legend, data) {
 	else {
 		stroke = false;
 	}
+	var initialAngle = (graphConfig["pie_chart_random_rotation"]
+		? Math.round(2 * Math.PI * Math.random())
+		: - Math.PI / 2);
 	for (var i = 0; i < data.length; i++) {
 		var name = data[i][0];
 		var value = data[i][1];
 		var color = colors[i % colors.length];
 		if (value > 0) {
-			var startAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
+			var startAngle = runningTotal / total * 2 * Math.PI + initialAngle;
 			runningTotal += value;
-			var endAngle = runningTotal / total * 2 * Math.PI - Math.PI / 2;
+			var endAngle = runningTotal / total * 2 * Math.PI + initialAngle;
 			var diff = (startAngle + endAngle) / 2;
 			var x = xCenter + Math.cos(diff) * ext;
 			var y = yCenter + Math.sin(diff) * ext;
