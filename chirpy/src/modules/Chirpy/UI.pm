@@ -388,6 +388,10 @@ sub run {
 	}
 }
 
+sub statistics_update_allowed {
+	return 1;
+}
+
 sub _provide_administration_interface {
 	my $self = shift;
 	if ($self->configuration()->get('general', 'update_check')
@@ -907,8 +911,10 @@ sub _provide_statistics {
 	my $file = $self->_statistics_cache_file();
 	my $exists = (-e $file);
 	my $tag_file = $file . '.tag';
-	if ((!$exists || (stat($file))[9] + STATISTICS_UPDATE_INTERVAL < time)
-	&& !-e $tag_file) {
+	if ((!$exists || (
+	$self->statistics_update_allowed()
+	&& (stat($file))[9] + STATISTICS_UPDATE_INTERVAL < time
+	)) && !-e $tag_file) {
 		local *TAG;
 		open(TAG, '>', $tag_file) and close(TAG);
 		$stats = $self->_compute_statistics();

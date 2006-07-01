@@ -923,6 +923,10 @@ sub provide_statistics {
 	my ($self, $quotes_by_date,
 		$quotes_by_hour, $quotes_by_week_day, $quotes_by_day, $quotes_by_month,
 		$quotes_by_rating, $quotes_by_votes, $votes_by_rating) = @_;
+	if ($self->statistics_update_allowed()) {
+		$self->_print_http_header('text/html');
+		return;
+	}
 	my $template = $self->_load_template('statistics');
 	my $locale = $self->locale();
 	my @by_date = ();
@@ -1016,7 +1020,9 @@ sub provide_statistics {
 			$locale->get_string('quote_count_by_vote_count')),
 		'VOTES_BY_RATING' => \@votes_by_rating,
 		'VOTES_BY_RATING_TITLE' => &_text_to_xhtml(
-			$locale->get_string('vote_count_by_rating'))
+			$locale->get_string('vote_count_by_rating')),
+		'UPDATE_URL'
+			=> $self->_url(ACTIONS->{'STATISTICS'}, 0, 'update' => 1)
 	);
 	$self->_output_template($template);
 }
@@ -1024,6 +1030,11 @@ sub provide_statistics {
 sub report_statistics_unavailable {
 	my $self = shift;
 	$self->_report_error($self->locale()->get_string('statistics_unavailable'));
+}
+
+sub statistics_update_allowed {
+	my $self = shift;
+	return $self->_url_param('update');
 }
 
 sub report_no_search_results {
