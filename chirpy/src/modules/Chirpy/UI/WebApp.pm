@@ -1392,21 +1392,27 @@ sub get_quote_approval_result {
 	my $self = shift;
 	my @approve = ();
 	my @remove = ();
+	my %edited = ();
 	my @params = $self->_cgi_params();
 	foreach my $name (@params) {
-		if ($name =~ /^action_(\d+)$/) {
-			my $id = $1;
-			my $action = $self->_cgi_param($name);
-			next unless $action;
-			if ($action == 1) {
-				push @approve, $id;
+		if ($name =~ /^(action|body|notes|tags)_(\d+)$/) {
+			my ($type, $id) = ($1, $2);
+			if ($type eq 'action') {
+				my $action = $self->_cgi_param($name);
+				next unless $action;
+				if ($action == 1) {
+					push @approve, $id;
+				}
+				elsif ($action == 2) {
+					push @remove, $id;
+				}
 			}
-			elsif ($action == 2) {
-				push @remove, $id;
+			else {
+				$edited{$id}{$type} = $self->_cgi_param($name);
 			}
 		}
 	}
-	return (\@approve, \@remove);
+	return (\@approve, \@remove, \%edited);
 }
 
 sub get_news_item_to_add {
@@ -1908,7 +1914,7 @@ sub _process_template {
 	$template->param('COOKIE_PATH' => sub { return &_text_to_xhtml(
 		$self->param('cookie_path')) });
 	$template->param('RESOURCES_URL' => sub { return &_text_to_xhtml(
-		$self->param('resources_url')) . '/themes/' . $self->param('theme') });
+		$self->_resources_url()) });
 	foreach my $action (keys %{ACTIONS()}) {
 		$template->param($action . '_URL'
 			=> $self->_url(ACTIONS->{$action}));
@@ -2190,6 +2196,11 @@ sub _accepts {
 sub _session {
 	my $self = shift;
 	return $self->{'session'};
+}
+
+sub _resources_url {
+	my $self = shift;
+	return $self->param('resources_url') . '/themes/' . $self->param('theme');
 }
 
 sub _feed_url {

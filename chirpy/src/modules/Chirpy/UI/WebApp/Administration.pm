@@ -157,7 +157,10 @@ sub get_approve_quotes_html {
 	my $locale = $self->parent()->locale();
 	my $quotes = $self->parent()->parent()->get_unapproved_quotes();
 	if (defined $quotes) {
-		my $html = '<form method="post" action="'
+		my $html = '<script type="text/javascript" src="'
+			. &_text_to_xhtml($self->parent()->_resources_url())
+			. '/js/administration.js"></script>' . $/
+			. '<form method="post" action="'
 			. $self->parent()->_url(
 				Chirpy::UI::WebApp::ADMIN_ACTIONS->{'MANAGE_UNAPPROVED_QUOTES'},
 				1
@@ -181,18 +184,24 @@ sub get_approve_quotes_html {
 					: '')
 				. '<span class="quote-date">'
 				. $self->parent()->format_date_time($quote->get_date_submitted())
-				. '</span>'
+				. '</span>' . $/
+				. '<a href="javascript:editQuote(' . $id . ');" '
+				. 'class="quote-edit" id="quote-edit-' . $id . '">['
+				. &_text_to_xhtml($locale->get_string('edit'))
+				. ']</a>'
 				. '</h3>' . $/
+				. '<div class="quote-data" id="quote-data-' . $id . '">' . $/
 				. '<blockquote class="quote-body">' . $/
-				. '<p>' . &_text_to_xhtml($quote->get_body())
+				. '<p id="quote-body-' . $id . '">' . &_text_to_xhtml($quote->get_body())
 				. '</p>' . $/
 				. '</blockquote>' . $/
 				. (defined $notes || @$tags ?
 				  '<div class="quote-footer">' . (defined $notes
 					? '<div class="quote-notes">' . $/
 						. '<p><em class="quote-notes-title">Notes:</em>' . $/
+						. '<span id="quote-notes-' . $id . '">'
 						. &_text_to_xhtml($notes)
-						. '</p>' . $/
+						. '</span></p>' . $/
 						. '</div>' . $/
 					: '')
 				. (@$tags
@@ -201,14 +210,16 @@ sub get_approve_quotes_html {
 						. &_text_to_xhtml(
 							$locale->get_string('quote_tags_title'))
 						. '</em>' . $/
+						. '<span id="quote-tags-' . $id . '">'
 						. &_text_to_xhtml(join(' ', @$tags))
-						. '</p>' . $/
+						. '</span></p>' . $/
 						. '</div>' . $/
 					: '')
 				  . '</div>' : '')
 				. '</div>' . $/
+				. '</div>' . $/
 				. '<div class="approval-options">' . $/
-				. '<input type="radio" name="action_' . $id
+				. '<input type="radio" class="approve-do-nothing-rb" name="action_' . $id
 				. '" value="0" id="a' . $id . '-0" '
 				. 'checked="checked" /> <label '
 				. 'for="a' . $id . '-0">'
@@ -261,7 +272,11 @@ sub get_approve_quotes_html {
 			. '<input type="reset" value="'
 			. &_text_to_xhtml(
 				$locale->get_string('reset_form'))
-			. '" id="approve-reset-button" />' . $/
+			. '" id="approve-reset-button" onclick="'
+			. 'var a = document.getElementsByTagName(\'input\'); '
+			. 'for (var i = 0; i &lt; a.length; i++) '
+			. 'if (a[i].className == \'approve-do-nothing-rb\') a[i].checked = true; '
+			. 'return false;" />' . $/
 			. '</div>' . $/
 			. '</form>';
 		return $html;

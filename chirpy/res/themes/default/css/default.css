@@ -439,16 +439,20 @@ ul#news-list .news-footer .news-edit, ul#news-list .news-footer .news-remove {
 	width: 33%;
 }
 
-#submit-form #quote-field, #edit-quote-form #quote-field,
-#submit-form #notes-field, #edit-quote-form #notes-field,
+#submit-form #quote-field, #edit-quote-form #quote-field, .quote-data .body-field,
+#submit-form #notes-field, #edit-quote-form #notes-field, .quote-data .notes-field,
 #edit-news-item-form #news-item-field {
 	width: 95%;
 	height: 12em;
 	display: block;
 }
 
-#submit-form #notes-field, #edit-quote-form #notes-field {
+#submit-form #notes-field, #edit-quote-form #notes-field, .quote-data .notes-field {
 	height: 6em;
+}
+
+.quote-data .field-container {
+	margin: 0.5em 0.75em;
 }
 
 #submit-form #quote-container, #submit-form #notes-container,
@@ -458,11 +462,14 @@ ul#news-list .news-footer .news-edit, ul#news-list .news-footer .news-remove {
 	margin-bottom: 1em;
 }
 
-#submit-form #tags-container label, #edit-quote-form #tags-container label {
+#submit-form #tags-container label,
+#edit-quote-form #tags-container label {
 	display: block;
 }
 
-#submit-form #tags-container input, #edit-quote-form #tags-container input {
+#submit-form #tags-container input,
+#edit-quote-form #tags-container input,
+.quote-data input {
 	width: 95%;
 }
 

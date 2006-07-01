@@ -434,7 +434,8 @@ sub _provide_administration_interface {
 			$self->report_administration_user_level_insufficient($page);
 		}
 		else {
-			my ($approve, $remove) = $self->get_quote_approval_result();
+			my ($approve, $remove, $edited)
+				= $self->get_quote_approval_result();
 			my @approve = (defined $approve && ref $approve eq 'ARRAY'
 				? @$approve : ());
 			my @remove = (defined $remove && ref $remove eq 'ARRAY'
@@ -442,6 +443,18 @@ sub _provide_administration_interface {
 			if (@approve) {
 				$self->parent()->approve_quotes(@approve);
 				foreach my $id (@approve) {
+					if (exists $edited->{$id}) {
+						my $quote = $self->parent()->get_quote($id);
+						if (defined $quote) {
+							my $body = $edited->{$id}->{'body'};
+							my $notes = $edited->{$id}->{'notes'};
+							my $tags = $edited->{$id}->{'tags'};
+							if ($body) {
+								$self->_modify_quote(
+									$quote, $body, $notes, $tags);
+							}
+						}
+					}
 					$self->_log_event(Chirpy::Event::APPROVE_QUOTE,
 						{ 'id' => $id });
 				}
@@ -499,22 +512,8 @@ sub _provide_administration_interface {
 					my ($body, $notes, $tags)
 						= $self->get_modified_quote_information();
 					if ($body) {
-						$body = Chirpy::Util::clean_up_submission($body);
-						$notes = Chirpy::Util::clean_up_submission($notes);
-						$tags = Chirpy::Util::parse_tags($tags);
-						my $old_body = $quote->get_body();
-						my $old_notes = $quote->get_notes();
-						my $old_tags = join('', @{$quote->get_tags()});
-						$self->parent()->modify_quote(
-							$quote, $body, $notes, $tags);
+						$self->_modify_quote($quote, $body, $notes, $tags);
 						$self->confirm_quote_modification($quote);
-						$tags = join(' ', @$tags);
-						$self->_log_event(Chirpy::Event::EDIT_QUOTE, {
-							'id' => $id,
-							($old_body ne $body ? ('new_body' => $body) : ()),
-							($old_notes ne $notes ? ('new_notes' => $notes) : ()),
-							($old_tags ne $tags ? ('new_tags' => $tags) : ())
-						});
 					}
 					else {
 						$self->provide_quote_editing_interface($quote);
@@ -1073,6 +1072,25 @@ sub _update_rating_history {
 		return 1;
 	}
 	return 0;
+}
+
+sub _modify_quote {
+	my ($self, $quote, $body, $notes, $tags) = @_;
+	my $id = $quote->get_id();
+	$body = Chirpy::Util::clean_up_submission($body);
+	$notes = Chirpy::Util::clean_up_submission($notes);
+	$tags = Chirpy::Util::parse_tags($tags);
+	my $old_body = $quote->get_body();
+	my $old_notes = $quote->get_notes();
+	my $old_tags = join('', @{$quote->get_tags()});
+	$self->parent()->modify_quote($quote, $body, $notes, $tags);
+	$tags = join(' ', @$tags);
+	$self->_log_event(Chirpy::Event::EDIT_QUOTE, {
+		'id' => $id,
+		($old_body ne $body ? ('new_body' => $body) : ()),
+		($old_notes ne $notes ? ('new_notes' => $notes) : ()),
+		($old_tags ne $tags ? ('new_tags' => $tags) : ())
+	});
 }
 
 sub _log_event {
