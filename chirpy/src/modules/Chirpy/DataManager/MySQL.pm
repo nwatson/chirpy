@@ -832,11 +832,38 @@ sub get_events {
 	$params = {} unless (ref $params eq 'HASH');
 	my $query = 'SELECT `id`, UNIX_TIMESTAMP(`date`) AS `date`, `code`, `user`'
 		. ' FROM `' . $self->table_name_prefix() . 'events`';
-	if (ref $params->{'sort'} eq 'ARRAY') {
-		$query .= ' ORDER BY ' . join(', ', map {
-				'`' . $_->[0] . '`' . ($_->[1] ? ' DESC' : '')
-			} @{$params->{'sort'}});
+	my @conditions = ();
+	my @param = ();
+	if (my $code = $params->{'code'}) {
+		if (ref $code eq 'ARRAY') {
+			my $count = scalar @$code;
+			if ($count) {
+				push @conditions, '`code` IN (?' . (',?' x ($count - 1)) . ')';
+				push @param, @$code;
+			}
+		}
+		else {
+			push @conditions, '`code` = ?';
+			push @param, $code;
+		}
 	}
+	if (my $user = $params->{'user'}) {
+		if (ref $user eq 'ARRAY') {
+			my $count = scalar @$user;
+			if ($count) {
+				push @conditions, '`user` IN (?' . (',?' x ($count - 1)) . ')';
+				push @param, @$user;
+			}
+		}
+		else {
+			push @conditions, '`user` = ?';
+			push @param, $user;
+		}
+	}
+	if (@conditions) {
+		$query .= ' WHERE ' . join(' AND ', @conditions);
+	}
+	$query .= ' ORDER BY `date` ' . ($params->{'descending'} ? 'DESC' : 'ASC');
 	my $per_page;
 	my $leading;
 	if ($params->{'count'}) {
@@ -850,7 +877,7 @@ sub get_events {
 	}
 	my $sth = $self->handle()->prepare($query);
 	$self->_db_error() unless (defined $sth);
-	my $rows = $sth->execute();
+	my $rows = $sth->execute(@param);
 	$self->_db_error() unless (defined $rows);
 	my $trailing;
 	my @result = ();

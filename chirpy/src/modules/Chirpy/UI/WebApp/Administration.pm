@@ -753,26 +753,18 @@ sub get_manage_accounts_html {
 sub get_event_log_html {
 	my $self = shift;
 	my $locale = $self->parent()->locale();
-	my @cols = qw/id date user code/;
 	my $count = 10;
 	my %params = ();
 	my $start = $self->parent()->_cgi_param('start');
 	$params{'start'} = (defined $start && $start >= 0 ? $start : 0);
-	my $sort_column = $self->parent()->_cgi_param('sort');
-	if (defined $sort_column) {
-		foreach my $col (@cols) {
-			if ($sort_column eq $col) {
-				$params{'sort'} = $col;
-				last;
-			}
-		}
-	}
-	$params{'sort'} = 'id' unless (exists $params{'sort'});
-	my $desc = $self->parent()->_cgi_param('desc');
-	$params{'desc'} = (defined $desc ? ($desc ? 1 : 0) : 1);
-	my ($events, $leading, $trailing)
-		= $self->parent()->parent()->get_events($params{'start'}, $count,
-		[[ $params{'sort'}, $params{'desc'} ]]);
+	$params{'asc'} = 1 if ($self->parent()->_cgi_param('asc'));
+	my $user = $self->parent()->_cgi_param('user');
+	$params{'user'} = $user if ($user =~ /^\d+$/);	
+	my $event = $self->parent()->_cgi_param('code');
+	$params{'code'} = $event if ($event =~ /^\d+$/);	
+	my ($events, $leading, $trailing) = $self->parent()->parent()->get_events(
+		$params{'start'}, $count, !$params{'asc'},
+		$params{'code'}, $params{'user'});
 	my $previous = &_text_to_xhtml(
 		$locale->get_string('webapp.previous_page_title'));
 	my $next = &_text_to_xhtml(
@@ -781,7 +773,12 @@ sub get_event_log_html {
 	if ($leading) {
 		my $pstart = $start - $count;
 		my %p = %params;
-		$p{'start'} = ($pstart < 0 ? 0 : $pstart);
+		if ($pstart <= 0) {
+			delete $p{'start'};
+		}
+		else {
+			$p{'start'} = $pstart;
+		}
 		my $url = $self->parent()->_url(
 			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
 			1,
@@ -814,38 +811,19 @@ sub get_event_log_html {
 		. '<table id="event-log-table">' . $/
 		. '<thead>' . $/
 		. '<tr>' . $/;
+	my @cols = qw/id date username event/;
 	foreach my $col (@cols) {
-		my $this_column = ($col eq $params{'sort'});
-		my %p = %params;
-		$p{'sort'} = $col;
-		if ($this_column) {
-			$p{'desc'} = !$params{'desc'};
+		my $filtered = 0;
+		if ($col eq 'username') {
+			$filtered = 1 if (exists $params{'user'});
 		}
-		else {
-			$p{'start'} = 0;
+		elsif ($col eq 'event') {
+			$filtered = 1 if (exists $params{'code'});
 		}
-		my $url = $self->parent()->_url(
-			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
-			1,
-			%p
-		);
-		my $col_id;
-		if ($col eq 'code') {
-			$col_id = 'event';
-		}
-		elsif ($col eq 'user') {
-			$col_id = 'username';
-		}
-		else {
-			$col_id = $col;
-		}
-		$html .= '<th class="' . $col . '">'
-			. '<a href="' . $url . '">'
-			. &_text_to_xhtml($locale->get_string($col_id))
-			. '</a>'
-			. ($this_column
-				? ' ' . ($params{'desc'} ? '&uarr;' : '&darr;')
-				: '')
+		$html .= '<th class="' . $col
+			. ($filtered ? ' filtered' : '')
+			. '">'
+			. &_text_to_xhtml($locale->get_string($col))
 			. '</th>' . $/
 	}
 	$html .= '</tr>' . $/
@@ -858,11 +836,25 @@ sub get_event_log_html {
 		my $user = $event->get_user();
 		if (defined $user) {
 			my $acct = $self->parent()->parent()->get_account_by_id($user);
-			if (defined $acct) {
-				$user = $acct->get_username();
+			my %p = %params;
+			if (exists $p{'user'} && $p{'user'} eq $user) {
+				delete $p{'user'};
 			}
 			else {
-				$user = '<span class="deleted">#' . $user . '</span>';
+				$p{'user'} = $user;
+				delete $p{'start'};
+			}
+			my $user_url = $self->parent()->_url(
+				Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+				1,
+				%p);
+			if (defined $acct) {
+				$user = '<a href="' . $user_url . '">'
+					. $acct->get_username() . '</a>';
+			}
+			else {
+				$user = '<span class="deleted"><a href="' . $user_url . '">'
+					. '#' . $user . '</a></span>';
 			}
 		}
 		else {
@@ -872,13 +864,27 @@ sub get_event_log_html {
 		my $description = Chirpy::Event::translate_code($event->get_code());
 		my $data = $event->get_data();
 		my $class = (++$i % 2 ? 'even' : 'odd');
+		my %p = %params;
+		if (exists $p{'code'} && $p{'code'} eq $event->get_code()) {
+			delete $p{'code'};
+		}
+		else {
+			$p{'code'} = $event->get_code();
+			delete $p{'start'};
+		}
+		my $event_url = $self->parent()->_url(
+			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+			1,
+			%p);
 		$html .= '<tr class="' . $class . '">' . $/
 			. '<td class="id" rowspan="'
 			. (1 + scalar keys %$data)
 			. '">' . $id . '</td>' . $/
 			. '<td class="date">' . $date . '</td>' . $/
 			. '<td class="username">' . $user . '</td>' . $/
-			. '<td class="event">' . $description . '</td>' . $/
+			. '<td class="event"><a href="' . $event_url . '">'
+			. $description
+			. '</a></td>' . $/
 			. '</tr>' . $/;
 		foreach my $key (sort keys %$data) {
 			my $value = $data->{$key};

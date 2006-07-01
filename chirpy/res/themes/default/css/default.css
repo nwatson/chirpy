@@ -795,6 +795,10 @@ ul.tabbed-pane-contents > li {
 	font-style: italic;
 }
 
+#event-log-table th.filtered {
+	font-style: italic;
+}
+
 .chart, .chart * {
 	cursor: default;
 }

@@ -369,23 +369,35 @@ returns the number of accounts with any of those levels.
 =item get_events($options)
 
 Retrieves log events, taking a hash reference like the other C<get_> functions.
-Returns results in the same fashion as L<get_quotes()|/get_quotes($options)>.
-This time, the available options are:
+Returns results in the same fashion as L<get_quotes()|/get_quotes($options)>,
+but always sorted chronologically. This time, the available options are:
 
 =over 8
 
-=item sort
+=item code
 
-A sort instruction, formatted like for L<get_quotes()|/get_quotes($options)>,
-but with properties of L<Chirpy::Event>.
+Either a single event code or a reference to an array of codes to match. This
+option may be omitted.
+
+=item user
+
+Either a single user ID or a reference to an array of IDs to match. This option
+may be omitted.
 
 =item first
 
 The number of the first result to return, 0 being the first in the result list.
+If this option is omitted, the default value of 0 is assumed.
 
 =item count
 
-The number of events to maximally return.
+The number of events to maximally return. If this option is omitted, there is
+no limit on the number of results.
+
+=item reverse
+
+If this option has a true value, the order is reversed, so the events are in
+reverse chronological order.
 
 =back
 
