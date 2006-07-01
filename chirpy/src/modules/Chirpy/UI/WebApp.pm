@@ -924,7 +924,7 @@ sub provide_statistics {
 		$quotes_by_hour, $quotes_by_week_day, $quotes_by_day, $quotes_by_month,
 		$quotes_by_rating, $quotes_by_votes, $votes_by_rating) = @_;
 	if ($self->statistics_update_allowed()) {
-		$self->_print_http_header('text/html');
+		$self->_output_xml('result');
 		return;
 	}
 	my $template = $self->_load_template('statistics');

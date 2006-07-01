@@ -32,22 +32,6 @@ var pollingInterval = 1000;
 var okText = (/MSIE/.test(navigator.userAgent) && !window.opera
 	? "OK" : String.fromCharCode(0x2713));
 
-var ajaxMethods = new Array(
-	function() { return new ActiveXObject("Msxml2.XMLHTTP") },
-	function() { return new ActiveXObject("Microsoft.XMLHTTP") },
-	function() { return new XMLHttpRequest() }
-);
-
-var ajaxMethodIndex = -1;
-
-for (var i = 0; i < ajaxMethods.length; i++) {
-	try {
-		ajaxMethods[i]();
-		ajaxMethodIndex = i;
-		break;
-	} catch (e) { }
-}
-
 var requests = new Array();
 
 function QuoteActionRequest (url, id, isReport) {
@@ -61,7 +45,7 @@ function QuoteActionRequest (url, id, isReport) {
 	this.verbose = true;
 	this.resultField = document.getElementById('quote-live-vote-result-' + id);
 	this.setResult(locale["processing"], true);
-	this.ajax = getAjaxObject(this);
+	this.ajax = getAjaxObject();
 	this.ajax.onreadystatechange = function() { readyStateChanged(req); };
 	this.startTime = t;
 	this.interval = setInterval(
@@ -86,13 +70,13 @@ QuoteActionRequest.prototype.setResult = function (text, blink, timeout) {
 };
 
 function sendRating (anchor, id) {
-	if (ajaxMethodIndex < 0) return true;
+	if (!ajaxSupported()) return true;
 	new QuoteActionRequest(anchor.href, id, false);
 	return false;
 }
 
 function sendReport (anchor, id) {
-	if (ajaxMethodIndex < 0) return true;
+	if (!ajaxSupported()) return true;
 	new QuoteActionRequest(anchor.href, id, true);
 	return false;
 }
@@ -187,10 +171,6 @@ function checkRequestTime (req) {
 		req.setResult(locale["error"], false, errorTimeout);
 		if (req.verbose) alert(locale["timeout_text"]);
 	}
-}
-
-function getAjaxObject (req) {
-	return ajaxMethods[ajaxMethodIndex]();
 }
 
 function processXML (xml) {

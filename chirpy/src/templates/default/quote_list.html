@@ -1,6 +1,5 @@
 <TMPL_INCLUDE NAME="_head.html">
 	<script type="text/javascript">
-	/* <![CDATA[ */
 		var locale = new Array();
 		locale["processing"] = "<TMPL_VAR NAME="PROCESSING">";
 		locale["error"] = "<TMPL_VAR NAME="ERROR">";
@@ -10,8 +9,8 @@
 		locale["quote_not_found_text"] = "<TMPL_VAR NAME="QUOTE_NOT_FOUND_TEXT">";
 		locale["session_required_text"] = "<TMPL_VAR NAME="SESSION_REQUIRED_TEXT">";
 		locale["flagged"] = "<TMPL_VAR NAME="FLAGGED">";
-	/* ]]> */
 	</script>
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/ajax.js"></script>
 	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/live_rating.js"></script>
 	<TMPL_IF NAME="BROWSER">
 	<div class="quote-browser" id="quote-browser-top">

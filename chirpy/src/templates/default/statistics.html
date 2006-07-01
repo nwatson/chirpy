@@ -1,7 +1,14 @@
 <TMPL_INCLUDE NAME="_head.html">
 	<!--[if IE]><script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/excanvas/excanvas.js"></script><![endif]-->
 	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/graph.js"></script>
-	<object data="<TMPL_VAR NAME="UPDATE_URL">" width="1" height="1" style="visibility: hidden; float: right;"></object>
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/ajax.js"></script>
+	<script type="text/javascript">
+	if (ajaxSupported()) {
+		var ajax = getAjaxObject();
+		ajax.open("GET", "<TMPL_VAR NAME="UPDATE_URL">", true);
+		ajax.send("");
+	}
+	</script>
 	<h2>
 		<TMPL_VAR NAME="PAGE_TITLE">
 	</h2>
