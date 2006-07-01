@@ -830,10 +830,22 @@ sub account_count {
 sub get_events {
 	my ($self, $params) = @_;
 	$params = {} unless (ref $params eq 'HASH');
-	my $query = 'SELECT `id`, UNIX_TIMESTAMP(`date`) AS `date`, `code`, `user`'
-		. ' FROM `' . $self->table_name_prefix() . 'events`';
+	my $query = 'SELECT DISTINCT `e`.`id` AS `id`,'
+		. ' UNIX_TIMESTAMP(`date`) AS `date`, `code`, `user`'
+		. ' FROM `' . $self->table_name_prefix() . 'events` AS `e`';
 	my @conditions = ();
 	my @param = ();
+	if (defined $params->{'data'} && %{$params->{'data'}}) {
+		$query .= ' JOIN `' . $self->table_name_prefix()
+			. 'event_metadata` AS `m`'
+			. ' ON `e`.`id` = `m`.`id`';
+		my @cond = ();
+		while (my ($key, $value) = each %{$params->{'data'}}) {
+			push @cond, '(`name` = ? AND `value` = ?)';
+			push @param, $key, $value;
+		}
+		push @conditions, '(' . join(' OR ', @cond) . ')';
+	}
 	if (my $code = $params->{'code'}) {
 		if (ref $code eq 'ARRAY') {
 			my $count = scalar @$code;

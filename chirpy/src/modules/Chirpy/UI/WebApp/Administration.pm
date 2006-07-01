@@ -761,10 +761,17 @@ sub get_event_log_html {
 	my $user = $self->parent()->_cgi_param('user');
 	$params{'user'} = $user if (defined $user && $user =~ /^\d+$/);	
 	my $event = $self->parent()->_cgi_param('code');
-	$params{'code'} = $event if (defined $event && $event =~ /^\d+$/);	
+	$params{'code'} = $event if (defined $event && $event =~ /^\d+$/);
+	my $filter = $self->parent()->_cgi_param('filter');
+	my ($filter_name, $filter_value);
+	if (defined $filter && $filter =~ /^([^=]+)=(.*)$/s) {
+		($filter_name, $filter_value) = ($1, $2);
+		$params{'filter'} = $filter;
+	}
 	my ($events, $leading, $trailing) = $self->parent()->parent()->get_events(
 		$params{'start'}, $count, !$params{'asc'},
-		$params{'code'}, $params{'user'});
+		$params{'code'}, $params{'user'},
+		(defined $filter_value ? { $filter_name => $filter_value } : undef));
 	my $previous = &_text_to_xhtml(
 		$locale->get_string('webapp.previous_page_title'));
 	my $next = &_text_to_xhtml(
@@ -863,7 +870,7 @@ sub get_event_log_html {
 		my $description = Chirpy::Event::translate_code($event->get_code());
 		my $data = $event->get_data();
 		my $class = (++$i % 2 ? 'even' : 'odd');
-		my %p = %params;
+		%p = %params;
 		delete $p{'start'};
 		if (exists $p{'code'} && $p{'code'} eq $event->get_code()) {
 			delete $p{'code'};
@@ -887,11 +894,38 @@ sub get_event_log_html {
 			. '</tr>' . $/;
 		foreach my $key (sort keys %$data) {
 			my $value = $data->{$key};
+			my ($v, $filtered);
+			if ($value =~ /[\r\n]/) {
+				$v = &_text_to_xhtml($value);
+			}
+			else {
+				my %p = %params;
+				delete $p{'start'};
+				if ($filter_name eq $key) {
+					delete $p{'filter'};
+					$filtered = 1;
+				}
+				else {
+					$p{'filter'} = $key . '=' . $value;
+				}
+				my $url = $self->parent()->_url(
+					Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+					1,
+					%p);
+				$v = '<a href="' . $url . '">'
+					. ($value eq ''
+						? '<span class="empty">('
+							. &_text_to_xhtml($locale->get_string('empty'))
+							. ')</span>'
+						: &_text_to_xhtml($value))
+					. '</a>';
+			}
 			$html .= '<tr class="' . $class . '">' . $/
-				. '<td class="property-name">'
-				. &_text_to_xhtml($key) . '</td>' . $/
+				. '<td class="property-name'
+				. ($filtered ? ' filtered ' : '')
+				. '">' . &_text_to_xhtml($key) . '</td>' . $/
 				. '<td class="property-value" colspan="2">'
-				. &_text_to_xhtml($value) . '</td>' . $/
+				. $v . '</td>' . $/
 				. '</tr>' . $/;
 		}
 	}

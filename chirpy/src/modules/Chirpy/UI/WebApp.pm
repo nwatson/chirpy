@@ -468,7 +468,11 @@ sub report_no_quotes_to_display {
 		$self->_generate_feed([], $type, $page);
 	}
 	else {
-		$self->_report_error($self->locale()->get_string('no_quotes'));
+		my $name = &_get_page_name($page);
+		my $title = $self->locale()->get_string($name);
+		$self->_report_message(
+			&_text_to_xhtml($title),
+			$self->locale()->get_string('no_quotes'));
 	}
 }
 

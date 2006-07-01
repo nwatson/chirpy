@@ -399,6 +399,12 @@ no limit on the number of results.
 If this option has a true value, the order is reversed, so the events are in
 reverse chronological order.
 
+=item data
+
+May be set to a hash reference to filter the events on metadata. If any of the
+key-value pairs in the hash are equal to a metadata property of the event, it
+is considered a match. This option may be omitted.
+
 =back
 
 =item log_event($event)

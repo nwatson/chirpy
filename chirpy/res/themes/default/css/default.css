@@ -795,7 +795,11 @@ ul.tabbed-pane-contents > li {
 	font-style: italic;
 }
 
-#event-log-table th.filtered {
+#event-log-table .filtered, #event-log-table .filtered * {
+	text-decoration: underline;
+}
+
+#event-log-table .empty {
 	font-style: italic;
 }
 

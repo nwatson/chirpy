@@ -682,14 +682,15 @@ sub log_event {
 }
 
 sub get_events {
-	my ($self, $start, $count, $desc, $code, $user) = @_;
+	my ($self, $start, $count, $desc, $code, $user, $data) = @_;
 	$self->mark_debug_event('Request events');
 	return $self->_data_manager()->get_events({
 		'reverse' => $desc,
 		'first'   => $start,
 		'count'   => $count,
 		'code'    => $code,
-		'user'    => $user
+		'user'    => $user,
+		'data'    => $data
 	});
 }
 
