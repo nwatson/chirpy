@@ -844,7 +844,7 @@ sub get_event_log_html {
 			. &_text_to_xhtml($locale->get_string($col_id))
 			. '</a>'
 			. ($this_column
-				? ' ' . ($params{'desc'} ? '&darr;' : '&uarr;')
+				? ' ' . ($params{'desc'} ? '&uarr;' : '&darr;')
 				: '')
 			. '</th>' . $/
 	}
