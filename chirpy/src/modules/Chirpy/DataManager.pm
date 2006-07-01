@@ -382,7 +382,7 @@ option may be omitted.
 =item user
 
 Either a single user ID or a reference to an array of IDs to match. This option
-may be omitted.
+may be omitted. A user ID of 0 represents users who are not logged in.
 
 =item first
 

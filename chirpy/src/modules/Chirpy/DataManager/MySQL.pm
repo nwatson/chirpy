@@ -847,17 +847,39 @@ sub get_events {
 			push @param, $code;
 		}
 	}
-	if (my $user = $params->{'user'}) {
+	my $user = $params->{'user'};
+	if (defined $user) {
 		if (ref $user eq 'ARRAY') {
-			my $count = scalar @$user;
-			if ($count) {
-				push @conditions, '`user` IN (?' . (',?' x ($count - 1)) . ')';
-				push @param, @$user;
+			if (@$user) {
+				my @set = ();
+				my $guest = 0;
+				foreach my $u (@$user) {
+					if ($u) {
+						push @set, $u;
+					}
+					else {
+						$guest = 1;
+					}
+				}
+				my $cond;
+				if (@set) {
+					$cond = '`user` IN (?' . (',?' x (scalar(@set) - 1)) . ')';
+					push @param, @set;
+				}
+				if ($guest) {
+					$cond = (defined $cond
+						? '(' . $cond . ' OR `user` IS NULL)'
+						: '`user` IS NULL');
+				}
+				push @conditions, $cond;
 			}
 		}
-		else {
+		elsif ($user) {
 			push @conditions, '`user` = ?';
 			push @param, $user;
+		}
+		else {
+			push @conditions, '`user` IS NULL';
 		}
 	}
 	if (@conditions) {
