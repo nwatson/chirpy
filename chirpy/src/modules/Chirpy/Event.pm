@@ -39,6 +39,8 @@ Chirpy::Event - Represents a log event
 
  $data = $event->get_data();
  $event->set_data($data);
+ 
+ $event_code = Chirpy::Event::translate_code($code);
 
 =head1 CONSTRAINTS
 
@@ -140,9 +142,30 @@ use constant ADD_ACCOUNT       => 400;
 use constant EDIT_ACCOUNT      => 401;
 use constant REMOVE_ACCOUNT    => 402;
 
-use vars qw($VERSION);
+use vars qw($VERSION $CODES);
 
 $VERSION = '';
+
+# TODO: Find a way to automate this.
+$CODES = {
+	LOGIN_SUCCESS() => 'LOGIN_SUCCESS',
+	LOGIN_FAILURE() => 'LOGIN_FAILURE',
+	CHANGE_PASSWORD() => 'CHANGE_PASSWORD',
+	ADD_QUOTE() => 'ADD_QUOTE',
+	EDIT_QUOTE() => 'EDIT_QUOTE',
+	REMOVE_QUOTE() => 'REMOVE_QUOTE',
+	QUOTE_RATING_UP() => 'QUOTE_RATING_UP',
+	QUOTE_RATING_DOWN() => 'QUOTE_RATING_DOWN',
+	REPORT_QUOTE() => 'REPORT_QUOTE',
+	APPROVE_QUOTE() => 'APPROVE_QUOTE',
+	UNFLAG_QUOTE() => 'UNFLAG_QUOTE',
+	ADD_NEWS() => 'ADD_NEWS',
+	EDIT_NEWS() => 'EDIT_NEWS',
+	REMOVE_NEWS() => 'REMOVE_NEWS',
+	ADD_ACCOUNT() => 'ADD_ACCOUNT',
+	EDIT_ACCOUNT() => 'EDIT_ACCOUNT',
+	REMOVE_ACCOUNT() => 'REMOVE_ACCOUNT'
+};
 
 use Chirpy;
 
@@ -206,6 +229,11 @@ sub get_data {
 sub set_data {
 	my $self = shift;
 	return ($self->{'data'} = shift);
+}
+
+sub translate_code {
+	my $code = shift;
+	return $CODES->{$code};
 }
 
 1;

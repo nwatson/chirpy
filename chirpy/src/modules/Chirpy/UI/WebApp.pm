@@ -298,7 +298,8 @@ use constant ADMIN_ACTIONS => {
 	'REMOVE_NEWS' => 'news_remove',
 	'ADD_ACCOUNT' => 'accounts',
 	'EDIT_ACCOUNT' => 'accounts',
-	'REMOVE_ACCOUNT' => 'account'
+	'REMOVE_ACCOUNT' => 'accounts',
+	'VIEW_EVENT_LOG' => 'log'
 };
 
 use constant STATUS_OK                     => 1;

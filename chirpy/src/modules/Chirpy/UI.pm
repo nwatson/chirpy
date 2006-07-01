@@ -95,6 +95,7 @@ use constant ADD_ACCOUNT              => 150;
 use constant EDIT_ACCOUNT             => 151;
 use constant REMOVE_ACCOUNT           => 152;
 use constant CHECK_FOR_UPDATE         => 160;
+use constant VIEW_EVENT_LOG           => 170;
 
 use constant CURRENT_PASSWORD_INVALID => -1;
 use constant NEW_PASSWORD_INVALID     => -2;
@@ -132,6 +133,10 @@ use constant ADMIN_PERMISSIONS => {
 		Chirpy::Account::USER_LEVEL_9 => 1
 	},
 	REMOVE_NEWS() => {
+		Chirpy::Account::USER_LEVEL_6 => 1,
+		Chirpy::Account::USER_LEVEL_9 => 1
+	},
+	VIEW_EVENT_LOG() => {
 		Chirpy::Account::USER_LEVEL_6 => 1,
 		Chirpy::Account::USER_LEVEL_9 => 1
 	},

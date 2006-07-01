@@ -708,6 +708,89 @@ ul.tabbed-pane-contents > li {
 	font-style: italic;
 }
 
+#event-log-table {
+	border-collapse: collapse;
+	width: 100%;
+	clear: both;
+}
+
+.event-log-navigation {
+	height: 2.5em;
+	margin: 0;
+}
+
+#event-log-navigation-top {
+	margin-bottom: 0.75em;
+}
+
+#event-log-navigation-bottom {
+	margin-top: 0.75em;
+}
+
+.event-log-navigation * {
+	padding: 0.25em 0.5em;
+	background: #F9F9F9;
+	-moz-border-radius: 0 0.5em 2em 0.5em;
+	border-radius: 0 0.5em 2em 0.5em;
+}
+
+.event-log-navigation .back {
+	float: left;
+}
+
+.event-log-navigation .forward {
+	float: right;
+}
+
+.event-log-navigation .inactive {
+	color: #C9C9C9;
+}
+
+#event-log-table tr {
+	margin: 0;
+	padding: 0;
+}
+
+#event-log-table th, #event-log-table td {
+	margin: 0;
+	padding: 0.25ex 1ex;
+	text-align: left;
+	vertical-align: top;
+}
+
+#event-log-table thead tr {
+	background: #F0F0F0;
+	border: 1px solid #E6E6E6;
+}
+
+#event-log-table td {
+	border: 1px solid #F0F0F0;
+}
+
+#event-log-table tbody {
+	border: 1px solid #E6E6E6;
+}
+
+#event-log-table tr.odd {
+	background: #F9F9F9;
+}
+
+#event-log-table tr.even {
+	background: white;
+}
+
+#event-log-table td.id {
+	text-align: right;
+}
+
+#event-log-table th, #event-log-table td.date, #event-log-table td.event {
+	white-space: nowrap;
+}
+
+#event-log-table td.event {
+	width: 100%;
+}
+
 .chart, .chart * {
 	cursor: default;
 }

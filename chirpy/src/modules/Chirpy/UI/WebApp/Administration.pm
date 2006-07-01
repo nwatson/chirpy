@@ -61,6 +61,7 @@ $VERSION = '';
 
 use Chirpy;
 use Chirpy::UI::WebApp;
+use Chirpy::Event;
 
 sub new {
 	my ($class, $parent) = @_;
@@ -137,6 +138,12 @@ sub output {
 			$locale->get_string('manage_accounts')),
 		'MANAGE_ACCOUNTS_HTML'
 			=> sub { return $self->get_manage_accounts_html(%params) },
+		'VIEW_EVENT_LOG' => &_text_to_xhtml(
+			$locale->get_string('view_event_log')),
+		'VIEW_EVENT_LOG_ALLOWED'
+			=> $self->parent()->administration_allowed(Chirpy::UI::VIEW_EVENT_LOG),
+		'VIEW_EVENT_LOG_HTML'
+			=> sub { return $self->get_event_log_html(%params) },
 		'MANAGE_ACCOUNTS_ALLOWED'
 			=> $self->parent()->administration_allowed(Chirpy::UI::ADD_ACCOUNT)
 				&& $self->parent()->administration_allowed(Chirpy::UI::EDIT_ACCOUNT)
@@ -740,6 +747,144 @@ sub get_manage_accounts_html {
 		. '</div>' . $/
 		. '<div style="clear: both;"></div>' . $/
 		. '</form>' . $/;
+	return $html;
+}
+
+sub get_event_log_html {
+	my $self = shift;
+	my $locale = $self->parent()->locale();
+	my @cols = qw/id date username event/;
+	my $count = 10;
+	my %params = ();
+	my $start = $self->parent()->_cgi_param('start');
+	$params{'start'} = (defined $start && $start >= 0 ? $start : 0);
+	my $sort_column = $self->parent()->_cgi_param('sort');
+	if (defined $sort_column) {
+		foreach my $col (@cols) {
+			if ($sort_column eq $col) {
+				$params{'sort'} = $col;
+				last;
+			}
+		}
+	}
+	$params{'sort'} = 'id' unless (exists $params{'sort'});
+	my $desc = $self->parent()->_cgi_param('desc');
+	$params{'desc'} = (defined $desc ? ($desc ? 1 : 0) : 1);
+	my ($events, $leading, $trailing)
+		= $self->parent()->parent()->get_events($params{'start'}, $count,
+		[[ $params{'sort'}, $params{'desc'} ]]);
+	my $previous = &_text_to_xhtml(
+		$locale->get_string('webapp.previous_page_title'));
+	my $next = &_text_to_xhtml(
+		$locale->get_string('webapp.next_page_title'));
+	my $browser = '';
+	if ($leading) {
+		my $pstart = $start - $count;
+		my %p = %params;
+		$p{'start'} = ($pstart < 0 ? 0 : $pstart);
+		my $url = $self->parent()->_url(
+			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+			1,
+			%p);
+		$browser .= '<a href="' . $url
+			. '" class="back">&larr; ' . $previous . '</a>';
+	}
+	else {
+		$browser .= '<span class="inactive back">&larr; '
+			. $previous . '</span>';
+	}
+	if ($trailing) {
+		my %p = %params;
+		$p{'start'} = $start + $count;
+		my $url = $self->parent()->_url(
+			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+			1,
+			%p);
+		$browser .= '<a href="' . $url
+			. '" class="forward">' . $next . ' &rarr;</a>';
+	}
+	else {
+		$browser .= '<span class="inactive forward">'
+			. $next . ' &rarr;</span>';
+	}
+	my $html = '<div'
+		. ' id="event-log-navigation-top" class="event-log-navigation">' . $/
+		. $browser . $/
+		. '</div>' . $/
+		. '<table id="event-log-table">' . $/
+		. '<thead>' . $/
+		. '<tr>' . $/;
+	foreach my $col (@cols) {
+		my $this_column = ($col eq $params{'sort'});
+		my %p = %params;
+		$p{'sort'} = $col;
+		if ($this_column) {
+			$p{'desc'} = !$params{'desc'};
+		}
+		else {
+			$p{'start'} = 0;
+		}
+		my $url = $self->parent()->_url(
+			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+			1,
+			%p
+		);
+		$html .= '<th class="' . $col . '">'
+			. '<a href="' . $url . '">'
+			. &_text_to_xhtml($locale->get_string($col))
+			. '</a>'
+			. ($this_column
+				? ' ' . ($params{'desc'} ? '&darr;' : '&uarr;')
+				: '')
+			. '</th>' . $/
+	}
+	$html .= '</tr>' . $/
+		. '</thead>' . $/
+		. '<tbody>' . $/;
+	my $i = 0;
+	foreach my $event (@$events) {
+		my $id = $event->get_id();
+		my $date = $self->parent()->format_date_time($event->get_date());
+		my $user = $event->get_user();
+		if (defined $user) {
+			my $acct = $self->parent()->parent()->get_account_by_id($user);
+			if (defined $acct) {
+				$user = $acct->get_username();
+			}
+			else {
+				$user = '#' . $user;
+			}
+		}
+		else {
+			$user = '&nbsp;';
+		}
+		my $description = Chirpy::Event::translate_code($event->get_code());
+		my $data = $event->get_data();
+		my $class = (++$i % 2 ? 'even' : 'odd');
+		$html .= '<tr class="' . $class . '">' . $/
+			. '<td class="id" rowspan="'
+			. (1 + scalar keys %$data)
+			. '">' . $id . '</td>' . $/
+			. '<td class="date">' . $date . '</td>' . $/
+			. '<td class="username">' . $user . '</td>' . $/
+			. '<td class="event">' . $description . '</td>' . $/
+			. '</tr>' . $/;
+		foreach my $key (sort keys %$data) {
+			my $value = $data->{$key};
+			$html .= '<tr class="' . $class . '">' . $/
+				. '<td class="property-name">'
+				. &_text_to_xhtml($key) . '</td>' . $/
+				. '<td class="property-value" colspan="2">'
+				. &_text_to_xhtml($value) . '</td>' . $/
+				. '</tr>' . $/;
+		}
+	}
+	$html .= '</tbody>' . $/
+		. '</table>' . $/
+		. '<div'
+		. ' id="event-log-navigation-bottom" class="event-log-navigation">' . $/
+		. $browser . $/
+		. '</div>' . $/;
 	return $html;
 }
 

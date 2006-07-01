@@ -377,7 +377,7 @@ sub _determine_votes {
 	my $prefix = $self->table_name_prefix();
 	my $query = 'SELECT `value`, COUNT(*)'
 		. ' FROM `' . $prefix . 'events` AS ev'
-		. ' JOIN `' . $prefix . 'event_metadata` AS md'
+		. ' LEFT JOIN `' . $prefix . 'event_metadata` AS md'
 		. ' ON ev.id = md.id'
 		. ' WHERE `code` = ' . Chirpy::Event::QUOTE_RATING_DOWN
 		. ' AND `name` = "id"'
@@ -825,6 +825,65 @@ sub account_count {
 		. (defined $params->{'levels'}
 			? ' WHERE `level` IN (' . join(',', @{$params->{'levels'}}) . ')'
 			: ''));
+}
+
+sub get_events {
+	my ($self, $params) = @_;
+	$params = {} unless (ref $params eq 'HASH');
+	my $query = 'SELECT `id`, UNIX_TIMESTAMP(`date`) AS `date`, `code`, `user`'
+		. ' FROM `' . $self->table_name_prefix() . 'events`';
+	if (ref $params->{'sort'} eq 'ARRAY') {
+		$query .= ' ORDER BY ' . join(', ', map {
+				'`' . $_->[0] . '`' . ($_->[1] ? ' DESC' : '')
+			} @{$params->{'sort'}});
+	}
+	my $per_page;
+	my $leading;
+	if ($params->{'count'}) {
+		$query .= ' LIMIT ';
+		if ($params->{'first'}) {
+			$leading = 1;
+			$query .= int($params->{'first'}) . ',';
+		}
+		$query .= int($params->{'count'}) + 1;
+		$per_page = $params->{'count'};
+	}
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	my $trailing;
+	my @result = ();
+	while (my $row = $sth->fetchrow_hashref()) {
+		if ($per_page && @result >= $per_page) {
+			$trailing = 1;
+			last;
+		}
+		my $id = $row->{'id'};
+		my $data = $self->_get_event_metadata($id);
+		push @result, new Chirpy::Event(
+			$id, $row->{'date'}, $row->{'code'}, $row->{'user'}, $data
+		);
+	}
+	my $result = (@result ? \@result : undef);
+	return ($result, $leading, $trailing) if (wantarray);
+	return $result;
+}
+
+sub _get_event_metadata {
+	my ($self, $id) = @_;
+	my $query = 'SELECT `name`, `value`'
+		. ' FROM `' . $self->table_name_prefix() . 'event_metadata`'
+		. ' WHERE `id` = ' . $id;
+	my $sth = $self->handle()->prepare($query);
+	$self->_db_error() unless (defined $sth);
+	my $rows = $sth->execute();
+	$self->_db_error() unless (defined $rows);
+	my %result = ();
+	while (my $row = $sth->fetchrow_hashref()) {
+		$result{$row->{'name'}} = $row->{'value'};
+	}
+	return \%result;
 }
 
 sub log_event {

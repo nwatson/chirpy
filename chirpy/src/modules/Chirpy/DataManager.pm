@@ -366,6 +366,29 @@ returns the number of accounts with any of those levels.
 
 =over 4
 
+=item get_events($options)
+
+Retrieves log events, taking a hash reference like the other C<get_> functions.
+Returns results in the same fashion as L<get_quotes()|/get_quotes($options)>.
+This time, the available options are:
+
+=over 8
+
+=item sort
+
+A sort instruction, formatted like for L<get_quotes()|/get_quotes($options)>,
+but with properties of L<Chirpy::Event>.
+
+=item first
+
+The number of the first result to return, 0 being the first in the result list.
+
+=item count
+
+The number of events to maximally return.
+
+=back
+
 =item log_event($event)
 
 Logs the L<Chirpy::Event|Chirpy::Event> C<$event>. Returns a true value on
@@ -491,6 +514,8 @@ sub param {
 *username_exists = \&Chirpy::Util::abstract_method;
 
 *account_count = \&Chirpy::Util::abstract_method;
+
+*get_events = \&Chirpy::Util::abstract_method;
 
 *log_event = \&Chirpy::Util::abstract_method;
 

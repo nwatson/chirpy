@@ -21,6 +21,7 @@
 		href="#flagged-quotes" id="tab-flagged-quotes"><TMPL_VAR NAME="FLAGGED_QUOTES"></a></li><li><a
 		href="#manage-quotes" id="tab-manage-quotes"><TMPL_VAR NAME="MANAGE_QUOTES"></a></li><li><a
 		href="#manage-news" id="tab-manage-news"><TMPL_VAR NAME="MANAGE_NEWS"></a></li><li><a
+		href="#view_event_log" id="tab-view-event-log"><TMPL_VAR NAME="VIEW_EVENT_LOG"></a></li><li><a
 		href="#manage_accounts" id="tab-manage-accounts"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></a></li><li><a
 		href="#change-password" id="tab-change-password"><TMPL_VAR NAME="CHANGE_PASSWORD"></a></li></ul>
 	<ul id="admin-contents" class="tabbed-pane-contents"><li id="approve-quotes">
@@ -51,6 +52,13 @@
 			<TMPL_ELSE>
 				<TMPL_VAR NAME="MANAGE_NEWS_NOT_ALLOWED_HTML">
 			</TMPL_IF>
+		</li><li id="view-event-log">
+			<h3 class="tab-title"><TMPL_VAR NAME="VIEW_EVENT_LOG"></h3>
+			<TMPL_IF NAME="VIEW_EVENT_LOG_ALLOWED">
+				<TMPL_VAR NAME="VIEW_EVENT_LOG_HTML">
+			<TMPL_ELSE>
+				<TMPL_VAR NAME="VIEW_EVENT_LOG_NOT_ALLOWED_HTML">
+			</TMPL_IF>
 		</li><li id="manage-accounts">
 			<h3 class="tab-title"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></h3>
 			<TMPL_IF NAME="MANAGE_ACCOUNTS_ALLOWED">
@@ -71,7 +79,8 @@
 		<TMPL_IF NAME="ACTION_IS_NEWS_ADD"      >, 3</TMPL_IF>
 		<TMPL_IF NAME="ACTION_IS_NEWS_EDIT"     >, 3</TMPL_IF>
 		<TMPL_IF NAME="ACTION_IS_NEWS_REMOVE"   >, 3</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_ACCOUNTS"      >, 4</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_PASSWORD"      >, 5</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_LOG"           >, 4</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_ACCOUNTS"      >, 5</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_PASSWORD"      >, 6</TMPL_IF>
 	);</script>
 <TMPL_INCLUDE NAME="_foot.html">

@@ -457,6 +457,11 @@ interface.
 Translation of I<Manage Accounts>, for titles and labels in the administrative
 interface.
 
+=item manage_accounts
+
+Translation of I<Event Log>, for titles and labels in the administrative
+interface.
+
 =item no_unapproved_quotes
 
 Message describing that there are currently no quotes waiting for approval.
@@ -888,6 +893,16 @@ Title for the message indicating that checking for updates has failed.
 
 Message explaining that Chirpy! failed to check for updates, and indicating
 that an error report follows.
+
+=item id
+
+=item date
+
+=item username
+
+=item event
+
+Literal translation of each word; must start with a capital letter.
 
 =item sunday
 

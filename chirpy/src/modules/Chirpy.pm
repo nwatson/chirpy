@@ -681,6 +681,16 @@ sub log_event {
 	);
 }
 
+sub get_events {
+	my ($self, $start, $count, $sort) = @_;
+	$self->mark_debug_event('Request events');
+	return $self->_data_manager()->get_events({
+		'sort'     => $sort,
+		'first'    => $start,
+		'count'    => $count
+	});
+}
+
 sub attempt_login {
 	my ($self, $username, $password) = @_;
 	my $account = $self->get_account_by_username($username);
