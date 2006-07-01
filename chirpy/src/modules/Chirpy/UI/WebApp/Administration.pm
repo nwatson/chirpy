@@ -753,7 +753,7 @@ sub get_manage_accounts_html {
 sub get_event_log_html {
 	my $self = shift;
 	my $locale = $self->parent()->locale();
-	my @cols = qw/id date username event/;
+	my @cols = qw/id date user code/;
 	my $count = 10;
 	my %params = ();
 	my $start = $self->parent()->_cgi_param('start');
@@ -829,9 +829,19 @@ sub get_event_log_html {
 			1,
 			%p
 		);
+		my $col_id;
+		if ($col eq 'code') {
+			$col_id = 'event';
+		}
+		elsif ($col eq 'user') {
+			$col_id = 'username';
+		}
+		else {
+			$col_id = $col;
+		}
 		$html .= '<th class="' . $col . '">'
 			. '<a href="' . $url . '">'
-			. &_text_to_xhtml($locale->get_string($col))
+			. &_text_to_xhtml($locale->get_string($col_id))
 			. '</a>'
 			. ($this_column
 				? ' ' . ($params{'desc'} ? '&darr;' : '&uarr;')
