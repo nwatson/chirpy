@@ -902,6 +902,8 @@ that an error report follows.
 
 =item event
 
+=item guest
+
 Literal translation of each word; must start with a capital letter.
 
 =item sunday

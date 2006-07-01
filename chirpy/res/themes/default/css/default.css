@@ -791,6 +791,10 @@ ul.tabbed-pane-contents > li {
 	width: 100%;
 }
 
+#event-log-table .guest {
+	font-style: italic;
+}
+
 .chart, .chart * {
 	cursor: default;
 }

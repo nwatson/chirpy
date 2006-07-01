@@ -862,11 +862,12 @@ sub get_event_log_html {
 				$user = $acct->get_username();
 			}
 			else {
-				$user = '#' . $user;
+				$user = '<span class="deleted">#' . $user . '</span>';
 			}
 		}
 		else {
-			$user = '&nbsp;';
+			$user = '<span class="guest">'
+				. &_text_to_xhtml($locale->get_string('guest')) . '</span>';
 		}
 		my $description = Chirpy::Event::translate_code($event->get_code());
 		my $data = $event->get_data();
