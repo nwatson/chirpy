@@ -281,7 +281,7 @@ BEGIN {
 }
 
 use constant PRODUCT_NAME => 'Chirpy!';
-use constant VERSION_STRING => 'v0.3a2';
+use constant VERSION_STRING => 'v0.3-svn';
 use constant FULL_PRODUCT_NAME => PRODUCT_NAME . ' ' . VERSION_STRING;
 use constant URL => 'http://chirpy.sourceforge.net/';
 
