@@ -148,8 +148,8 @@ function updateEventLog (reset) {
 	td.appendChild(document.createTextNode("[" + eventLogLocale["loading"] + "]"));
 	tr.appendChild(td);
 	eventLogTableBody.appendChild(tr);
-	eventLogHeaders["event"].className = "event" + (eventLogURLParam["code"] ? " filtered" : "");
-	eventLogHeaders["username"].className = "username" + (eventLogURLParam["user"] ? " filtered" : "");
+	eventLogHeaders["event"].className = "event" + (eventLogURLParam["code"] != null ? " filtered" : "");
+	eventLogHeaders["username"].className = "username" + (eventLogURLParam["user"] != null ? " filtered" : "");
 	if (eventLogRequest) eventLogRequest.abort();
 	eventLogRequest = getAjaxObject();
 	eventLogRequest.onreadystatechange = checkEventLogRequest;
