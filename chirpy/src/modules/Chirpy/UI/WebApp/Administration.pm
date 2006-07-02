@@ -75,6 +75,12 @@ sub parent {
 
 sub output {
 	my ($self, %params) = @_;
+	my $event_log_allowed = $self->parent()->administration_allowed(
+		Chirpy::UI::VIEW_EVENT_LOG);
+	if ($event_log_allowed && $self->parent()->_wants_xml()) {
+		$self->_serve_event_log_table_data();
+		return;
+	}
 	my $template = $self->parent()->_load_template('administration');
 	my $locale = $self->parent()->locale();
 	my ($upd_url, $upd_text);
@@ -141,7 +147,7 @@ sub output {
 		'VIEW_EVENT_LOG' => &_text_to_xhtml(
 			$locale->get_string('view_event_log')),
 		'VIEW_EVENT_LOG_ALLOWED'
-			=> $self->parent()->administration_allowed(Chirpy::UI::VIEW_EVENT_LOG),
+			=> $event_log_allowed,
 		'VIEW_EVENT_LOG_HTML'
 			=> sub { return $self->get_event_log_html(%params) },
 		'MANAGE_ACCOUNTS_ALLOWED'
@@ -753,189 +759,99 @@ sub get_manage_accounts_html {
 sub get_event_log_html {
 	my $self = shift;
 	my $locale = $self->parent()->locale();
-	my $count = 10;
-	my %params = ();
+	my $resurl = $self->parent()->_resources_url();
+	my $html = '<script type="text/javascript" src="'
+		. $resurl . '/js/ajax.js"></script>' . $/
+		. '<script type="text/javascript" src="'
+		. $resurl . '/js/administration.js"></script>' . $/
+		. '<script type="text/javascript">' . $/
+		. 'var eventLogURL = "'
+		. $self->parent()->_url(
+			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+			1,
+			'output' => 'xml')
+		. '";' . $/
+		. 'var eventLogLocale = new Array();' . $/;
+	foreach my $col (qw(id date username event empty)) {
+		$html .= 'eventLogLocale["' . $col . '"] = "'
+			.  &_text_to_xhtml($locale->get_string($col)) . '";' . $/;
+	}
+	$html .= 'eventLogLocale["previous"] = "&larr; ' . &_text_to_xhtml(
+		$locale->get_string('webapp.previous_page_title')) . '";' . $/
+		. 'eventLogLocale["next"] = "' . &_text_to_xhtml(
+		$locale->get_string('webapp.next_page_title')) . ' &rarr;";' . $/
+		. 'eventLogLocale["loading"] = "' . &_text_to_xhtml(
+		$locale->get_string('processing')) . '";' . $/;
+	$html .= '</script>' . $/
+		. '<div id="event-log-placeholder"></div>';
+	return $html;
+}
+
+sub _serve_event_log_table_data {
+	my $self = shift;
+	my $locale = $self->parent()->locale();
+	my $count = $self->parent()->_cgi_param('count');
+	$count = (defined $count ? int $count : undef);
 	my $start = $self->parent()->_cgi_param('start');
-	$params{'start'} = (defined $start && $start >= 0 ? $start : 0);
-	$params{'asc'} = 1 if ($self->parent()->_cgi_param('asc'));
+	$start = 0 unless (defined $start && $start >= 0);
+	my $desc = ($self->parent()->_cgi_param('asc') ? 0 : 1);
 	my $user = $self->parent()->_cgi_param('user');
-	$params{'user'} = $user if (defined $user && $user =~ /^\d+$/);	
+	$user = undef if (defined $user && $user !~ /^\d+$/);	
 	my $event = $self->parent()->_cgi_param('code');
-	$params{'code'} = $event if (defined $event && $event =~ /^\d+$/);
-	my $filter = $self->parent()->_cgi_param('filter');
-	my ($filter_name, $filter_value);
+	$event = undef if (defined $event && $event !~ /^\d+$/);
+	my $filter = $self->parent()->_cgi_param('data');
 	if (defined $filter && $filter =~ /^([^=]+)=(.*)$/s) {
-		($filter_name, $filter_value) = ($1, $2);
-		$params{'filter'} = $filter;
+		$filter = { $1 => $2 };
+	}
+	else {
+		$filter = undef;
 	}
 	my ($events, $leading, $trailing) = $self->parent()->parent()->get_events(
-		$params{'start'}, $count, !$params{'asc'},
-		$params{'code'}, $params{'user'},
-		(defined $filter_value ? { $filter_name => $filter_value } : undef));
-	my $previous = &_text_to_xhtml(
-		$locale->get_string('webapp.previous_page_title'));
-	my $next = &_text_to_xhtml(
-		$locale->get_string('webapp.next_page_title'));
-	my $browser = '';
-	if ($leading) {
-		my $pstart = $start - $count;
-		my %p = %params;
-		if ($pstart <= 0) {
-			delete $p{'start'};
-		}
-		else {
-			$p{'start'} = $pstart;
-		}
-		my $url = $self->parent()->_url(
-			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
-			1,
-			%p);
-		$browser .= '<a href="' . $url
-			. '" class="back">&larr; ' . $previous . '</a>';
-	}
-	else {
-		$browser .= '<span class="inactive back">&larr; '
-			. $previous . '</span>';
-	}
-	if ($trailing) {
-		my %p = %params;
-		$p{'start'} = $start + $count;
-		my $url = $self->parent()->_url(
-			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
-			1,
-			%p);
-		$browser .= '<a href="' . $url
-			. '" class="forward">' . $next . ' &rarr;</a>';
-	}
-	else {
-		$browser .= '<span class="inactive forward">'
-			. $next . ' &rarr;</span>';
-	}
-	my $html = '<div'
-		. ' id="event-log-navigation-top" class="event-log-navigation">' . $/
-		. $browser . $/
-		. '</div>' . $/
-		. '<table id="event-log-table">' . $/
-		. '<thead>' . $/
-		. '<tr>' . $/;
-	my @cols = qw/id date username event/;
-	foreach my $col (@cols) {
-		my $filtered = 0;
-		if ($col eq 'username') {
-			$filtered = 1 if (exists $params{'user'});
-		}
-		elsif ($col eq 'event') {
-			$filtered = 1 if (exists $params{'code'});
-		}
-		$html .= '<th class="' . $col
-			. ($filtered ? ' filtered' : '')
-			. '">'
-			. &_text_to_xhtml($locale->get_string($col))
-			. '</th>' . $/
-	}
-	$html .= '</tr>' . $/
-		. '</thead>' . $/
-		. '<tbody>' . $/;
-	my $i = 0;
+		$start, $count, $desc, $event, $user, $filter);
+	my @events = ();
 	foreach my $event (@$events) {
 		my $id = $event->get_id();
 		my $date = $self->parent()->format_date_time($event->get_date());
 		my $user = $event->get_user();
-		$user = 0 unless (defined $user);
-		my %p = %params;
-		delete $p{'start'};
-		if (exists $p{'user'} && $p{'user'} eq $user) {
-			delete $p{'user'};
-		}
-		else {
-			$p{'user'} = $user;
-		}
-		my $user_url = $self->parent()->_url(
-			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
-			1,
-			%p);
-		if ($user > 0) {
+		my $username;
+		if (defined $user) {
 			my $acct = $self->parent()->parent()->get_account_by_id($user);
 			if (defined $acct) {
-				$user = $acct->get_username();
+				$username = $acct->get_username();
 			}
 			else {
-				$user = '<span class="deleted">#' . $user . '</span>';
+				$username = '#' . $user;
 			}
 		}
 		else {
-			$user = '<span class="guest">'
-				. &_text_to_xhtml($locale->get_string('guest')) . '</span>';
+			$username = &_text_to_xhtml($locale->get_string('guest'));
 		}
 		my $description = Chirpy::Event::translate_code($event->get_code());
 		my $data = $event->get_data();
-		my $class = (++$i % 2 ? 'even' : 'odd');
-		%p = %params;
-		delete $p{'start'};
-		if (exists $p{'code'} && $p{'code'} eq $event->get_code()) {
-			delete $p{'code'};
-		}
-		else {
-			$p{'code'} = $event->get_code();
-		}
-		my $event_url = $self->parent()->_url(
-			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
-			1,
-			%p);
-		$html .= '<tr class="' . $class . '">' . $/
-			. '<td class="id" rowspan="'
-			. (1 + scalar keys %$data)
-			. '">' . $id . '</td>' . $/
-			. '<td class="date">' . $date . '</td>' . $/
-			. '<td class="username"><a href="' . $user_url . '">'
-			. $user . '</a></td>' . $/
-			. '<td class="event"><a href="' . $event_url . '">'
-			. $description . '</a></td>' . $/
-			. '</tr>' . $/;
+		my $result = {
+			'id' => $id,
+			'date' => $date,
+			'username' => $username,
+			'userid' => (defined $user ? $user : 0),
+			'description' => $description,
+			'code' => $event->get_code()
+		};
+		my @data = ();
 		foreach my $key (sort keys %$data) {
 			my $value = $data->{$key};
-			my ($v, $filtered);
-			if ($value =~ /[\r\n]/) {
-				$v = &_text_to_xhtml($value);
-			}
-			else {
-				my %p = %params;
-				delete $p{'start'};
-				if ($filter_name eq $key) {
-					delete $p{'filter'};
-					$filtered = 1;
-				}
-				else {
-					$p{'filter'} = $key . '=' . $value;
-				}
-				my $url = $self->parent()->_url(
-					Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
-					1,
-					%p);
-				$v = '<a href="' . $url . '">'
-					. ($value eq ''
-						? '<span class="empty">('
-							. &_text_to_xhtml($locale->get_string('empty'))
-							. ')</span>'
-						: &_text_to_xhtml($value))
-					. '</a>';
-			}
-			$html .= '<tr class="' . $class . '">' . $/
-				. '<td class="property-name'
-				. ($filtered ? ' filtered ' : '')
-				. '">' . &_text_to_xhtml($key) . '</td>' . $/
-				. '<td class="property-value" colspan="2">'
-				. $v . '</td>' . $/
-				. '</tr>' . $/;
+			push @data, {
+				'name' => &_text_to_xhtml($key),
+				'value' => &_text_to_xhtml($value)
+			};
 		}
+		$result->{'data'} = \@data;
+		push @events, $result;
 	}
-	$html .= '</tbody>' . $/
-		. '</table>' . $/
-		. '<div'
-		. ' id="event-log-navigation-bottom" class="event-log-navigation">' . $/
-		. $browser . $/
-		. '</div>' . $/;
-	return $html;
+	$self->parent()->_output_xml('result', {
+		'event' => \@events,
+		($leading ? ('leading' => 'true') : ()),
+		($trailing ? ('trailing' => 'true') : ())
+	});
 }
 
 sub get_access_disallowed_html {

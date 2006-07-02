@@ -1139,11 +1139,11 @@ sub confirm_quote_submission {
 sub confirm_quote_rating {
 	my ($self, $up, $new_rating, $new_vote_count) = @_;
 	if ($self->_wants_xml()) {
-		$self->_output_xml('result',
+		$self->_output_xml('result', {
 			'status' => STATUS_OK,
 			'rating' => Chirpy::Util::format_quote_rating($new_rating),
 			'votes' => $new_vote_count
-		);
+		});
 	}
 	else {
 		my $loc = $self->locale();
@@ -1158,7 +1158,7 @@ sub confirm_quote_rating {
 sub report_rated_quote_not_found {
 	my ($self, $up) = @_;
 	if ($self->_wants_xml()) {
-		$self->_output_xml('result', 'status' => STATUS_QUOTE_NOT_FOUND);
+		$self->_output_xml('result', { 'status' => STATUS_QUOTE_NOT_FOUND });
 	}
 	else {
 		my $loc = $self->locale();
@@ -1172,7 +1172,7 @@ sub report_rated_quote_not_found {
 sub report_quote_already_rated {
 	my $self = shift;
 	if ($self->_wants_xml()) {
-		$self->_output_xml('result', 'status' => STATUS_ALREADY_RATED);
+		$self->_output_xml('result', { 'status' => STATUS_ALREADY_RATED });
 	}
 	else {
 		$self->_report_error($self->_quote_already_rated_text());
@@ -1182,7 +1182,7 @@ sub report_quote_already_rated {
 sub report_quote_rating_limit_excess {
 	my $self = shift;
 	if ($self->_wants_xml()) {
-		$self->_output_xml('result', 'status' => STATUS_RATING_LIMIT_EXCEEDED);
+		$self->_output_xml('result', { 'status' => STATUS_RATING_LIMIT_EXCEEDED });
 	}
 	else {
 		$self->_report_error($self->_quote_rating_limit_text());
@@ -1192,7 +1192,7 @@ sub report_quote_rating_limit_excess {
 sub confirm_quote_report {
 	my $self = shift;
 	if ($self->_wants_xml()) {
-		$self->_output_xml('result', 'status' => STATUS_OK);
+		$self->_output_xml('result', { 'status' => STATUS_OK });
 	}
 	else {
 		my $loc = $self->locale();
@@ -1206,7 +1206,7 @@ sub confirm_quote_report {
 sub report_reported_quote_not_found {
 	my $self = shift;
 	if ($self->_wants_xml()) {
-		$self->_output_xml('result', 'status' => STATUS_QUOTE_NOT_FOUND);
+		$self->_output_xml('result', { 'status' => STATUS_QUOTE_NOT_FOUND });
 	}
 	else {
 		my $loc = $self->locale();
@@ -1712,7 +1712,7 @@ sub _provide_session_if_necessary {
 	if ($force) {
 		if ($self->_wants_xml()) {
 			$self->_output_xml('result',
-				'status' => STATUS_SESSION_REQUIRED);
+				{ 'status' => STATUS_SESSION_REQUIRED });
 		}
 		elsif ($st == 2) {
 			$self->_report_error($self->locale()
@@ -1812,14 +1812,33 @@ sub _set_cookie {
 }
 
 sub _output_xml {
-	my ($self, $root, %params) = @_;
+	my ($self, $root, $data) = @_;
 	$self->_print_http_header('text/xml');
 	print '<?xml version="1.0" encoding="UTF-8"?>', $/;
-	print '<', $root, '>';
-	while (my ($key, $value) = each %params) {
-		print '<', $key, '>', $value, '</', $key, '>';
+	print &_to_xml($data, $root);
+}
+
+sub _to_xml {
+	my ($elem, $key) = @_;
+	return '' if (!defined $elem);
+	my $content;
+	if (my $ref = ref $elem) {
+		if ($ref eq 'ARRAY') {
+			return join('', map { &_to_xml($_, $key) } @$elem);
+		}
+		elsif ($ref eq 'HASH') {
+			while (my ($key, $value) = each %$elem) {
+				$content .= &_to_xml($value, $key);
+			}
+		}
+		else {
+			Chirpy::die('Serialization error');
+		}
 	}
-	print '</', $root, '>';
+	else {
+		$content = $elem;
+	}
+	return '<' . $key . '>' . $content . '</' . $key . '>';
 }
 
 sub _load_template {

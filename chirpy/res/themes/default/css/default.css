@@ -744,6 +744,8 @@ ul.tabbed-pane-contents > li {
 
 .event-log-navigation .inactive {
 	color: #C9C9C9;
+	cursor: default;
+	text-decoration: none;
 }
 
 #event-log-table tr {
@@ -787,7 +789,7 @@ ul.tabbed-pane-contents > li {
 	white-space: nowrap;
 }
 
-#event-log-table td.event {
+#event-log-table th.event, #event-log-table td.event {
 	width: 100%;
 }
 
@@ -801,6 +803,11 @@ ul.tabbed-pane-contents > li {
 
 #event-log-table .empty {
 	font-style: italic;
+}
+
+#event-log-table .loading {
+	font-style: italic;
+	text-align: center;
 }
 
 .chart, .chart * {
