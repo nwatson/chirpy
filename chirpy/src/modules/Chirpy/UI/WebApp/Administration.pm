@@ -783,7 +783,7 @@ sub get_event_log_html {
 		$locale->get_string('processing')) . '";' . $/
 		. 'eventLogLocale["guest"] = "' . &_text_to_xhtml(
 		$locale->get_string('guest')) . '";' . $/;
-	foreach my $id (qw/code data/) {
+	foreach my $id (qw/code data user/) {
 		my $val = $self->parent()->_cgi_param($id);
 		next unless (defined $val);
 		$html .= 'eventLogURLParam["' . $id . '"] = "'
