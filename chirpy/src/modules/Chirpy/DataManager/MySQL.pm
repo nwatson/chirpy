@@ -897,7 +897,7 @@ sub get_events {
 	if (@conditions) {
 		$query .= ' WHERE ' . join(' AND ', @conditions);
 	}
-	$query .= ' ORDER BY `date` ' . ($params->{'reverse'} ? 'DESC' : 'ASC');
+	$query .= ' ORDER BY `id` ' . ($params->{'reverse'} ? 'DESC' : 'ASC');
 	my $per_page;
 	my $leading;
 	if ($params->{'count'}) {
