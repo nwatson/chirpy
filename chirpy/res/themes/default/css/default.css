@@ -797,6 +797,10 @@ ul.tabbed-pane-contents > li {
 	font-style: italic;
 }
 
+#event-log-table .removed-account {
+	font-style: italic;
+}
+
 #event-log-table .filtered, #event-log-table .filtered * {
 	text-decoration: underline;
 }

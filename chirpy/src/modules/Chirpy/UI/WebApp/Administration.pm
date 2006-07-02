@@ -760,28 +760,35 @@ sub get_event_log_html {
 	my $self = shift;
 	my $locale = $self->parent()->locale();
 	my $resurl = $self->parent()->_resources_url();
+	my $url = $self->parent()->_url(
+		Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
+		1);
+	$url .= ($url =~ /\?/ ? '&' : '?');
 	my $html = '<script type="text/javascript" src="'
 		. $resurl . '/js/ajax.js"></script>' . $/
 		. '<script type="text/javascript" src="'
 		. $resurl . '/js/administration.js"></script>' . $/
 		. '<script type="text/javascript">' . $/
-		. 'var eventLogURL = "'
-		. $self->parent()->_url(
-			Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
-			1,
-			'output' => 'xml')
-		. '";' . $/
+		. 'var eventLogURL = "' . $url . '";' . $/
 		. 'var eventLogLocale = new Array();' . $/;
 	foreach my $col (qw(id date username event empty)) {
 		$html .= 'eventLogLocale["' . $col . '"] = "'
 			.  &_text_to_xhtml($locale->get_string($col)) . '";' . $/;
 	}
-	$html .= 'eventLogLocale["previous"] = "&larr; ' . &_text_to_xhtml(
+	$html .= 'eventLogLocale["previous"] = "' . &_text_to_xhtml(
 		$locale->get_string('webapp.previous_page_title')) . '";' . $/
 		. 'eventLogLocale["next"] = "' . &_text_to_xhtml(
-		$locale->get_string('webapp.next_page_title')) . ' &rarr;";' . $/
+		$locale->get_string('webapp.next_page_title')) . '";' . $/
 		. 'eventLogLocale["loading"] = "' . &_text_to_xhtml(
-		$locale->get_string('processing')) . '";' . $/;
+		$locale->get_string('processing')) . '";' . $/
+		. 'eventLogLocale["guest"] = "' . &_text_to_xhtml(
+		$locale->get_string('guest')) . '";' . $/;
+	foreach my $id (qw/code data/) {
+		my $val = $self->parent()->_cgi_param($id);
+		next unless (defined $val);
+		$html .= 'eventLogURLParam["' . $id . '"] = "'
+			. &_text_to_xhtml($val) . '";' . $/;
+	}
 	$html .= '</script>' . $/
 		. '<div id="event-log-placeholder"></div>';
 	return $html;
@@ -819,19 +826,13 @@ sub _serve_event_log_table_data {
 			if (defined $acct) {
 				$username = $acct->get_username();
 			}
-			else {
-				$username = '#' . $user;
-			}
-		}
-		else {
-			$username = &_text_to_xhtml($locale->get_string('guest'));
 		}
 		my $description = Chirpy::Event::translate_code($event->get_code());
 		my $data = $event->get_data();
 		my $result = {
 			'id' => $id,
 			'date' => $date,
-			'username' => $username,
+			(defined $username ? ('username' => $username) : ()),
 			'userid' => (defined $user ? $user : 0),
 			'description' => $description,
 			'code' => $event->get_code()

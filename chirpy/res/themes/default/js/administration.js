@@ -122,15 +122,15 @@ function createEventLogNavigation () {
 	div.className = "event-log-navigation";
 	var prev = document.createElement("a");
 	var pHref = document.createAttribute("href");
-	pHref.value = "javascript:previousEventLogPage();";
 	prev.setAttributeNode(pHref);
-	prev.appendChild(document.createTextNode(eventLogLocale["previous"]));
+	prev.appendChild(document.createTextNode(
+		String.fromCharCode(0x2190) + " " + eventLogLocale["previous"]));
 	prev.className = "back";
 	var next = document.createElement("a");
 	var nHref = document.createAttribute("href");
-	nHref.value = "javascript:nextEventLogPage();";
 	next.setAttributeNode(nHref);
-	next.appendChild(document.createTextNode(eventLogLocale["next"]));
+	next.appendChild(document.createTextNode(
+		eventLogLocale["next"] + " " + String.fromCharCode(0x2192)));
 	next.className = "forward";
 	div.appendChild(prev);
 	div.appendChild(next);
@@ -153,7 +153,7 @@ function updateEventLog (reset) {
 	if (eventLogRequest) eventLogRequest.abort();
 	eventLogRequest = getAjaxObject();
 	eventLogRequest.onreadystatechange = checkEventLogRequest;
-	var url = getEventLogURL(reset);
+	var url = eventLogURL + getEventLogURLString(reset) + "&output=xml";
 	eventLogRequest.open("GET", url, true);
 	eventLogRequest.send("");
 }
@@ -170,16 +170,16 @@ function checkEventLogRequest () {
 }
 
 function clearEventLog () {
-	setEventLogNavigationEnabled(eventLogPreviousLinks, "back", false);
-	setEventLogNavigationEnabled(eventLogNextLinks, "forward", false);
+	setEventLogNavigationEnabled(false, false);
+	setEventLogNavigationEnabled(true, false);
 	while (eventLogTableBody.firstChild)
 		eventLogTableBody.removeChild(eventLogTableBody.firstChild);
 }
 
 function fillEventLog (tableData) {
 	clearEventLog();
-	setEventLogNavigationEnabled(eventLogPreviousLinks, "back", tableData["leading"]);
-	setEventLogNavigationEnabled(eventLogNextLinks, "forward", tableData["trailing"]);
+	setEventLogNavigationEnabled(false, tableData["leading"]);
+	setEventLogNavigationEnabled(true, tableData["trailing"]);
 	var events = tableData["events"];
 	var dataFilter;
 	if (eventLogURLParam["data"])
@@ -204,21 +204,27 @@ function fillEventLog (tableData) {
 		var userCell = document.createElement("td");
 		userCell.className = "username";
 		var userID = evt["userid"];
-		if (userID == 0)
+		var username;
+		if (userID == 0) {
 			userCell.className += " guest";
-		var userLink = document.createElement("a");
-		var userHref = document.createAttribute("href");
-		userHref.value = "javascript:setEventLogFilter('user', " + userID + ");";
-		userLink.setAttributeNode(userHref);
-		userLink.appendChild(document.createTextNode(evt["username"]));
+			username = eventLogLocale["guest"];
+		}
+		else if ("username" in evt) {
+			username = evt["username"];
+		}
+		else {
+			userCell.className += " removed-account";
+			username = "#" + userID;
+		}
+		var userLink = createEventLogLink("user", userID);
+		userLink.appendChild(document.createTextNode(username));
 		userCell.appendChild(userLink);
 		firstRow.appendChild(userCell);
 		var descCell = document.createElement("td");
 		descCell.className = "event";
 		var descLink = document.createElement("a");
 		var descHref = document.createAttribute("href");
-		descHref.value = "javascript:setEventLogFilter('code', " + evt["code"] + ");";
-		descLink.setAttributeNode(descHref);
+		var descLink = createEventLogLink("code", evt["code"]);
 		descLink.appendChild(document.createTextNode(evt["description"]));
 		descCell.appendChild(descLink);
 		firstRow.appendChild(descCell);
@@ -245,14 +251,11 @@ function fillEventLog (tableData) {
 			else {
 				var empty = (value.length == 0);
 				var val = (!empty ? value[0].replace(/'/g, '\\\'') : "");
-				var link = document.createElement("a");
-				var href = document.createAttribute("href");
-				href.value = "javascript:setEventLogFilter('data', '" + name + "=" + val + "');";
-				link.setAttributeNode(href);
+				var link = createEventLogLink("data", name + "=" + val);
 				var text;
 				if (empty) {
 					link.className = "empty";
-					text = "[" + eventLogLocale["empty"] + "]";
+					text = eventLogLocale["empty"];
 				}
 				else
 					text = fixWhiteSpace(value[0]);
@@ -266,11 +269,41 @@ function fillEventLog (tableData) {
 	}
 }
 
-function setEventLogNavigationEnabled (links, className, enabled) {
+function setEventLogNavigationEnabled (next, enabled) {
+	var links, className;
+	if (next) {
+		links = eventLogNextLinks;
+		className = "forward";
+	}
+	else {
+		links = eventLogPreviousLinks;
+		className = "back";
+	}
 	for (var i = 0; i < links.length; i++) {
 		var link = links[i];
-		link.className = className + (enabled ? "" : " inactive");
-		link.onclick = function () { return enabled; };
+		var href = link.getAttributeNode("href");
+		if (enabled) {
+			link.className = className;
+			var start = eventLogURLParam["start"];
+			var count = eventLogURLParam["count"];
+			if (!next)
+				start = (start >= count ? start - count : 0);
+			else
+				start += count;
+			link.onclick = function () {
+				eventLogURLParam["start"] = start;
+				updateEventLog();
+				return false;
+			};
+			href.value = getEventLogURLString(false, "start", start);
+		}
+		else {
+			link.className = className + " inactive";
+			link.onclick = function () {
+				return false;
+			};
+			href.value = "#";
+		}
 	}
 }
 
@@ -349,29 +382,29 @@ function extractLogEventDataValue (node) {
 	return value;
 }
 
-function setEventLogFilter (name, value) {
-	eventLogURLParam[name] = (eventLogURLParam[name] == value ? null : value);
-	updateEventLog(true);
+function createEventLogLink (name, value) {
+	var anchor = document.createElement("a");
+	var href = document.createAttribute("href");
+	href.value = eventLogURL + getEventLogURLString(true, name, value);
+	anchor.setAttributeNode(href);
+	anchor.onclick = function () {
+		eventLogURLParam[name]
+			= (eventLogURLParam[name] == value ? null : value);
+		updateEventLog(true);
+		return false;
+	};
+	return anchor;
 }
 
-function previousEventLogPage () {
-	eventLogURLParam["start"] -= eventLogURLParam["count"];
-	if (eventLogURLParam["start"] < 0) eventLogURLParam["start"] = 0;
-	updateEventLog();
-}
-
-function nextEventLogPage () {
-	eventLogURLParam["start"] += eventLogURLParam["count"];
-	updateEventLog();
-}
-
-function getEventLogURL (reset, name, value) {
-	var url = eventLogURL;
+function getEventLogURLString (reset, name, value) {
+	var pairs = new Array();
+	var found = false;
 	for (key in eventLogURLParam) {
 		var val;
 		switch (key) {
 			case name:
-				val = value;
+				val = (eventLogURLParam[key] == value ? null : value);
+				found = true;
 				break;
 			case "start":
 				val = (reset ? 0 : eventLogURLParam[key]);
@@ -379,12 +412,13 @@ function getEventLogURL (reset, name, value) {
 			default:
 				val = eventLogURLParam[key];
 		}
-		url += "&" + escape(key) + "=" + escape(val);
+		if (val != null)
+			pairs.push(escape(key) + "=" + escape(val));
 	}
-	if (name && !eventLogURLParam[name]) {
-		url += "&" + escape(name) + "=" + escape(value);
+	if (name && !found) {
+		pairs.push(escape(name) + "=" + escape(value));
 	}
-	return url;
+	return pairs.join("&");
 }
 
 function fixWhiteSpace (text) {
