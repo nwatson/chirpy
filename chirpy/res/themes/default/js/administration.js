@@ -122,7 +122,7 @@ function insertEventLog () {
 				tn.nodeValue = (asc ? up : down);
 				href.value = getEventLogURL(true, "asc", asc ? 1 : 0);
 				eventLogURLParam["asc"] = (asc ? 1 : 0);
-				updateEventLog();
+				updateEventLog(true);
 				return false;
 			};
 		}
