@@ -790,6 +790,16 @@ ul.tabbed-pane-contents > li {
 	text-align: right;
 }
 
+#event-log-table th.id {
+	text-align: center;
+}
+
+#event-log-table th.id a {
+	display: block;
+	text-decoration: none;
+	color: black;
+}
+
 #event-log-table th, #event-log-table td.date, #event-log-table td.event {
 	white-space: nowrap;
 }

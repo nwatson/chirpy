@@ -894,8 +894,6 @@ Title for the message indicating that checking for updates has failed.
 Message explaining that Chirpy! failed to check for updates, and indicating
 that an error report follows.
 
-=item id
-
 =item date
 
 =item username
