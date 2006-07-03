@@ -30,6 +30,7 @@ var eventLogHeaders;
 var eventLogRequest;
 var eventLogPreviousLinks = new Array();
 var eventLogNextLinks = new Array();
+var eventLogCurrentLinks = new Array();
 var eventLogURLParam = new Array();
 eventLogURLParam["start"] = 0;
 eventLogURLParam["count"] = 10;
@@ -132,10 +133,18 @@ function createEventLogNavigation () {
 	next.appendChild(document.createTextNode(
 		eventLogLocale["next"] + " " + String.fromCharCode(0x2192)));
 	next.className = "forward";
+	var current = document.createElement("a");
+	var cHref = document.createAttribute("href");
+	current.setAttributeNode(cHref);
+	current.appendChild(document.createTextNode(
+		eventLogLocale["current"]));
+	current.className = "current";
 	div.appendChild(prev);
 	div.appendChild(next);
+	div.appendChild(current);
 	eventLogPreviousLinks.push(prev);
 	eventLogNextLinks.push(next);
+	eventLogCurrentLinks.push(current);
 	return div;
 }
 
@@ -145,7 +154,7 @@ function updateEventLog (reset) {
 	var td = document.createElement("td");
 	td.colSpan = 4;
 	td.className = "loading";
-	td.appendChild(document.createTextNode("[" + eventLogLocale["loading"] + "]"));
+	td.appendChild(document.createTextNode(eventLogLocale["loading"]));
 	tr.appendChild(td);
 	eventLogTableBody.appendChild(tr);
 	eventLogHeaders["event"].className = "event" + (eventLogURLParam["code"] != null ? " filtered" : "");
@@ -153,7 +162,12 @@ function updateEventLog (reset) {
 	if (eventLogRequest) eventLogRequest.abort();
 	eventLogRequest = getAjaxObject();
 	eventLogRequest.onreadystatechange = checkEventLogRequest;
-	var url = eventLogURL + getEventLogURLString(reset) + "&output=xml";
+	var url = eventLogURL + getEventLogURLString(reset);
+	for (var i = 0; i < eventLogCurrentLinks.length; i++) {
+		var link = eventLogCurrentLinks[i];
+		link.getAttributeNode("href").value = url;
+	}
+	url += "&output=xml";
 	eventLogRequest.open("GET", url, true);
 	eventLogRequest.send("");
 }

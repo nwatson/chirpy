@@ -779,6 +779,8 @@ sub get_event_log_html {
 		$locale->get_string('webapp.previous_page_title')) . '";' . $/
 		. 'eventLogLocale["next"] = "' . &_text_to_xhtml(
 		$locale->get_string('webapp.next_page_title')) . '";' . $/
+		. 'eventLogLocale["current"] = "' . &_text_to_xhtml(
+		$locale->get_string('webapp.current_page_title')) . '";' . $/
 		. 'eventLogLocale["loading"] = "' . &_text_to_xhtml(
 		$locale->get_string('processing')) . '";' . $/
 		. 'eventLogLocale["guest"] = "' . &_text_to_xhtml(

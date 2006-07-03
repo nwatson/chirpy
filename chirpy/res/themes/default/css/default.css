@@ -715,8 +715,8 @@ ul.tabbed-pane-contents > li {
 }
 
 .event-log-navigation {
-	height: 2.5em;
 	margin: 0;
+	text-align: center;
 }
 
 #event-log-navigation-top {
@@ -732,14 +732,19 @@ ul.tabbed-pane-contents > li {
 	background: #F9F9F9;
 	-moz-border-radius: 0 0.5em 2em 0.5em;
 	border-radius: 0 0.5em 2em 0.5em;
+	cursor: pointer;
 }
 
 .event-log-navigation .back {
 	float: left;
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 .event-log-navigation .forward {
 	float: right;
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 .event-log-navigation .inactive {
