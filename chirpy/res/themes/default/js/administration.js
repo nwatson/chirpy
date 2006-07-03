@@ -111,7 +111,7 @@ function insertEventLog () {
 			cont = document.createElement("a");
 			var href = document.createAttribute("href");
 			var asc = (eventLogURLParam["asc"] > 0);
-			href.value = getEventLogURL(false, "asc", asc ? 0 : 1);
+			href.value = getEventLogURL(true, "asc", asc ? 0 : 1);
 			cont.setAttributeNode(href);
 			var up = String.fromCharCode(0x25B2);
 			var down = String.fromCharCode(0x25BC);
@@ -120,7 +120,7 @@ function insertEventLog () {
 			cont.onclick = function () {
 				var asc = !(eventLogURLParam["asc"] > 0);
 				tn.nodeValue = (asc ? up : down);
-				href.value = getEventLogURL(false, "asc", asc ? 1 : 0);
+				href.value = getEventLogURL(true, "asc", asc ? 1 : 0);
 				eventLogURLParam["asc"] = (asc ? 1 : 0);
 				updateEventLog();
 				return false;
