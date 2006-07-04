@@ -336,9 +336,9 @@ Title of the I<Number of Quotes by Month> section in the statistics.
 
 Title of the I<Number of Quotes by Day of the Month> section in the statistics.
 
-=item quote_count_by_week_day
+=item quote_count_by_weekday
 
-Title of the I<Number of Quotes by Week Day> section in the statistics.
+Title of the I<Number of Quotes by Weekday> section in the statistics.
 
 =item quote_count_by_rating
 

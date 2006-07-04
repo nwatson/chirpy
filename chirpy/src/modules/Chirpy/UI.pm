@@ -946,11 +946,11 @@ sub _compute_statistics {
 	my $by_hour = &_init_array(0, 24);
 	my $by_month = &_init_array(0, 12);
 	my $by_day = &_init_array(0, 31);
-	my $by_week_day = &_init_array(0, 7);
+	my $by_weekday = &_init_array(0, 7);
 	my $by_rating = {};
 	my $by_votes = {};
 	my $votes_by_rating = [ 0, 0 ];
-	my ($date, $week_day, $year, $month, $day, $prev_time);
+	my ($date, $weekday, $year, $month, $day, $prev_time);
 	foreach my $quote (@$quotes) {
 		my $time = $quote->get_date_submitted();
 		my $d = $self->format_date($time);
@@ -964,10 +964,10 @@ sub _compute_statistics {
 			$day = $time[3] - 1;
 			$month = $time[4];
 			$year = $time[5];
-			$week_day = $time[6];
+			$weekday = $time[6];
 		}
 		&_add_statistic($date, 1, $by_date);
-		$by_week_day->[$week_day]++;
+		$by_weekday->[$weekday]++;
 		$by_day->[$day]++;
 		$by_month->[$month]++;
 		$by_hour->[$time[2]]++;
@@ -981,7 +981,7 @@ sub _compute_statistics {
 		$votes_by_rating->[1] += $votes_down;
 	}
 	return [
-		$by_date, $by_hour, $by_week_day, $by_day, $by_month,
+		$by_date, $by_hour, $by_weekday, $by_day, $by_month,
 		&_to_sorted_array($by_rating, 1), &_to_sorted_array($by_votes, 0),
 		$votes_by_rating
 	];

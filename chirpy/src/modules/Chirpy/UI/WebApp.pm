@@ -931,7 +931,7 @@ sub report_no_tagged_quotes {
 
 sub provide_statistics {
 	my ($self, $quotes_by_date,
-		$quotes_by_hour, $quotes_by_week_day, $quotes_by_day, $quotes_by_month,
+		$quotes_by_hour, $quotes_by_weekday, $quotes_by_day, $quotes_by_month,
 		$quotes_by_rating, $quotes_by_votes, $votes_by_rating) = @_;
 	if ($self->statistics_update_allowed()) {
 		$self->_output_xml('result');
@@ -970,12 +970,12 @@ sub provide_statistics {
 			'QUOTE_COUNT' => $quotes_by_day->[$day]
 		};
 	}
-	my @by_week_day = ();
+	my @by_weekday = ();
 	my @days = qw(sunday monday tuesday wednesday thursday friday saturday);
 	foreach my $d (0..6) {
-		push @by_week_day, {
-			'WEEK_DAY' => $locale->get_string($days[$d]),
-			'QUOTE_COUNT' => $quotes_by_week_day->[$d]
+		push @by_weekday, {
+			'WEEKDAY' => $locale->get_string($days[$d]),
+			'QUOTE_COUNT' => $quotes_by_weekday->[$d]
 		};
 	}
 	my @by_rating = ();
@@ -1019,9 +1019,9 @@ sub provide_statistics {
 		'QUOTES_BY_DAY' => \@by_day,
 		'QUOTES_BY_DAY_TITLE' => &_text_to_xhtml(
 			$locale->get_string('quote_count_by_day')),
-		'QUOTES_BY_WEEK_DAY' => \@by_week_day,
-		'QUOTES_BY_WEEK_DAY_TITLE' => &_text_to_xhtml(
-			$locale->get_string('quote_count_by_week_day')),
+		'QUOTES_BY_WEEKDAY' => \@by_weekday,
+		'QUOTES_BY_WEEKDAY_TITLE' => &_text_to_xhtml(
+			$locale->get_string('quote_count_by_weekday')),
 		'QUOTES_BY_RATING' => \@by_rating,
 		'QUOTES_BY_RATING_TITLE' => &_text_to_xhtml(
 			$locale->get_string('quote_count_by_rating')),
