@@ -103,10 +103,6 @@ use constant PASSWORDS_DIFFER         => -3;
 
 # TODO: make this easily configurable one day
 use constant ADMIN_PERMISSIONS => {
-	SUBMIT_QUOTE() => {
-		Chirpy::Account::USER_LEVEL_6 => 1,
-		Chirpy::Account::USER_LEVEL_9 => 1
-	},
 	MANAGE_UNAPPROVED_QUOTES() => {
 		Chirpy::Account::USER_LEVEL_3 => 1,
 		Chirpy::Account::USER_LEVEL_6 => 1,
@@ -252,7 +248,7 @@ sub run {
 		my ($body, $notes, $tags) = $self->get_submitted_quote();
 		if (defined $body && $body) {
 			my $approved
-				= $self->administration_allowed(Chirpy::UI::SUBMIT_QUOTE);
+				= $self->administration_allowed(Chirpy::UI::MANAGE_UNAPPROVED_QUOTES);
 			$body = Chirpy::Util::clean_up_submission($body);
 			$notes = (defined $notes
 				? Chirpy::Util::clean_up_submission($notes)

@@ -1075,7 +1075,7 @@ sub provide_quote_submission_interface {
 		'PAGE_TITLE' => &_text_to_xhtml(
 			$locale->get_string('submit_quote')),
 		'NO_APPROVAL'
-			=> $self->administration_allowed(Chirpy::UI::SUBMIT_QUOTE),
+			=> $self->administration_allowed(Chirpy::UI::MANAGE_UNAPPROVED_QUOTES),
 		'SUBMIT_FORM_START' => '<form method="post" action="'
 			. $self->_url(ACTIONS->{'SUBMIT_QUOTE'}) . '">',
 		'SUBMIT_FORM_END' => '</form>',
