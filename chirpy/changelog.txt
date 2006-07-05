@@ -6,6 +6,8 @@
 * Added statistics page
 * Now keeping (and displaying) vote counts per quote
 * Added metadata-based logging, including search
+* Made rating and reporting links use POST instead of GET and added
+  intermediate confirmation page for non-AJAX users
 * You can now edit quotes before approving them
 * Made tag cloud ignore unapproved quotes
 * Made templates use HTML::Template's caching feature, which is pretty fast

@@ -1141,8 +1141,25 @@ sub confirm_quote_submission {
 	}
 }
 
+sub quote_rating_confirmed {
+	my $self = shift;
+	return $self->_is_post();
+}
+
+sub request_quote_rating_confirmation {
+	my ($self, $quote, $up) = @_;
+	my $locale = $self->locale();
+	my $action = 'quote_rating_' . ($up ? 'up' : 'down');
+	$self->_confirmation_form(
+		$self->_url($self->_action(), 0, 'id' => $quote->get_id()),
+		1,
+		$locale->get_string($action . '_description'),
+		$locale->get_string($action . '_confirmation_request'),
+		$quote);
+}
+
 sub confirm_quote_rating {
-	my ($self, $up, $new_rating, $new_vote_count) = @_;
+	my ($self, $id, $up, $new_rating, $new_vote_count) = @_;
 	if ($self->_wants_xml()) {
 		$self->_output_xml('result', {
 			'status' => STATUS_OK,
@@ -1161,7 +1178,7 @@ sub confirm_quote_rating {
 }
 
 sub report_rated_quote_not_found {
-	my ($self, $up) = @_;
+	my $self = shift;
 	if ($self->_wants_xml()) {
 		$self->_output_xml('result', { 'status' => STATUS_QUOTE_NOT_FOUND });
 	}
@@ -1192,6 +1209,23 @@ sub report_quote_rating_limit_excess {
 	else {
 		$self->_report_error($self->_quote_rating_limit_text());
 	}
+}
+
+sub quote_report_confirmed {
+	my $self = shift;
+	return $self->_is_post();
+}
+
+sub request_quote_report_confirmation {
+	my ($self, $quote) = @_;
+	my $locale = $self->locale();
+	my $action = 'quote_report';
+	$self->_confirmation_form(
+		$self->_url($self->_action(), 0, 'id' => $quote->get_id()),
+		1,
+		$locale->get_string($action . '_description'),
+		$locale->get_string($action . '_confirmation_request'),
+		$quote);
 }
 
 sub confirm_quote_report {
@@ -1682,6 +1716,33 @@ sub get_user_information {
 		'remote_addr' => $cgi->remote_addr(),
 		'user_agent' => $cgi->user_agent()
 	};
+}
+
+sub _confirmation_form {
+	my ($self, $url, $post, $title, $text, $quote) = @_;
+	my $template = $self->_load_template('confirm');
+	my $locale = $self->locale();
+	my $body;
+	if (defined $quote) {
+		$body = &_text_to_xhtml($quote->get_body());
+		$body = ($self->configuration()->get('ui', 'webapp.enable_autolink')
+			? &_auto_link($body)
+			: &_spam_protect_email_addresses($body));
+	}
+	$template->param(
+		'PAGE_TITLE' => &_text_to_xhtml($title),
+		'URL' => &_text_to_xhtml($url),
+		'POST_FORM' => $post,
+		'CONFIRMATION_REQUEST' => &_text_to_xhtml($text),
+		'CONFIRMATION_TEXT' => &_text_to_xhtml(
+			$locale->get_string('ok')),
+		'CANCELATION_TEXT' => &_text_to_xhtml(
+			$locale->get_string('cancel')),
+		'QUOTE_BODY' => (defined $body
+			? $body
+			: undef)
+	);
+	$self->_output_template($template);
 }
 
 sub _get_supplied_account_information {

@@ -257,16 +257,22 @@ ul.quote-list li h3.quote-header * * {
 	margin: 0;
 }
 
-ul.quote-list li blockquote.quote-body {
+blockquote.quote-body {
 	margin: 0.5em 0.75em;
 	padding: 0;
 	font-family: Consolas, Monaco, Courier New, monospace;
 	font-size: 12px;
 }
 
-ul.quote-list li blockquote.quote-body p {
+blockquote.quote-body p {
 	margin: 0;
 	padding: 0;
+}
+
+#confirmation-form blockquote.quote-body {
+	margin: 1em 0;
+	padding: 1em;
+	border: 1px dashed #EEE;
 }
 
 ul.quote-list li .quote-footer {
@@ -505,6 +511,10 @@ ul.tag-cloud li {
 
 ul.tag-cloud li a {
 	white-space: nowrap;
+}
+
+#confirmation-form #confirm-button, #confirmation-form #cancel-button {
+	width: 16ex;
 }
 
 ul.tabbed-pane-header {

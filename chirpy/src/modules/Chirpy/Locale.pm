@@ -278,6 +278,21 @@ such.
 Brief description of what decreasing a quote's rating is, for tooltips and
 such.
 
+=item quote_report_confirmation_request
+
+Text requesting that the user confirm that he wishes to report the quote that
+follows.
+
+=item quote_rating_up_confirmation_request
+
+Text requesting that the user confirm that he wishes to increase the rating
+of the quote that follows.
+
+=item quote_rating_down_confirmation_request
+
+Text requesting that the user confirm that he wishes to decrease the rating
+of the quote that follows.
+
 =item quote_rating_description
 
 Brief description of what the quote's rating is, for tooltips and such.
@@ -903,6 +918,10 @@ that an error report follows.
 =item guest
 
 =item empty
+
+=item ok
+
+=item cancel
 
 Literal translation of each word; must start with a capital letter.
 

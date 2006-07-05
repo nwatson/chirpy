@@ -273,67 +273,46 @@ sub run {
 			$self->provide_quote_submission_interface();
 		}
 	}
-	elsif ($page == QUOTE_RATING_UP) {
+	elsif ($page == QUOTE_RATING_UP || $page == QUOTE_RATING_DOWN) {
+		my $up = ($page == QUOTE_RATING_UP);
 		my $id = $self->get_selected_quote_id();
 		my $quote = $self->parent()->get_quote($id);
-		if (defined $quote) {
+		if (defined $quote
+		&& ($quote->is_approved() || $self->moderation_queue_is_public())) {
 			if ($self->_already_rated($id)) {
 				$self->report_quote_already_rated($id);
 			}
-			elsif (($quote->is_approved() || $self->moderation_queue_is_public())
-			&& $self->_update_rating_history()) {
-				my ($new_rating, $new_vote_count)
-					= $self->parent()->increase_quote_rating($id);
-				$self->confirm_quote_rating(
-					1,
-					$new_rating,
-					$new_vote_count);
-				$self->_add_to_rated_quotes($id);
-				$self->_log_event(Chirpy::Event::QUOTE_RATING_UP,
-					{ 'id' => $id, 'new_rating' => $new_rating });
-			}
 			else {
-				$self->report_quote_rating_limit_excess();
+				my ($history, $full) = $self->_rating_history();
+				if (!$full) {
+					if ($self->quote_rating_confirmed()) {
+						$self->_rate_quote($id, $up, $history);
+					}
+					else {
+						$self->request_quote_rating_confirmation($quote, $up);
+					}
+				}
+				else {
+					$self->report_quote_rating_limit_excess();
+				}
 			}
 		}
 		else {
-			$self->report_rated_quote_not_found(1);
-		}
-	}
-	elsif ($page == QUOTE_RATING_DOWN) {
-		my $id = $self->get_selected_quote_id();
-		my $quote = $self->parent()->get_quote($id);
-		if (defined $quote) {
-			if ($self->_already_rated($id)) {
-				$self->report_quote_already_rated($id);
-			}
-			elsif (($quote->is_approved() || $self->moderation_queue_is_public())
-			&& $self->_update_rating_history()) {
-				my ($new_rating, $new_vote_count)
-					= $self->parent()->decrease_quote_rating($id);
-				$self->confirm_quote_rating(
-					0,
-					$new_rating,
-					$new_vote_count);
-				$self->_add_to_rated_quotes($id);
-				$self->_log_event(Chirpy::Event::QUOTE_RATING_DOWN,
-					{ 'id' => $id, 'new_rating' => $new_rating });
-			}
-			else {
-				$self->report_quote_rating_limit_excess();
-			}
-		}
-		else {
-			$self->report_rated_quote_not_found(0);
+			$self->report_rated_quote_not_found();
 		}
 	}
 	elsif ($page == REPORT_QUOTE) {
 		my $id = $self->get_selected_quote_id();
 		my $quote = $self->parent()->get_quote($id);
 		if (defined $quote && $quote->is_approved()) {
-			$self->parent()->flag_quotes($id);
-			$self->confirm_quote_report($id);
-			$self->_log_event(Chirpy::Event::REPORT_QUOTE, { 'id' => $id });
+			if ($self->quote_report_confirmed()) {
+				$self->parent()->flag_quotes($id);
+				$self->confirm_quote_report($id);
+				$self->_log_event(Chirpy::Event::REPORT_QUOTE, { 'id' => $id });
+			}
+			else {
+				$self->request_quote_report_confirmation($quote);
+			}
 		}
 		else {
 			$self->report_reported_quote_not_found();
@@ -1052,27 +1031,31 @@ sub _already_rated {
 	return 0;
 }
 
-sub _add_to_rated_quotes {
-	my ($self, $id) = @_;
+sub _rate_quote {
+	my ($self, $id, $up, $history) = @_;
+	my $parent = $self->parent();
+	my ($new_rating, $new_vote_count) = ($up
+		? $parent->increase_quote_rating($id)
+		: $parent->decrease_quote_rating($id));
+	$self->set_rating_history(@$history, time);
+	$self->confirm_quote_rating($id, $up, $new_rating, $new_vote_count);
 	$self->set_rated_quotes($self->get_rated_quotes(), $id);
+	$self->_log_event(Chirpy::Event::QUOTE_RATING_UP,
+		{ 'id' => $id, 'new_rating' => $new_rating });
 }
 
-sub _update_rating_history {
+sub _rating_history {
 	my $self = shift;
 	my $conf = $self->parent()->configuration();
 	my $max_time = $conf->get('general', 'rating_limit_time');
 	my $max_size = $conf->get('general', 'rating_limit_count');
-	return 1 if ($max_time <= 0 || $max_size <= 0);
+	return undef if ($max_time <= 0 || $max_size <= 0);
 	my $time = time;
 	my $since = $time - $max_time;
 	my @history = $self->get_rating_history();
 	shift @history
 		while (@history && $history[0] < $since);
-	if (@history < $max_size) {
-		$self->set_rating_history(@history, $time);
-		return 1;
-	}
-	return 0;
+	return (\@history, @history >= $max_size);
 }
 
 sub _modify_quote {
@@ -1269,6 +1252,10 @@ sub param {
 
 *confirm_quote_rating = \&Chirpy::Util::abstract_method;
 
+*quote_rating_confirmed = \&Chirpy::Util::abstract_method;
+
+*request_quote_rating_confirmation = \&Chirpy::Util::abstract_method;
+
 *report_rated_quote_not_found = \&Chirpy::Util::abstract_method;
 
 *report_quote_already_rated = \&Chirpy::Util::abstract_method;
@@ -1276,6 +1263,10 @@ sub param {
 *report_quote_rating_limit_excess = \&Chirpy::Util::abstract_method;
 
 *confirm_quote_report = \&Chirpy::Util::abstract_method;
+
+*quote_report_confirmed = \&Chirpy::Util::abstract_method;
+
+*request_quote_report_confirmation = \&Chirpy::Util::abstract_method;
 
 *report_reported_quote_not_found = \&Chirpy::Util::abstract_method;
 

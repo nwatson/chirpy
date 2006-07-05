@@ -50,7 +50,7 @@ function QuoteActionRequest (url, id, isReport) {
 	this.startTime = t;
 	this.interval = setInterval(
 		function () { checkRequestTime(req); }, pollingInterval);
-	this.ajax.open("GET", this.url, true);
+	this.ajax.open("POST", this.url, true);
 	this.ajax.send("");
 }
 
