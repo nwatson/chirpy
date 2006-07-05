@@ -1,0 +1,18 @@
+<TMPL_INCLUDE NAME="_head.html">
+	<h2>
+		<TMPL_VAR NAME="PAGE_TITLE">
+	</h2>
+	<form method="<TMPL_IF NAME="POST_FORM">post<TMPL_ELSE>get</TMPL_IF>" action="<TMPL_VAR NAME="URL">" id="confirmation-form">
+	<p id="confirmation-request"><TMPL_VAR NAME="CONFIRMATION_REQUEST"></p>
+	<TMPL_IF NAME="QUOTE_BODY">
+		<blockquote class="quote-body">
+			<p><TMPL_VAR NAME="QUOTE_BODY"></p>
+		</blockquote>
+	</TMPL_IF>
+	<div id="confirmation-options">
+		<input type="submit" value="<TMPL_VAR NAME="CONFIRMATION_TEXT">" id="confirm-button" />
+		<input type="button" value="<TMPL_VAR NAME="CANCELATION_TEXT">" id="cancel-button"
+		onclick="history.go(-1);" />
+	</div>
+	</form>
+<TMPL_INCLUDE NAME="_foot.html">
