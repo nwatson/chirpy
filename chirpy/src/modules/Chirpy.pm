@@ -531,6 +531,7 @@ sub remove_quotes {
 
 sub increase_quote_rating {
 	my ($self, $id) = @_;
+	return undef unless (defined $id);
 	my $rating = $self->_data_manager()->increase_quote_rating($id);
 	my $votes = $self->_data_manager()->increase_quote_vote_count($id);
 	return ($rating, $votes);
@@ -538,6 +539,7 @@ sub increase_quote_rating {
 
 sub decrease_quote_rating {
 	my ($self, $id) = @_;
+	return undef unless (defined $id);
 	my $rating = $self->_data_manager()->decrease_quote_rating($id);
 	my $votes = $self->_data_manager()->increase_quote_vote_count($id);
 	return ($rating, $votes);
@@ -565,6 +567,7 @@ sub approve_quotes {
 
 sub get_news_item {
 	my ($self, $id) = @_;
+	return undef unless (defined $id);
 	my $items = $self->_data_manager()->get_news_items({ 'id' => $id });
 	return (defined $items ? $items->[0] : undef);
 }
@@ -612,6 +615,7 @@ sub get_accounts_by_level {
 
 sub get_account_by_id {
 	my ($self, $id) = @_;
+	return undef unless (defined $id);
 	my $accounts = $self->_data_manager()->get_accounts({ 'id' => $id });
 	return (defined $accounts ? $accounts->[0] : undef);
 }

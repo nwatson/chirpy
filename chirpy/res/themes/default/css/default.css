@@ -269,7 +269,8 @@ blockquote.quote-body p {
 	padding: 0;
 }
 
-#confirmation-form blockquote.quote-body {
+#confirmation-form blockquote.quote-body,
+#quote-removal-confirmation-form blockquote.quote-body {
 	margin: 1em 0;
 	padding: 1em;
 	border: 1px dashed #EEE;

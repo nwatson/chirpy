@@ -517,13 +517,15 @@ sub _provide_administration_interface {
 			if ($id) {
 				my $quote = $self->parent()->get_quote($id);
 				if (defined $quote && $quote->is_approved()) {
-					my $body = $quote->get_body();
-					my $notes = $quote->get_notes();
-					$self->parent()->remove_quotes($id);
-					$self->confirm_quote_removal();
-					$self->_log_event(Chirpy::Event::REMOVE_QUOTE, {
-						'id' => $id
-					});
+					if ($self->quote_removal_confirmed()) {
+						$self->parent()->remove_quotes($id);
+						$self->confirm_quote_removal();
+						$self->_log_event(Chirpy::Event::REMOVE_QUOTE,
+							{ 'id' => $id });
+					}
+					else {
+						$self->request_quote_removal_confirmation($quote);
+					}
 				}
 				else {
 					$self->report_quote_to_remove_not_found();
@@ -605,15 +607,10 @@ sub _provide_administration_interface {
 			if ($id) {
 				my $item = $self->parent()->get_news_item($id);
 				if (defined $item) {
-					my $body = $item->get_body();
-					my $poster = $item->get_poster();
 					$self->parent()->remove_news_items($id);
 					$self->confirm_news_item_removal();
-					$self->_log_event(Chirpy::Event::REMOVE_NEWS, {
-						'id' => $id, 'body' => $body,
-						'poster' => (defined $poster
-							? $poster->get_id() : undef)
-					});
+					$self->_log_event(Chirpy::Event::REMOVE_NEWS,
+						{ 'id' => $id });
 				}
 				else {
 					$self->report_news_item_to_remove_not_found();
@@ -747,11 +744,8 @@ sub _provide_administration_interface {
 						my $level = $account->get_level();
 						$parent->remove_accounts($id);
 						$self->confirm_account_removal();
-						$self->_log_event(Chirpy::Event::REMOVE_ACCOUNT, {
-							'id' => $id,
-							'username' => $username,
-							'level' => $level
-						});
+						$self->_log_event(Chirpy::Event::REMOVE_ACCOUNT,
+							{ 'id' => $id });
 					}
 					else {
 						$self->report_account_to_remove_not_found();
@@ -1293,6 +1287,10 @@ sub param {
 *get_quote_to_remove = \&Chirpy::Util::abstract_method;
 
 *confirm_quote_removal = \&Chirpy::Util::abstract_method;
+
+*quote_removal_confirmed = \&Chirpy::Util::abstract_method;
+
+*request_quote_removal_confirmation = \&Chirpy::Util::abstract_method;
 
 *report_quote_to_remove_not_found = \&Chirpy::Util::abstract_method;
 

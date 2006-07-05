@@ -468,6 +468,30 @@ sub get_manage_quotes_html {
 			. '" id="edit-quote-reset-button" />' . $/
 			. '</div></form></div>';
 	}
+	if (my $quote = $params{'confirm_quote_removal'}) {
+		my ($body, $notes, $tags) = $self->parent()->_format_quote($quote);
+		return '<div id="quote-removal-confirmation-form">' . $/
+			. '<form method="post" action="'
+			. $self->parent()->_url(
+				Chirpy::UI::WebApp::ADMIN_ACTIONS->{'REMOVE_QUOTE'},
+				1,
+				'id' => $quote->get_id()
+			) . '">' . $/
+			. '<p id="quote-removal-confirmation-request">'
+			. &_text_to_xhtml($locale->get_string('quote_removal_confirmation'))
+			. '</p>' . $/
+			. '<blockquote class="quote-body"><p>'
+			. $body . '</p></blockquote>' . $/
+			. '<div id="quote-removal-confirmation-submit-container">' . $/
+			. '<input type="submit" name="confirm" value="'
+			. &_text_to_xhtml($locale->get_string('remove_quote'))
+			. '" id="quote-removal-confirmation-submit-button" />' . $/
+			. '<input type="button" value="'
+			. &_text_to_xhtml($locale->get_string('cancel'))
+			. '" id="quote-removal-confirmation-cancel-button"'
+			. ' onclick="history.go(-1);" />' . $/
+			. '</div></form></div>';
+	}
 	my $result;
 	if ($params{'quote_removed'}) {
 		$result = $locale->get_string('quote_removed');

@@ -593,7 +593,6 @@ sub _generate_feed {
 	);
 	my @quotes = ();
 	my $date;
-	my $auto_link = $conf->get('ui', 'webapp.enable_autolink');
 	foreach my $quote (@$quotes) {
 		my $id = $quote->get_id();
 		my $d = $quote->get_date_submitted();
@@ -604,17 +603,7 @@ sub _generate_feed {
 			undef, 'id' => $id);
 		my $report_url = $self->_url(ACTIONS->{'REPORT_QUOTE'},
 			undef, 'id' => $id);
-		my $body = &_text_to_xhtml($quote->get_body());
-		my $notes = &_text_to_xhtml($quote->get_notes());
-		my $tags = $self->_link_tags($quote);
-		if ($auto_link) {
-			$body = &_auto_link($body);
-			$notes = &_auto_link($notes);
-		}
-		else {
-			$body = &_spam_protect_email_addresses($body);
-			$notes = &_spam_protect_email_addresses($notes);
-		}
+		my ($body, $notes, $tags) = $self->_format_quote($quote);
 		push @quotes, {
 			'QUOTE_ID' => $id,
 			'QUOTE_URL' => &_text_to_xhtml($self->_quote_url($id)),
@@ -766,7 +755,6 @@ sub _generate_xhtml {
 		'NOTES_TITLE' => $notes_title,
 		'TAGS_TITLE' => $tags_title
 	);
-	my $auto_link = $self->configuration()->get('ui', 'webapp.enable_autolink');
 	my @quotes_tmpl = ();
 	$self->parent()->mark_debug_event('Parse quotes for template');
 	foreach my $quote (@$quotes) {
@@ -783,17 +771,7 @@ sub _generate_xhtml {
 			undef,
 			'id' => $quote->get_id());
 		$self->parent()->mark_debug_event('Parse quote body');
-		my $body = &_text_to_xhtml($quote->get_body());
-		my $notes = &_text_to_xhtml($quote->get_notes());
-		my $tags = $self->_link_tags($quote);
-		if ($auto_link) {
-			$body = &_auto_link($body);
-			$notes = &_auto_link($notes);
-		}
-		else {
-			$body = &_spam_protect_email_addresses($body);
-			$notes = &_spam_protect_email_addresses($notes);
-		}
+		my ($body, $notes, $tags) = $self->_format_quote($quote);
 		$self->parent()->mark_debug_event('Quote body parsed');
 		push @quotes_tmpl, {
 			'ID' => $quote->get_id(),
@@ -1349,6 +1327,18 @@ sub confirm_quote_removal {
 	my $self = shift;
 	$self->_output_administration_page(
 		'quote_removed' => 1
+	);
+}
+
+sub quote_removal_confirmed {
+	my $self = shift;
+	return $self->_cgi_param('confirm');
+}
+
+sub request_quote_removal_confirmation {
+	my ($self, $quote) = @_;
+	$self->_output_administration_page(
+		'confirm_quote_removal' => $quote
 	);
 }
 
@@ -2168,6 +2158,22 @@ sub _format_date_time_iso8601 {
 	return sprintf('%04d-%02d-%02dT%02d:%02d:%02dZ',
 		1900 + $time[5], $time[4] + 1, $time[3],
 		$time[2], $time[1], $time[0]);
+}
+
+sub _format_quote {
+	my ($self, $quote) = @_;
+	my $body = &_text_to_xhtml($quote->get_body());
+	my $notes = &_text_to_xhtml($quote->get_notes());
+	my $tags = $self->_link_tags($quote);
+	if ($self->configuration()->get('ui', 'webapp.enable_autolink')) {
+		$body = &_auto_link($body);
+		$notes = &_auto_link($notes);
+	}
+	else {
+		$body = &_spam_protect_email_addresses($body);
+		$notes = &_spam_protect_email_addresses($notes);
+	}
+	return ($body, $notes, $tags);
 }
 
 sub _auto_link {

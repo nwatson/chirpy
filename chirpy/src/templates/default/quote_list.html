@@ -65,7 +65,7 @@
 					<TMPL_IF NAME="ALLOW_REMOVE">
 					<a href="<TMPL_VAR NAME="REMOVE_URL">" class="quote-remove"
 					title="<TMPL_VAR NAME="REMOVE_DESCRIPTION">"
-					onclick="return confirm(&quot;<TMPL_VAR NAME="REMOVAL_CONFIRMATION">&quot;)">[<TMPL_VAR NAME="REMOVE">]</a>
+					onclick="if (!confirm(&quot;<TMPL_VAR NAME="REMOVAL_CONFIRMATION">&quot;)) return false; this.href += &quot;&amp;confirm=1&quot;; return true;">[<TMPL_VAR NAME="REMOVE">]</a>
 					</TMPL_IF>
 				<TMPL_ELSE>
 					<span id="quote-live-vote-result-<TMPL_VAR NAME="ID">" class="quote-live-vote-result"></span>
