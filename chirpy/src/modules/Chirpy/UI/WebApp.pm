@@ -574,12 +574,30 @@ sub browse_quotes {
 
 sub _generate_feed {
 	my ($self, $quotes, $type, $page) = @_;
+	my $date;
+	foreach my $quote (@$quotes) {
+		my $d = $quote->get_date_submitted();
+		$date = $d if (!defined($date) || $d > $date);
+	}
+	$date = time unless (defined $date);
+	my $etag = sprintf('"%X"', $date);
+	require HTTP::Date;
+	my $ims = $self->{'cgi'}->http('If-Modified-Since');
+	my $inm = $self->{'cgi'}->http('If-None-Match');
+	if ((defined $ims || defined $inm)
+	&& ((defined $ims && $date <= HTTP::Date::str2time($ims))
+	|| (defined $inm && $etag eq $inm))) {
+		print $self->{'cgi'}->header(-status => '304 Not Modified');
+		return;
+	}
 	my $locale = $self->locale();
 	my $conf = $self->configuration();
 	my $site_title = &_text_to_xhtml(
-			$conf->get('general', 'title'));
+		$conf->get('general', 'title'));
 	my $page_title = &_text_to_xhtml(
 		$self->locale()->get_string(&_get_page_name($page)));
+	my $site_description = &_text_to_xhtml(
+		$conf->get('general', 'description'));
 	my $name = &_text_to_xhtml($self->param('webmaster_name'));
 	my $email = &_hide_email($self->param('webmaster_email'));
 	my $template = new HTML::Template(
@@ -592,7 +610,6 @@ sub _generate_feed {
 		'file_cache_dir_mode' => 0777
 	);
 	my @quotes = ();
-	my $date;
 	foreach my $quote (@$quotes) {
 		my $id = $quote->get_id();
 		my $d = $quote->get_date_submitted();
@@ -636,16 +653,10 @@ sub _generate_feed {
 			'QUOTE_IS_FLAGGED' => $quote->is_flagged()
 		};
 	}
-	$date = time unless (defined $date);
-	require HTTP::Date;
-	my $header_date = HTTP::Date::time2str($date);
-	if ($self->{'cgi'}->http('If-Modified-Since') eq $header_date) {
-		print $self->{'cgi'}->header(-status => '304 Not Modified');
-		return;
-	}
 	$template->param(
-		'FEED_TITLE' => $site_title,
-		'FEED_SUBTITLE' => $page_title,
+		'SITE_TITLE' => $site_title,
+		'PAGE_TITLE' => $page_title,
+		'FEED_SUBTITLE' => $site_description,
 		'FEED_URL' => $self->_feed_url($type),
 		'SITE_URL' => $self->_url(),
 		'WEBMASTER_NAME' => $name,
@@ -665,7 +676,8 @@ sub _generate_feed {
 	my $ctype = 'application/' . $type . '+xml';
 	$ctype = 'text/xml' unless ($self->_accepts($ctype));
 	$self->_maybe_gzip($template->output(), $ctype,
-		'Last-Modified' => $header_date);
+		-Last_Modified => HTTP::Date::time2str($date),
+		-ETag => $etag);
 }
 
 sub _generate_xhtml {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="<TMPL_VAR NAME="CHARACTER_ENCODING">"?>
 <rss version="2.0">
 <channel>
-<title><TMPL_VAR NAME="FEED_TITLE"></title>
+<title><TMPL_VAR NAME="SITE_TITLE">: <TMPL_VAR NAME="PAGE_TITLE"></title>
 <description><TMPL_VAR NAME="FEED_SUBTITLE"></description>
 <link><TMPL_VAR NAME="SITE_URL"></link>
 <lastBuildDate><TMPL_VAR NAME="FEED_DATE_RFC822"></lastBuildDate>

@@ -128,6 +128,7 @@ something like this:
 
  [general]
  title=My Little QDB
+ description=A place for my quotes
  locale=en-US
  ...
 
@@ -158,6 +159,10 @@ Do I<not> include a trailing slash.
 =item title
 
 The title of your QDB.
+
+=item description
+
+A brief description of the purpose of your QDB.
 
 =item locale
 

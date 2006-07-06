@@ -199,6 +199,7 @@ Right, let's create that chirpy.ini file now. Here is a basic example:
 -------------------------------------------------------------------------------
 [general]
 title=My Little QDB
+description=A place for my quotes
 base_path=./src
 locale=en-US
 rating_limit_count=2
@@ -247,6 +248,7 @@ change some of the others.
 ----------------------------
 
 title               Change this value to the title you want your QDB to have.
+description         Enter a brief description of the purpose of your QDB.
 base_path           Enter the absolute or relative path to the src/ directory
                     here. When using relative paths, this is again relative to
                     the directory where index.cgi is.

@@ -10,6 +10,9 @@
   intermediate confirmation page for non-AJAX users
 * You can now edit quotes before approving them
 * Made tag cloud ignore unapproved quotes
+* Added description field in chirpy.ini, for use in feeds
+* Put page title in feed title instead of subtitle
+* Improved feed modification detection
 * Made templates use HTML::Template's caching feature, which is pretty fast
 * Template parameters are now global, which means you can include parameters
   from outside a loop
