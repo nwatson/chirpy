@@ -261,13 +261,17 @@ sub run {
 				$tags
 			);
 			$self->confirm_quote_submission($approved);
+			my $id = $quote->get_id();
 			$self->_log_event(Chirpy::Event::ADD_QUOTE, {
-				'id' => $quote->get_id(),
+				'id' => $id,
 				'body' => $body,
-				'notes' => $notes,
-				'approved' => $approved,
-				'tags' => join(' ', @$tags)
+				(defined $notes && length($notes) ? ('notes' => $notes) : ()),
+				(@$tags ? ('tags' => join(' ', @$tags)) : ())
 			});
+			if ($approved) {
+				$self->_log_event(Chirpy::Event::APPROVE_QUOTE,
+					{ 'id' => $id });
+			}
 		}
 		else {
 			$self->provide_quote_submission_interface();
