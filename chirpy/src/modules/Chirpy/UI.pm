@@ -1038,7 +1038,9 @@ sub _rate_quote {
 	$self->set_rating_history(@$history, time);
 	$self->confirm_quote_rating($id, $up, $new_rating, $new_vote_count);
 	$self->set_rated_quotes($self->get_rated_quotes(), $id);
-	$self->_log_event(Chirpy::Event::QUOTE_RATING_UP,
+	$self->_log_event(($up
+			? Chirpy::Event::QUOTE_RATING_UP
+			: Chirpy::Event::QUOTE_RATING_DOWN),
 		{ 'id' => $id, 'new_rating' => $new_rating });
 }
 
