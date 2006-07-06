@@ -352,24 +352,22 @@ function parseEventLogXML (xml) {
 	var events = new Array();
 	for (var i = 0; i < xml.childNodes.length; i++) {
 		var root = xml.childNodes[i];
-		if (root.nodeType == 1) {
-			for (var j = 0; j < root.childNodes.length; j++) {
-				var child = root.childNodes[j];
-				if (child.nodeType == 1) {
-					switch (child.nodeName) {
-						case "event":
-							events.push(parseLogEventNode(child));
-							break;
-						case "leading":
-							leading = true;
-							break;
-						case "trailing":
-							trailing = true;
-							break;
-					}
+		if (root.nodeType != 1) continue;
+		for (var j = 0; j < root.childNodes.length; j++) {
+			var child = root.childNodes[j];
+			if (child.nodeType == 1) {
+				switch (child.nodeName) {
+					case "event":
+						events.push(parseLogEventNode(child));
+						break;
+					case "leading":
+						leading = true;
+						break;
+					case "trailing":
+						trailing = true;
+						break;
 				}
 			}
-			break;
 		}
 	}
 	var data = new Array();
@@ -384,27 +382,25 @@ function parseLogEventNode (node) {
 	event["data"] = new Array();
 	for (var i = 0; i < node.childNodes.length; i++) {
 		var child = node.childNodes[i];
-		if (child.nodeType == 1) {
-			if (child.nodeName == "data") {
-				var name, value;
-				for (var j = 0; j < child.childNodes.length; j++) {
-					var n = child.childNodes[j];
-					if (n.nodeType == 1) {
-						switch (n.nodeName) {
-							case "name":
-								name = n.firstChild.nodeValue;
-								break;
-							case "value":
-								value = extractLogEventDataValue(n);
-								break;
-						}
-					}
+		if (child.nodeType != 1) continue;
+		if (child.nodeName == "data") {
+			var name, value;
+			for (var j = 0; j < child.childNodes.length; j++) {
+				var n = child.childNodes[j];
+				if (n.nodeType != 1) continue;
+				switch (n.nodeName) {
+					case "name":
+						name = n.firstChild.nodeValue;
+						break;
+					case "value":
+						value = extractLogEventDataValue(n);
+						break;
 				}
-				event["data"][name] = value;
 			}
-			else {
-				event[child.nodeName] = child.firstChild.nodeValue;
-			}
+			event["data"][name] = value;
+		}
+		else {
+			event[child.nodeName] = child.firstChild.nodeValue;
 		}
 	}
 	return event;
