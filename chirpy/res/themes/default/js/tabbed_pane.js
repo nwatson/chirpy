@@ -26,22 +26,21 @@
 
 var tabs, activeTab;
 
-function initializeTabbedPane (name, isIE, initialTab) {
+function initializeTabbedPane (name, initialTab) {
 	tabs = document.getElementById(name + '-navigation').childNodes;
 	contents = document.getElementById(name + '-contents').childNodes;
 	for (var i = 0; i < tabs.length; i++) {
-		var anchor = tabs[i].firstChild;
-		if (isIE)
-			anchor.onclick = function() {
-				displayTab(window.event.srcElement);
-				return false;
-			};
-		else
-			anchor.setAttribute('onclick',
-				'displayTab(this); return false;');
-		anchor.removeAttribute('href');
+		initializeTab(tabs[i].firstChild);
 	}
-	setActiveTab(tabs[initialTab || 0].firstChild);
+	setActiveTab(initialTab ? initialTab : tabs[0].firstChild);
+}
+
+function initializeTab (tab) {
+	tab.onclick = function() {
+		displayTab(tab);
+		return false;
+	};
+	tab.removeAttribute('href');
 }
 
 function displayTab (tab) {
@@ -55,10 +54,7 @@ function setActiveTab (tab) {
 		var tab = tabs[i].firstChild;
 		var active = (tab == activeTab);
 		var className = active ? 'active-tab' : '';
-		if (isIE)
-			tab.className = className;
-		else
-			tab.setAttribute("class", className);
+		tab.className = className;
 		document.getElementById(tab.id.substring(4)).style.display = (active ? '' : 'none');
 	}
 }

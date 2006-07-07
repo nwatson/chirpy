@@ -16,71 +16,46 @@
 			</div>
 		</TMPL_IF>
 	</TMPL_IF>
-	<ul id="admin-navigation" class="tabbed-pane-header"><li><a
-		href="#approve-quotes" id="tab-approve-quotes"><TMPL_VAR NAME="APPROVE_QUOTES"></a></li><li><a
-		href="#flagged-quotes" id="tab-flagged-quotes"><TMPL_VAR NAME="FLAGGED_QUOTES"></a></li><li><a
-		href="#manage-quotes" id="tab-manage-quotes"><TMPL_VAR NAME="MANAGE_QUOTES"></a></li><li><a
-		href="#manage-news" id="tab-manage-news"><TMPL_VAR NAME="MANAGE_NEWS"></a></li><li><a
-		href="#view_event_log" id="tab-view-event-log"><TMPL_VAR NAME="VIEW_EVENT_LOG"></a></li><li><a
-		href="#manage_accounts" id="tab-manage-accounts"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></a></li><li><a
+	<ul id="admin-navigation" class="tabbed-pane-header"><li><TMPL_IF NAME="APPROVE_QUOTES_ALLOWED"><a
+		href="#approve-quotes" id="tab-approve-quotes"><TMPL_VAR NAME="APPROVE_QUOTES"></a></li></TMPL_IF><TMPL_IF NAME="FLAGGED_QUOTES_ALLOWED"><li><a
+		href="#flagged-quotes" id="tab-flagged-quotes"><TMPL_VAR NAME="FLAGGED_QUOTES"></a></li></TMPL_IF><TMPL_IF NAME="MANAGE_QUOTES_ALLOWED"><li><a
+		href="#manage-quotes" id="tab-manage-quotes"><TMPL_VAR NAME="MANAGE_QUOTES"></a></li></TMPL_IF><TMPL_IF NAME="MANAGE_NEWS_ALLOWED"><li><a
+		href="#manage-news" id="tab-manage-news"><TMPL_VAR NAME="MANAGE_NEWS"></a></li></TMPL_IF><TMPL_IF NAME="VIEW_EVENT_LOG_ALLOWED"><li><a
+		href="#view_event_log" id="tab-view-event-log"><TMPL_VAR NAME="VIEW_EVENT_LOG"></a></li></TMPL_IF><TMPL_IF NAME="MANAGE_ACCOUNTS_ALLOWED"><li><a
+		href="#manage_accounts" id="tab-manage-accounts"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></a></li></TMPL_IF><li><a
 		href="#change-password" id="tab-change-password"><TMPL_VAR NAME="CHANGE_PASSWORD"></a></li></ul>
-	<ul id="admin-contents" class="tabbed-pane-contents"><li id="approve-quotes">
+	<ul id="admin-contents" class="tabbed-pane-contents"><TMPL_IF NAME="APPROVE_QUOTES_ALLOWED">
+		<li id="approve-quotes">
 			<h3 class="tab-title"><TMPL_VAR NAME="APPROVE_QUOTES"></h3>
-			<TMPL_IF NAME="APPROVE_QUOTES_ALLOWED">
-				<TMPL_VAR NAME="APPROVE_QUOTES_HTML">
-			<TMPL_ELSE>
-				<TMPL_VAR NAME="APPROVE_QUOTES_NOT_ALLOWED_HTML">
-			</TMPL_IF>
-		</li><li id="flagged-quotes">
+			<TMPL_VAR NAME="APPROVE_QUOTES_HTML">
+		</li></TMPL_IF><TMPL_IF NAME="FLAGGED_QUOTES_ALLOWED"><li id="flagged-quotes">
 			<h3 class="tab-title"><TMPL_VAR NAME="FLAGGED_QUOTES"></h3>
-			<TMPL_IF NAME="FLAGGED_QUOTES_ALLOWED">
-				<TMPL_VAR NAME="FLAGGED_QUOTES_HTML">
-			<TMPL_ELSE>
-				<TMPL_VAR NAME="FLAGGED_QUOTES_NOT_ALLOWED_HTML">
-			</TMPL_IF>
-		</li><li id="manage-quotes">
+			<TMPL_VAR NAME="FLAGGED_QUOTES_HTML">
+		</li></TMPL_IF><TMPL_IF NAME="MANAGE_QUOTES_ALLOWED"><li id="manage-quotes">
 			<h3 class="tab-title"><TMPL_VAR NAME="MANAGE_QUOTES"></h3>
-			<TMPL_IF NAME="MANAGE_QUOTES_ALLOWED">
-				<TMPL_VAR NAME="MANAGE_QUOTES_HTML">
-			<TMPL_ELSE>
-				<TMPL_VAR NAME="MANAGE_QUOTES_NOT_ALLOWED_HTML">
-			</TMPL_IF>
-		</li><li id="manage-news">
+			<TMPL_VAR NAME="MANAGE_QUOTES_HTML">
+		</li></TMPL_IF><TMPL_IF NAME="MANAGE_NEWS_ALLOWED"><li id="manage-news">
 			<h3 class="tab-title"><TMPL_VAR NAME="MANAGE_NEWS"></h3>
-			<TMPL_IF NAME="MANAGE_NEWS_ALLOWED">
-				<TMPL_VAR NAME="MANAGE_NEWS_HTML">
-			<TMPL_ELSE>
-				<TMPL_VAR NAME="MANAGE_NEWS_NOT_ALLOWED_HTML">
-			</TMPL_IF>
-		</li><li id="view-event-log">
+			<TMPL_VAR NAME="MANAGE_NEWS_HTML">
+		</li></TMPL_IF><TMPL_IF NAME="VIEW_EVENT_LOG_ALLOWED"><li id="view-event-log">
 			<h3 class="tab-title"><TMPL_VAR NAME="VIEW_EVENT_LOG"></h3>
-			<TMPL_IF NAME="VIEW_EVENT_LOG_ALLOWED">
-				<TMPL_VAR NAME="VIEW_EVENT_LOG_HTML">
-			<TMPL_ELSE>
-				<TMPL_VAR NAME="VIEW_EVENT_LOG_NOT_ALLOWED_HTML">
-			</TMPL_IF>
-		</li><li id="manage-accounts">
+			<TMPL_VAR NAME="VIEW_EVENT_LOG_HTML">
+		</li></TMPL_IF><TMPL_IF NAME="MANAGE_ACCOUNTS_ALLOWED"><li id="manage-accounts">
 			<h3 class="tab-title"><TMPL_VAR NAME="MANAGE_ACCOUNTS"></h3>
-			<TMPL_IF NAME="MANAGE_ACCOUNTS_ALLOWED">
-				<TMPL_VAR NAME="MANAGE_ACCOUNTS_HTML">
-			<TMPL_ELSE>
-				<TMPL_VAR NAME="MANAGE_ACCOUNTS_NOT_ALLOWED_HTML">
-			</TMPL_IF>
-		</li><li id="change-password">
+			<TMPL_VAR NAME="MANAGE_ACCOUNTS_HTML">
+		</li></TMPL_IF><li id="change-password">
 			<h3 class="tab-title"><TMPL_VAR NAME="CHANGE_PASSWORD"></h3>
 			<TMPL_VAR NAME="CHANGE_PASSWORD_HTML">
 		</li></ul>
-	<script type="text/javascript">var isIE = false;</script>
-	<!--[if IE]><script type="text/javascript">isIE = true;</script><![endif]-->
-	<script type="text/javascript">initializeTabbedPane('admin', isIE
-		<TMPL_IF NAME="ACTION_IS_QUOTE_FLAGS"   >, 1</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_QUOTE_EDIT"    >, 2</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_QUOTE_REMOVE"  >, 2</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_NEWS_ADD"      >, 3</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_NEWS_EDIT"     >, 3</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_NEWS_REMOVE"   >, 3</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_LOG"           >, 4</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_ACCOUNTS"      >, 5</TMPL_IF>
-		<TMPL_IF NAME="ACTION_IS_PASSWORD"      >, 6</TMPL_IF>
+	<script type="text/javascript">initializeTabbedPane('admin'
+		<TMPL_IF NAME="ACTION_IS_QUOTE_FLAGS"   >, document.getElementById('tab-flagged-quotes')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_QUOTE_EDIT"    >, document.getElementById('tab-manage-quotes')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_QUOTE_REMOVE"  >, document.getElementById('tab-manage-quotes')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_NEWS_ADD"      >, document.getElementById('tab-manage-news')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_NEWS_EDIT"     >, document.getElementById('tab-manage-news')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_NEWS_REMOVE"   >, document.getElementById('tab-manage-news')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_LOG"           >, document.getElementById('tab-view-event-log')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_ACCOUNTS"      >, document.getElementById('tab-manage-accounts')</TMPL_IF>
+		<TMPL_IF NAME="ACTION_IS_PASSWORD"      >, document.getElementById('tab-change-password')</TMPL_IF>
 	);</script>
 <TMPL_INCLUDE NAME="_foot.html">

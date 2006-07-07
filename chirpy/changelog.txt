@@ -10,6 +10,7 @@
   intermediate confirmation page for non-AJAX users
 * You can now edit quotes before approving them
 * Made tag cloud ignore unapproved quotes
+* Administrative interface now only displays tabs that are available
 * Added description field in chirpy.ini, for use in feeds
 * Put page title in feed title instead of subtitle
 * Improved feed modification detection

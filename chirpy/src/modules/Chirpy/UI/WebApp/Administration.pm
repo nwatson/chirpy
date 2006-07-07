@@ -144,17 +144,19 @@ sub output {
 			$locale->get_string('manage_accounts')),
 		'MANAGE_ACCOUNTS_HTML'
 			=> sub { return $self->get_manage_accounts_html(%params) },
-		'VIEW_EVENT_LOG' => &_text_to_xhtml(
-			$locale->get_string('view_event_log')),
-		'VIEW_EVENT_LOG_ALLOWED'
-			=> $event_log_allowed,
-		'VIEW_EVENT_LOG_HTML'
-			=> sub { return $self->get_event_log_html(%params) },
 		'MANAGE_ACCOUNTS_ALLOWED'
 			=> $self->parent()->administration_allowed(Chirpy::UI::ADD_ACCOUNT)
 				&& $self->parent()->administration_allowed(Chirpy::UI::EDIT_ACCOUNT)
 				&& $self->parent()->administration_allowed(Chirpy::UI::REMOVE_ACCOUNT),
 		'MANAGE_ACCOUNTS_NOT_ALLOWED_HTML'
+			=> sub { return $self->get_access_disallowed_html() },
+		'VIEW_EVENT_LOG' => &_text_to_xhtml(
+			$locale->get_string('view_event_log')),
+		'VIEW_EVENT_LOG_HTML'
+			=> sub { return $self->get_event_log_html(%params) },
+		'VIEW_EVENT_LOG_ALLOWED'
+			=> $event_log_allowed,
+		'VIEW_EVENT_LOG_NOT_ALLOWED_HTML'
 			=> sub { return $self->get_access_disallowed_html() },
 		'CHANGE_PASSWORD' => &_text_to_xhtml(
 			$locale->get_string('change_password')),
@@ -571,7 +573,7 @@ sub get_manage_news_html {
 			. &_text_to_xhtml(
 				$locale->get_string('unknown'))
 			. ')</option>' . $/;
-		my $posters = $self->parent()->parent()->get_news_posters();
+		my $posters = $self->parent()->get_news_posters();
 		if (defined $posters) {
 			foreach my $account (@$posters) {
 				my $p = $item->get_poster();
