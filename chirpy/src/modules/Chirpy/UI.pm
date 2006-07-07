@@ -133,7 +133,6 @@ use constant ADMIN_PERMISSIONS => {
 		Chirpy::Account::USER_LEVEL_9 => 1
 	},
 	VIEW_EVENT_LOG() => {
-		Chirpy::Account::USER_LEVEL_6 => 1,
 		Chirpy::Account::USER_LEVEL_9 => 1
 	},
 	ADD_ACCOUNT() => {
