@@ -289,7 +289,7 @@ use constant ACTIONS => {
 	'SUBMIT_QUOTE' => 'submit',
 	'ADMINISTRATION' => 'admin',
 	'LOGIN' => 'login',
-	'LOGOUT' => 'logout',
+	'LOGOUT' => 'logout'
 };
 
 use constant ADMIN_ACTIONS => {
@@ -338,6 +338,7 @@ sub get_target_version {
 
 sub get_current_page {
 	my $self = shift;
+	return $self->{'page'} if (exists $self->{'page'});
 	my $action = $self->_action();
 	my $page;
 	if (defined $action && $action) {
@@ -360,6 +361,7 @@ sub get_current_page {
 			unless (defined $quotes_per_feed && $quotes_per_feed > 0);
 		$self->parent()->quotes_per_page($quotes_per_feed);
 	}
+	$self->{'page'} = $page;
 	return $page;
 }
 
@@ -657,7 +659,7 @@ sub _generate_feed {
 		'SITE_TITLE' => $site_title,
 		'PAGE_TITLE' => $page_title,
 		'FEED_SUBTITLE' => $site_description,
-		'FEED_URL' => $self->_feed_url($type),
+		'FEED_URL' => $self->_feed_url($self->action(), $type),
 		'SITE_URL' => $self->_url(),
 		'WEBMASTER_NAME' => $name,
 		'WEBMASTER_EMAIL' => $email,
@@ -1979,19 +1981,29 @@ sub _process_template {
 	$template->param('SITE_URL' => $self->_url());
 	$template->param('WEBMASTER_EMAIL'
 		=> sub { return &_hide_email($self->param('webmaster_email')) });
-	my $qt = $locale->get_string('quotes_of_the_week');
-	$template->param('FEEDS' => [
-		{
-			'FEED_URL' => $self->_feed_url('rss'),
-			'FEED_TITLE' => &_text_to_xhtml($qt) . ' (RSS 2.0)',
-			'FEED_MIME_TYPE' => 'application/rss+xml'
-		},
-		{
-			'FEED_URL' => $self->_feed_url('atom'),
-			'FEED_TITLE' => &_text_to_xhtml($qt) . ' (Atom 1.0)',
-			'FEED_MIME_TYPE' => 'application/atom+xml'
+	if ($self->param('enable_feeds')) {
+		my $page = $self->get_current_page();
+		my $page_feed = &_page_feed($page);
+		if (defined $page_feed) {
+			my $ft = &_text_to_xhtml(
+				$locale->get_string(&_get_page_name($page_feed)));
+			my $action = ($page_feed == Chirpy::UI::QUOTES_OF_THE_WEEK
+				? undef
+				: $self->_action());
+			$template->param('FEEDS' => [
+				{
+					'FEED_URL' => $self->_feed_url($action, 'rss'),
+					'FEED_TITLE' => $ft . ' (RSS 2.0)',
+					'FEED_MIME_TYPE' => 'application/rss+xml'
+				},
+				{
+					'FEED_URL' => $self->_feed_url($action, 'atom'),
+					'FEED_TITLE' => $ft . ' (Atom 1.0)',
+					'FEED_MIME_TYPE' => 'application/atom+xml'
+				}
+			]);
 		}
-	]) if ($self->param('enable_feeds'));
+	}
 	$template->param('APPROVED_QUOTE_COUNT' => sub {
 		return $self->parent()->approved_quote_count();
 	});
@@ -2312,11 +2324,11 @@ sub _resources_url {
 }
 
 sub _feed_url {
-	my ($self, $type) = @_;
+	my ($self, $action, $type) = @_;
 	return ($self->param('enable_short_urls')
-			? $self->_url($type)
-			: $self->_url(ACTIONS->{'QUOTES_OF_THE_WEEK'}, undef,
-				'output' => $type));
+		# TODO: Update _url() for feeds
+		? $self->_url(defined $action ? $type . '/' . $action : $type)
+		: $self->_url($action, undef, 'output' => $type));
 }
 
 sub _quote_url {
@@ -2401,6 +2413,23 @@ sub _feed_type {
 sub _valid_feed_type {
 	my $type = shift;
 	return (defined $type && ($type eq 'atom' || $type eq 'rss'));
+}
+
+sub _page_feed {
+	my $page = shift;
+	if ($page == Chirpy::UI::START_PAGE
+	|| $page == Chirpy::UI::QUOTE_BROWSER
+	|| $page == Chirpy::UI::QUOTES_OF_THE_WEEK) {
+		return Chirpy::UI::QUOTES_OF_THE_WEEK;
+	}
+	# TODO: Provide feeds for searches
+	if ($page == Chirpy::UI::RANDOM_QUOTES
+	|| $page == Chirpy::UI::TOP_QUOTES
+	|| $page == Chirpy::UI::BOTTOM_QUOTES
+	|| $page == Chirpy::UI::MODERATION_QUEUE) {
+		return $page;
+	}
+	return undef;
 }
 
 sub _requires_session {

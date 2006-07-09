@@ -11,6 +11,7 @@
 * You can now edit quotes before approving them
 * Made tag cloud ignore unapproved quotes
 * Administrative interface now only displays tabs that are available
+* Made pages point to their own feeds instead of QotW (where applicable)
 * Added description field in chirpy.ini, for use in feeds
 * Put page title in feed title instead of subtitle
 * Improved feed modification detection
