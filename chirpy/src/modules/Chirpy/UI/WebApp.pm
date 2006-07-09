@@ -1987,8 +1987,10 @@ sub _process_template {
 		if (defined $page_feed) {
 			my $ft = &_text_to_xhtml(
 				$locale->get_string(&_get_page_name($page_feed)));
+			# TODO: Don't assume QotW is the default, perhaps make _page_feed
+			# supply action
 			my $action = ($page_feed == Chirpy::UI::QUOTES_OF_THE_WEEK
-				? undef
+				? ACTIONS->{'QUOTES_OF_THE_WEEK'}
 				: $self->_action());
 			$template->param('FEEDS' => [
 				{
@@ -2327,7 +2329,7 @@ sub _feed_url {
 	my ($self, $action, $type) = @_;
 	return ($self->param('enable_short_urls')
 		# TODO: Update _url() for feeds
-		? $self->_url(defined $action ? $type . '/' . $action : $type)
+		? $self->_url($type . '/' . $action)
 		: $self->_url($action, undef, 'output' => $type));
 }
 
