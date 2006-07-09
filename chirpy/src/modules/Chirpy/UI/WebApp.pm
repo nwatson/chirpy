@@ -659,7 +659,7 @@ sub _generate_feed {
 		'SITE_TITLE' => $site_title,
 		'PAGE_TITLE' => $page_title,
 		'FEED_SUBTITLE' => $site_description,
-		'FEED_URL' => $self->_feed_url(ACTIONS->{$page}, $type),
+		'FEED_URL' => $self->_feed_url($self->_action(), $type),
 		'SITE_URL' => $self->_url(),
 		'WEBMASTER_NAME' => $name,
 		'WEBMASTER_EMAIL' => $email,
