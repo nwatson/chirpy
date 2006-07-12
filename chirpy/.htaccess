@@ -1,7 +1,7 @@
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteRule  ^([0-9]+|0x[0-9A-Fa-f]+|0b[01]+)$  index.cgi?id=$1  [L]
-RewriteRule  ^(rss|atom)$  index.cgi?action=qotw&output=$1  [L]
+RewriteRule  ^(rss|atom)$  %{REQUEST_URI}/qotw  [L,R=301]
 RewriteRule  ^(rss|atom)/([a-z_]+)$  index.cgi?action=$2&output=$1  [L]
 RewriteRule  ^([a-z_]+)(/([a-z_]*))?$  index.cgi?action=$1&admin_action=$3  [L,QSA]
 </IfModule>
