@@ -848,6 +848,11 @@ sub _generate_xhtml {
 				'start' => $next,
 				%query
 			)) if (defined $next);
+		$template->param('START_URL' => $self->_url(
+				$self->_action(),
+				undef,
+				%query
+			));
 	}
 	$self->_output_template($template);
 	$self->parent()->mark_debug_event('Quote browser displayed');

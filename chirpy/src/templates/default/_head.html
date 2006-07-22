@@ -20,6 +20,9 @@
 	<link rel="alternate" type="<TMPL_VAR NAME="FEED_MIME_TYPE">"
 	title="<TMPL_VAR NAME="FEED_TITLE">" href="<TMPL_VAR NAME="FEED_URL">" />
 	</TMPL_LOOP>
+	<TMPL_IF NAME="START_URL"><link rel="start" href="<TMPL_VAR NAME="START_URL">" /></TMPL_IF>
+	<TMPL_IF NAME="PREVIOUS_URL"><link rel="prev" href="<TMPL_VAR NAME="PREVIOUS_URL">" /></TMPL_IF>
+	<TMPL_IF NAME="NEXT_URL"><link rel="next" href="<TMPL_VAR NAME="NEXT_URL">" /></TMPL_IF>
 	<script type="text/javascript">var cookieDomain  = "<TMPL_VAR NAME="COOKIE_DOMAIN">", cookiePath = "<TMPL_VAR NAME="COOKIE_PATH">";</script>
 	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/style_switcher.js"></script>
 	<title><TMPL_VAR NAME="SITE_TITLE">: <TMPL_VAR NAME="PAGE_TITLE"></title>
