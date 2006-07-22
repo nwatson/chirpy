@@ -456,7 +456,9 @@ sub get_quotes {
 	}
 	if (defined $params->{'contains'} && @{$params->{'contains'}}) {
 		foreach my $q (@{$params->{'contains'}}) {
-			my $query = '%' . $q . '%';
+			(my $query = $q) =~ s/(?<!\\)\*/%/g;
+			$query =~ s/(?<!\\)\?/_/g;
+			$query =~ s/\\([*?\\])/$1/g;
 			push @cond, '(`body` LIKE ? OR `notes` LIKE ?)';
 			push @par, $query, $query;
 		}

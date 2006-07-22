@@ -384,7 +384,7 @@ sub get_search_instruction {
 	while ($query =~ /"(.*?)"|(\S+)|"([^"]+)$/g) {
 		my $literal = defined $1 ? $1 : $3;
 		if (defined $literal) {
-			push @queries, $literal;
+			push @queries, '*' . $literal . '*';
 		}
 		else {
 			my $word = $2;
@@ -392,7 +392,7 @@ sub get_search_instruction {
 				push @tags, $word;
 			}
 			else {
-				push @queries, $word;
+				push @queries, '*' . $word . '*';
 			}
 		}
 	}
@@ -2112,7 +2112,7 @@ sub _text_to_xhtml {
 sub _whitespaces_to_xhtml {
 	my $str = shift;
 	$str =~ s|\r?\n|<br/>\n|g;
-	$str =~ s/(?:[ \t])([ \t]+)/' ' . ('&#xA0;' x length($1))/eg;
+	$str =~ s/([ \t]{2,})/'&#xA0;' x length($1)/eg;
 	return $str;
 }
 

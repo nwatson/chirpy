@@ -110,7 +110,12 @@ ID of the quote to retrieve.
 
 =item contains
 
-Reference to an array of strings to find in either the quote body or notes.
+Reference to an array of strings to find in either the quote body or notes. May
+contain wildcard characters: an asterisk (C<*>) may represent any character
+sequence, including an empty one; a question mark (C<?>) represents a single
+character. To search for the wildcard characters themselves, they may be
+prefixed with a backslash (C<\>). Consequently, backslashes themselves must
+also be prefixed with a backslash.
 
 =item tags
 
