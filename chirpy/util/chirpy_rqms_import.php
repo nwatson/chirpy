@@ -65,9 +65,18 @@ mysql_select_db($dbname)
 
 if ($clear_chirpy_tables) {
 	log_event('Clearing Chirpy!’s tables …');
-	clear_table($chirpy_table_prefix . 'accounts');
-	clear_table($chirpy_table_prefix . 'news');
-	clear_table($chirpy_table_prefix . 'quotes');
+	$tables = array();
+	$tables[] = 'accounts';
+	$tables[] = 'events';
+	$tables[] = 'event_metadata';
+	$tables[] = 'news';
+	$tables[] = 'quotes';
+	$tables[] = 'quote_tag';
+	$tables[] = 'sessions';
+	$tables[] = 'tags';
+	$tables[] = 'vars';
+	foreach ($tables as $table)
+		clear_table($chirpy_table_prefix . $table);
 	log_event('Tables cleared', true);
 }
 
@@ -112,11 +121,14 @@ while ($row = mysql_fetch_array($quotes_result)) {
 	$count_quotes++;
 	mysql_query('INSERT INTO `' . $chirpy_table_prefix . 'quotes` ('
 		. ($clear_chirpy_tables ? '`id`, ' : '')
-		. '`body`, `rating`, `submitted`, `approved`, `flagged`)'
+		. '`body`, `rating`, `votes`, `submitted`, `approved`, `flagged`)'
 		. ' VALUES ('
 		. ($clear_chirpy_tables ? $row['id'] . ', ' : '')
 		. '"' . addslashes(decode_html($row['quote']))
 		. '", ' . $row['rating']
+		// We use abs($rating) as the number of votes here, since RQMS doesn't
+		// seem to keep it anywhere.
+		. ', ' . abs($row['rating'])
 		. ', FROM_UNIXTIME(' . $row['date'] . ')'
 		. ', ' . ($row['approve'] ? 1 : 0)
 		. ', ' . ($row['check'] ? 0 : 1) . ')')
@@ -148,7 +160,7 @@ log_event('Import finished!');
 function clear_table ($name) {
 	mysql_query('TRUNCATE TABLE `' . $name . '`')
 		or die('Error clearing table ‘' . $name . '’: ' . mysql_error());
-	mysql_query('ALTER TABLE`' . $name . '` AUTO_INCREMENT = 1')
+	mysql_query('ALTER TABLE `' . $name . '` AUTO_INCREMENT = 1')
 		or die('Error resetting auto-increment index for table ‘' . $name
 			. '’: ' . mysql_error());
 }
