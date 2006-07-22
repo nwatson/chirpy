@@ -31,7 +31,7 @@
 	</h2>
 	<ul class="quote-list">
 	<TMPL_LOOP NAME="QUOTES">
-		<li id="quote-<TMPL_VAR NAME="ID">" class="<TMPL_UNLESS NAME="IS_APPROVED">unapproved</TMPL_UNLESS> <TMPL_IF NAME="IS_FLAGGED">flagged</TMPL_IF>">
+		<li id="quote-<TMPL_VAR NAME="ID">" class="quote <TMPL_UNLESS NAME="IS_APPROVED">unapproved</TMPL_UNLESS> <TMPL_IF NAME="IS_FLAGGED">flagged</TMPL_IF>">
 			<div class="quote-container">
 				<h3 class="quote-header" id="quote-header-<TMPL_VAR NAME="ID">">
 				<TMPL_IF NAME="IS_APPROVED">
