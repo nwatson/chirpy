@@ -264,6 +264,11 @@ Brief description of what the logout interface does, for tooltips and such.
 
 Abbreviated version of I<Log Out>, for use in compact menus.
 
+=item quote_title
+
+Generic title of a quote, i.e. something along the lines of the word "Quote"
+followed by the quote's ID. Use C<%1%> to represent the ID.
+
 =item quote_report_description
 
 Brief description of what reporting quotes is, for tooltips and such.

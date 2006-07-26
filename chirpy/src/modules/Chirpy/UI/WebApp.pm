@@ -624,6 +624,8 @@ sub _generate_feed {
 			undef, 'id' => $id);
 		my ($body, $notes, $tags) = $self->_format_quote($quote);
 		push @quotes, {
+			'QUOTE_TITLE' => &_text_to_xhtml(
+				$locale->get_string('quote_title', $id)),
 			'QUOTE_ID' => $id,
 			'QUOTE_URL' => &_text_to_xhtml($self->_quote_url($id)),
 			'QUOTE_BODY' => $body,
@@ -787,8 +789,11 @@ sub _generate_xhtml {
 		$self->parent()->mark_debug_event('Parse quote body');
 		my ($body, $notes, $tags) = $self->_format_quote($quote);
 		$self->parent()->mark_debug_event('Quote body parsed');
+		my $id = $quote->get_id();
 		push @quotes_tmpl, {
-			'ID' => $quote->get_id(),
+			'ID' => $id,
+			'TITLE' => &_text_to_xhtml(
+				$locale->get_string('quote_title', $id)),
 			'BODY' => $body,
 			'NOTES' => $notes,
 			'TAGS' => $tags,

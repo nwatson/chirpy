@@ -13,7 +13,7 @@
 <generator uri="<TMPL_VAR NAME="CHIRPY_URL">" version="<TMPL_VAR NAME="CHIRPY_VERSION">"><TMPL_VAR NAME="CHIRPY_NAME"></generator>
 <TMPL_LOOP NAME="QUOTES">
 <entry>
-<title type="text"><TMPL_VAR NAME="QUOTE_ID"></title>
+<title type="text"><TMPL_VAR NAME="QUOTE_TITLE"></title>
 <link href="<TMPL_VAR NAME="QUOTE_URL">"/>
 <id><TMPL_VAR NAME="QUOTE_URL"></id>
 <published><TMPL_VAR NAME="QUOTE_DATE_ISO8601"></published>

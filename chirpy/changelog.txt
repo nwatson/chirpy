@@ -14,6 +14,7 @@
 * Administrative interface now only displays tabs that are available
 * Made pages point to their own feeds instead of QotW (where applicable)
 * Added description field in chirpy.ini, for use in feeds
+* Made quote titles in feeds more meaningful
 * Put page title in feed title instead of subtitle
 * Improved feed modification detection
 * Made templates use HTML::Template's caching feature, which is pretty fast

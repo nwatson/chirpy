@@ -9,7 +9,7 @@
 <generator><TMPL_VAR NAME="CHIRPY_URL"></generator>
 <TMPL_LOOP NAME="QUOTES">
 <item>
-<title><TMPL_VAR NAME="QUOTE_ID"></title>
+<title><TMPL_VAR NAME="QUOTE_TITLE"></title>
 <link><TMPL_VAR NAME="QUOTE_URL"></link>
 <guid><TMPL_VAR NAME="QUOTE_URL"></guid>
 <pubDate><TMPL_VAR NAME="QUOTE_DATE_RFC822"></pubDate>
