@@ -59,6 +59,8 @@ function initializeTagCloudSlider (labelPrefix) {
 		document.getElementById("tag-cloud-slider-input"));
 	slider.setMinimum(1);
 	slider.setMaximum(maxUseCount);
+	var bi = Math.floor(maxUseCount / 5);
+	slider.setBlockIncrement(bi > 0 ? bi : 1);
 	var val = readCookie("tag_use");
 	if (!val || val <= 0 || val > maxUseCount) val = 1;
 	else setTagUseMinimum(val);
