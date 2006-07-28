@@ -11,6 +11,7 @@
 * You can now edit quotes before approving them
 * Added wildcard searching
 * Made tag cloud ignore unapproved quotes
+* Added dynamic tag cloud pruning based on number of quotes
 * Administrative interface now only displays tabs that are available
 * Made pages point to their own feeds instead of QotW (where applicable)
 * Added description field in chirpy.ini, for use in feeds

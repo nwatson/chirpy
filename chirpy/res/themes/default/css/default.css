@@ -996,3 +996,63 @@ ul.tabbed-pane-contents > li {
 .pie-chart-legend dd .percentage {
 	float: right;
 }
+
+#tag-cloud-slider-container {
+	float: right;
+	border: 1px solid #CCC;
+	background: #FCFCFC;
+	padding: 1ex;
+}
+
+#tag-usage-minimum {
+	float: left;
+	margin: 0 1ex 0 0;
+	font-style: italic;
+}
+
+#tag-cloud-slider-container .dynamic-slider-control {
+	float: left;
+}
+
+.dynamic-slider-control {
+	position: relative;
+	-moz-user-focus: normal;
+	-moz-user-select: none;
+	cursor: default;
+	width: 150px;
+	height: 1.75em;
+}
+
+.dynamic-slider-control * {
+	font-size: 1px;
+}
+
+.dynamic-slider-control input {
+	display: none;
+}
+
+.dynamic-slider-control .handle {
+	position: absolute;
+	-moz-user-select: none;
+	cursor: default;
+	background: silver;
+	border: 1px solid;
+	border-color: white black black white;
+	width: 5px;
+}
+
+.dynamic-slider-control .line {
+	behavior: url("../js/slider/boxsizing.htc");
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	position: absolute;
+	overflow: hidden;
+	border: 1px solid;
+	border-color: gray white white gray;
+	background: silver;
+	height: 1px;
+}
+
+.dynamic-slider-control .line div {
+	display: none;
+}

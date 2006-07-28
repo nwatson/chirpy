@@ -1,12 +1,24 @@
 <TMPL_INCLUDE NAME="_head.html">
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/slider/range.js"></script>
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/slider/timer.js"></script>
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/slider/slider.js"></script>
+	<script type="text/javascript" src="<TMPL_VAR NAME="RESOURCES_URL">/js/tag_cloud.js"></script>
+	<div id="tag-cloud-slider-container">
+		<div id="tag-cloud-slider" tabIndex="1">
+			<form><input id="tag-cloud-slider-input" name="tag-cloud-slider-input"/></form>
+		</div>
+	</div>
 	<h2>
 		<TMPL_VAR NAME="PAGE_TITLE">
 	</h2>
-	<ul class="tag-cloud">
+	<ul id="tag-cloud" class="tag-cloud">
 		<TMPL_LOOP NAME="TAGS">
-			<li><a href="<TMPL_VAR NAME="URL">"
+			<li class="used-<TMPL_VAR NAME="USAGE_COUNT">"><a href="<TMPL_VAR NAME="URL">"
 			style="font-size: <TMPL_VAR NAME="SIZE_PERCENTAGE">%;"
 			title="<TMPL_VAR NAME="LINK_DESCRIPTION"> (<TMPL_VAR NAME="USAGE_COUNT">)"><TMPL_VAR NAME="TAG"></a></li>
 		</TMPL_LOOP>
 	</ul>
+	<script type="text/javascript">
+		initializeTagCloudSlider("<TMPL_VAR NAME="USAGE_SLIDER_TITLE">");
+	</script>
 <TMPL_INCLUDE NAME="_foot.html">

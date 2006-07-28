@@ -25,9 +25,10 @@ and giving me lots of useful feedback, to jX for hosting the irc.mozilla.org
 QDB, the first real Chirpy! web site, and to F2O.org for providing their free
 developer webspace, ideal for testing. Peace to you all.  --ct
 
-Chirpy! comes with ExplorerCanvas, from http://excanvas.sourceforge.net/, in
-order to support the <canvas> element, used by the HTML-based statistics, on
-Internet Explorer browsers. Please read the appropriate documentation, supplied
-in this package.
+Chirpy! includes the projects listed below. Please consult their documentation,
+which is also supplied with Chirpy!.
+
+* ExplorerCanvas <http://excanvas.sourceforge.net/>
+* WebFX Slider <http://webfx.eae.net/dhtml/slider/slider.html>
 
 ###############################################################################

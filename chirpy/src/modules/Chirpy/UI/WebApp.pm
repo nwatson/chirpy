@@ -223,6 +223,11 @@ The label text for the field where the user fills in the captcha code.
 
 The alternate text for the captcha image.
 
+=item webapp.minimum_tag_usage_count_title
+
+The title for the tag cloud's slider label, i.e. "Minimum Quotes" followed by a
+colon.
+
 =back
 
 =head1 TODO
@@ -921,7 +926,9 @@ sub provide_tag_cloud {
 	$template->param(
 		'PAGE_TITLE' => &_text_to_xhtml(
 			$locale->get_string('tag_cloud')),
-		'TAGS' => \@tag_info
+		'TAGS' => \@tag_info,
+		'USAGE_SLIDER_TITLE' => &_text_to_xhtml(
+			$locale->get_string('webapp.minimum_tag_usage_count_title'))
 	);
 	$self->_output_template($template);
 }
