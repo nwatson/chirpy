@@ -1096,10 +1096,10 @@ sub _untag {
 
 sub _untag_all {
 	my ($self, @quote_ids) = @_;
-	foreach my $id (@quote_ids) {
-		$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quote_tag`'
-			. ' WHERE `quote_id` = ?', $id);
-	}
+	my $cnt = scalar @quote_ids;
+	return unless ($cnt);
+	$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'quote_tag`'
+		. ' WHERE `quote_id` IN (?' . (',?' x ($cnt - 1)) . ')', @quote_ids);
 	$self->_clean_up_tags();
 }
 
