@@ -41,31 +41,40 @@ function initializeTagCloudSlider (labelPrefix) {
 			var matches = child.className.match(tagUseRE);
 			var cnt = parseInt(matches[1]);
 			child.useCount = cnt;
-			if (cnt > maxUseCount) {
-				maxUseCount = cnt;
-			}
+			if (cnt > maxUseCount) maxUseCount = cnt;
 		}
 	}
-	maxUseCount = Math.floor(maxUseCount / 4);
-	if (maxUseCount == 0) maxUseCount = 1;
+	var newMaxUseCount = Math.floor(maxUseCount / 4);
+	if (newMaxUseCount > 1) maxUseCount = newMaxUseCount;
+	var val = readCookie("tag_use");
+	if (!val || val <= 0 || val > maxUseCount) val = 1;
+	var container = document.createElement("div");
+	container.id = "tag-cloud-slider-container";
+	var sl = document.createElement("div");
+	sl.id = "tag-cloud-slider";
+	var form = document.createElement("form");
+	form.action = "#";
+	var input = document.createElement("input");
+	input.id = input.name = "tag-cloud-slider-input";
 	var label = document.createElement("div");
 	label.id = "tag-usage-minimum";
 	label.appendChild(document.createTextNode(labelPrefix + " "));
-	tagCloudSliderLabelText = document.createTextNode("1");
+	tagCloudSliderLabelText = document.createTextNode(val);
 	label.appendChild(tagCloudSliderLabelText);
-	var slc = document.getElementById("tag-cloud-slider-container");
-	slc.insertBefore(label, slc.firstChild);
-	var slider = new Slider(document.getElementById("tag-cloud-slider"),
-		document.getElementById("tag-cloud-slider-input"));
+	form.appendChild(input);
+	sl.appendChild(form);
+	container.appendChild(label);
+	container.appendChild(sl);
+	var placeholder = document.getElementById("tag-cloud-slider-placeholder");
+	placeholder.parentNode.replaceChild(container, placeholder);
+	var slider = new Slider(sl, input);
 	slider.setMinimum(1);
 	slider.setMaximum(maxUseCount);
 	var bi = Math.floor(maxUseCount / 5);
 	slider.setBlockIncrement(bi > 0 ? bi : 1);
-	var val = readCookie("tag_use");
-	if (!val || val <= 0 || val > maxUseCount) val = 1;
-	else setTagUseMinimum(val);
 	slider.setValue(val);
 	slider.onchange = function () { setTagUseMinimum(slider.getValue()); };
+	setTagUseMinimum(val);
 }
 
 function setTagUseMinimum (min) {
