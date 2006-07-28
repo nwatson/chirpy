@@ -1048,7 +1048,7 @@ ul.tabbed-pane-contents > li {
 	position: absolute;
 	overflow: hidden;
 	border: 1px solid;
-	border-color: gray white white gray;
+	border-color: gray silver silver gray;
 	background: silver;
 	height: 1px;
 }
