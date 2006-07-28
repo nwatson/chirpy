@@ -1065,9 +1065,9 @@ sub _modify_quote {
 	$tags = Chirpy::Util::parse_tags($tags);
 	my $old_body = $quote->get_body();
 	my $old_notes = $quote->get_notes();
-	my $old_tags = join('', @{$quote->get_tags()});
+	my $old_tags = join('', sort @{$quote->get_tags()});
 	$self->parent()->modify_quote($quote, $body, $notes, $tags);
-	$tags = join(' ', @$tags);
+	$tags = join(' ', sort @$tags);
 	$self->_log_event(Chirpy::Event::EDIT_QUOTE, {
 		'id' => $id,
 		($old_body ne $body ? ('new_body' => $body) : ()),

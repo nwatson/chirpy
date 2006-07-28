@@ -2266,7 +2266,7 @@ sub _link_tags {
 	my $tags = $quote->get_tags();
 	return [] unless (defined $tags && @$tags);
 	my @out = ();
-	foreach my $tag (@$tags) {
+	foreach my $tag (sort @$tags) {
 		my $title = $self->locale()->get_string('tag_link_description', $tag);
 		push @out, {
 			'TAG' => &_text_to_xhtml($tag),
