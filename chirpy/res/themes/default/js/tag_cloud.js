@@ -71,8 +71,7 @@ function initializeTagCloudSlider (labelPrefix) {
 	var slider = new Slider(sl, input);
 	slider.setMinimum(1);
 	slider.setMaximum(maxUseCount);
-	var bi = Math.floor(maxUseCount / 5);
-	slider.setBlockIncrement(bi > 0 ? bi : 1);
+	slider.setBlockIncrement(1);
 	slider.setValue(val);
 	slider.onchange = function () { setTagUseMinimum(slider.getValue()); };
 	setTagUseMinimum(val);
