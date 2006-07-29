@@ -72,7 +72,7 @@ h1 {
 	font-size: 275%;
 }
 
-h1 a, h1 a:visited {
+h1 a, h1 a:link, h1 a:visited {
 	-moz-border-radius: 1em;
 	border-radius: 1em;
 	margin: 0;
