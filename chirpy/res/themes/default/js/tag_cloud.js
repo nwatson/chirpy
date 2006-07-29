@@ -27,6 +27,7 @@
 var tagCloudUpdateTime = 5;
 
 var tagUseRE = new RegExp("\\bused-(\\d+)\\b");
+var tagUseMinimum = 1;
 var tagCloudSliderLabelText;
 var tagNodes;
 
@@ -37,10 +38,10 @@ function initializeTagCloudSlider (labelPrefix) {
 	for (var i = 0; i < cloud.childNodes.length; i++) {
 		var child = cloud.childNodes[i];
 		if (child.nodeName && child.nodeName.toUpperCase() == "LI") {
-			tagNodes.push(child);
 			var matches = child.className.match(tagUseRE);
 			var cnt = parseInt(matches[1]);
-			child.useCount = cnt;
+			if (!tagNodes[cnt]) tagNodes[cnt] = new Array();
+			tagNodes[cnt].push(child);
 			if (cnt > maxUseCount) maxUseCount = cnt;
 		}
 	}
@@ -78,11 +79,23 @@ function initializeTagCloudSlider (labelPrefix) {
 }
 
 function setTagUseMinimum (min) {
+	if (tagUseMinimum == min) return;
 	tagCloudSliderLabelText.nodeValue = min;
 	createCookie("tag_use", min);
-	for (var i = 0; i < tagNodes.length; i++) {
-		var node = tagNodes[i];
-		node.style.display = (node.useCount < min ? "none" : "");
+	if (min > tagUseMinimum)
+		setTagNodesVisible(tagUseMinimum, min - 1, false);
+	else
+		setTagNodesVisible(min, tagUseMinimum - 1, true);
+	tagUseMinimum = min;
+}
+
+function setTagNodesVisible (first, last, visible) {
+	var disp = (visible ? "" : "none");
+	for (var i = first; i <= last; i++) {
+		var nodes = tagNodes[i];
+		if (!nodes) continue;
+		for (var j = 0; j < nodes.length; j++)
+			nodes[j].style.display = disp;
 	}
 }
 
