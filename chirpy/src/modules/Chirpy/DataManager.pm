@@ -204,18 +204,21 @@ Returns a true value on success.
 Removes all quotes whose ID is in C<@ids> from the collection. Returns the
 number of removed quotes.
 
-=item increase_quote_rating($id)
+=item increase_quote_rating($id, $revert)
 
-Increases the rating of quote number C<$id> by 1. Returns the new rating.
+Increases the rating of quote number C<$id>. If C<$revert> is a true value,
+increases the rating by 2, as the user is reverting his vote; otherwise,
+increases it by 1. If the user is not reverting his vote, increases the number
+of votes for the quote by 1 as well. Returns a list containing the updated
+rating and vote count.
 
-=item decrease_quote_rating($id)
+=item decrease_quote_rating($id, $revert)
 
-Decreases the rating of quote number C<$id> by 1. Returns the new rating.
-
-=item increase_quote_vote_count($id)
-
-Increases the number of votes for quote number C<$id> by 1. Returns the new
-vote count.
+Decreases the rating of quote number C<$id>. If C<$revert> is a true value,
+decreases the rating by 2, as the user is reverting his vote; otherwise,
+decreases it by 1. If the user is not reverting his vote, increases the number
+of votes for the quote by 1 as well. Returns a list containing the updated
+rating and vote count.
 
 =item get_tag_use_counts()
 
@@ -499,8 +502,6 @@ sub param {
 *increase_quote_rating = \&Chirpy::Util::abstract_method;
 
 *decrease_quote_rating = \&Chirpy::Util::abstract_method;
-
-*increase_quote_vote_count = \&Chirpy::Util::abstract_method;
 
 *get_tag_use_counts = \&Chirpy::Util::abstract_method;
 

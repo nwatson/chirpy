@@ -535,18 +535,18 @@ sub remove_quotes {
 }
 
 sub increase_quote_rating {
-	my ($self, $id) = @_;
+	my ($self, $id, $revert) = @_;
 	return undef unless (defined $id);
-	my $rating = $self->_data_manager()->increase_quote_rating($id);
-	my $votes = $self->_data_manager()->increase_quote_vote_count($id);
+	my ($rating, $votes) = $self->_data_manager()
+		->increase_quote_rating($id, $revert);
 	return ($rating, $votes);
 }
 
 sub decrease_quote_rating {
-	my ($self, $id) = @_;
+	my ($self, $id, $revert) = @_;
 	return undef unless (defined $id);
-	my $rating = $self->_data_manager()->decrease_quote_rating($id);
-	my $votes = $self->_data_manager()->increase_quote_vote_count($id);
+	my ($rating, $votes) = $self->_data_manager()
+		->decrease_quote_rating($id, $revert);
 	return ($rating, $votes);
 }
 

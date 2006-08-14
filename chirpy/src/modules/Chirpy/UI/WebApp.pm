@@ -1156,7 +1156,7 @@ sub quote_rating_confirmed {
 }
 
 sub request_quote_rating_confirmation {
-	my ($self, $quote, $up) = @_;
+	my ($self, $quote, $up, $revert) = @_;
 	my $locale = $self->locale();
 	my $action = 'quote_rating_' . ($up ? 'up' : 'down');
 	$self->_confirmation_form(

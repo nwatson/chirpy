@@ -282,17 +282,20 @@ sub run {
 		my $quote = $self->parent()->get_quote($id);
 		if (defined $quote
 		&& ($quote->is_approved() || $self->moderation_queue_is_public())) {
-			if ($self->_already_rated($id)) {
+			my $last_rating = $self->_last_rating($id);
+			if (($page == QUOTE_RATING_UP && $last_rating > 0)
+			|| ($page == QUOTE_RATING_DOWN && $last_rating < 0)) {
 				$self->report_quote_already_rated($id);
 			}
 			else {
 				my ($history, $full) = $self->_rating_history();
 				if (!$full) {
 					if ($self->quote_rating_confirmed()) {
-						$self->_rate_quote($id, $up, $history);
+						$self->_rate_quote($id, $up, abs($last_rating), $history);
 					}
 					else {
-						$self->request_quote_rating_confirmation($quote, $up);
+						$self->request_quote_rating_confirmation(
+							$quote, $up, abs($last_rating));
 					}
 				}
 				else {
@@ -1019,28 +1022,40 @@ sub _next_date {
 	}
 }
 
-sub _already_rated {
+sub _last_rating {
 	my ($self, $id) = @_;
 	my @list = $self->get_rated_quotes();
 	foreach my $i (@list) {
-		return 1 if ($i == $id);
+		next unless (abs($i) == $id);
+		return ($i < 0 ? -1 : 1);
 	}
 	return 0;
 }
 
 sub _rate_quote {
-	my ($self, $id, $up, $history) = @_;
+	my ($self, $id, $up, $revert, $history) = @_;
 	my $parent = $self->parent();
-	my ($new_rating, $new_vote_count) = ($up
-		? $parent->increase_quote_rating($id)
-		: $parent->decrease_quote_rating($id));
-	$self->set_rating_history(@$history, time);
+	my ($new_rating, $new_vote_count);
+	my @rated = $self->get_rated_quotes();
+	if ($revert) {
+		($new_rating, $new_vote_count) = ($up
+			? $parent->increase_quote_rating($id, 1)
+			: $parent->decrease_quote_rating($id, 1));
+		@rated = grep { abs($_) != $id } @rated;
+	}
+	else {
+		($new_rating, $new_vote_count) = ($up
+			? $parent->increase_quote_rating($id)
+			: $parent->decrease_quote_rating($id));
+		$self->set_rating_history(@$history, time);
+	}
+	$self->set_rated_quotes(@rated, ($up ? $id : -$id));
 	$self->confirm_quote_rating($id, $up, $new_rating, $new_vote_count);
-	$self->set_rated_quotes($self->get_rated_quotes(), $id);
 	$self->_log_event(($up
 			? Chirpy::Event::QUOTE_RATING_UP
 			: Chirpy::Event::QUOTE_RATING_DOWN),
-		{ 'id' => $id, 'new_rating' => $new_rating });
+		{ 'id' => $id, 'new_rating' => $new_rating,
+			($revert ? ('revert' => 1) : ()) });
 }
 
 sub _rating_history {

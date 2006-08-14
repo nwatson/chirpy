@@ -4,6 +4,8 @@
 \_____________________________________________________________________________/
 
 * Added statistics page
+* Users can now revert their vote if, for example, they accidentally clicked
+  on the wrong link
 * Now keeping (and displaying) vote counts per quote
 * Added metadata-based logging, including search
 * Made rating and reporting links use POST instead of GET and added

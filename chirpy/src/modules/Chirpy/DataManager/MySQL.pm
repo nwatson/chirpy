@@ -566,27 +566,27 @@ sub modify_quote {
 }
 
 sub increase_quote_rating {
-	my ($self, $id) = @_;
+	my ($self, $id, $revert) = @_;
 	$self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
-		. ' SET `rating` = `rating` + 1 WHERE `id` = ' . $id . ' LIMIT 1')
+		. ' SET '
+		. ($revert
+			? '`rating` = `rating` + 2'
+			: '`rating` = `rating` + 1, `votes` = `votes` + 1')
+		. ' WHERE `id` = ' . $id . ' LIMIT 1')
 			or return undef;
-	return $self->_get_quote_rating($id);
+	return $self->_get_quote_rating_and_vote_count($id);
 }
 
 sub decrease_quote_rating {
-	my ($self, $id) = @_;
+	my ($self, $id, $revert) = @_;
 	$self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
-		. ' SET `rating` = `rating` - 1 WHERE `id` = ' . $id . ' LIMIT 1')
+		. ' SET '
+		. ($revert
+			? '`rating` = `rating` - 2'
+			: '`rating` = `rating` - 1, `votes` = `votes` + 1')
+		. ' WHERE `id` = ' . $id . ' LIMIT 1')
 			or return undef;
-	return $self->_get_quote_rating($id);
-}
-
-sub increase_quote_vote_count {
-	my ($self, $id) = @_;
-	$self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
-		. ' SET `votes` = `votes` + 1 WHERE `id` = ' . $id . ' LIMIT 1')
-			or return undef;
-	return $self->_get_quote_vote_count($id);
+	return $self->_get_quote_rating_and_vote_count($id);
 }
 
 sub get_tag_use_counts {
@@ -1142,16 +1142,16 @@ sub _clean_up_tags {
 		. ')');
 }
 
-sub _get_quote_rating {
+sub _get_quote_rating_and_vote_count {
 	my ($self, $id) = @_;
-	my $sth = $self->handle()->prepare('SELECT `rating`'
+	my $sth = $self->handle()->prepare('SELECT `rating`, `votes`'
 		. ' FROM `' . $self->table_name_prefix() . 'quotes`'
 		. ' WHERE `id` = ' . $id . ' LIMIT 1');
 	$self->_db_error() unless (defined $sth);
 	my $rows = $sth->execute();
 	$self->_db_error() unless (defined $rows);
 	my @row = $sth->fetchrow_array();
-	return $row[0];
+	return ($row[0], $row[1]);
 }
 
 sub _get_quote_vote_count {
