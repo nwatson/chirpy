@@ -38,6 +38,7 @@ graphConfig["ogive_values"] = 5;
 graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
 graphConfig["ogive_chart_color"] = "#DCDCDC";
+graphConfig["ogive_average_color"] = "#BCBCBC";
 
 function checkForGraphs () {
 	var dls = document.getElementsByTagName("dl");
@@ -79,6 +80,7 @@ function createBarChart (chartData, samples) {
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["bar_chart_values"], 0, max);
 	var barWidth = 100 / chartData.length;
+	var total = 0;
 	for (var i = 0; i < chartData.length; i++) {
 		var data = chartData[i];
 		var text = data[0];
@@ -99,7 +101,12 @@ function createBarChart (chartData, samples) {
 			column.appendChild(bar);
 		}
 		graph.appendChild(column);
+		total += value;
 	}
+	var avg = document.createElement("div");
+	avg.className = "bar-chart-average";
+	avg.style.top = (100 - (100 * (total / chartData.length) / max)) + "%";
+	graph.appendChild(avg);
 	return div;
 }
 
@@ -217,17 +224,21 @@ function createOgive (chartData, samples) {
 	div.className = "chart ogive";
 	graph.className = "ogive-graph";
 	var total = 0;
+	var chartAvgData = new Array();
 	for (var i = 0; i < chartData.length; i++) {
 		total += chartData[i][1];
+		chartAvgData[i] = new Array();
+		chartAvgData[i][1] = total * chartData.length / (i + 1);
 	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
 	div.appendChild(graph);
-	drawOgive(cnv, chartData);
+	drawOgive(cnv, chartData, graphConfig["ogive_chart_color"], true);
+	drawOgive(cnv, chartAvgData, graphConfig["ogive_average_color"], false);
 	return div;
 }
 
-function drawOgive (canvas, chartData) {
+function drawOgive (canvas, chartData, color, opaque) {
 	var ctx = canvas.getContext("2d");
 	var total = 0;
 	for (var i = 0; i < chartData.length; i++) {
@@ -237,7 +248,13 @@ function drawOgive (canvas, chartData) {
 	var graphHeight = graphConfig["ogive_chart_height"];
 	var x0 = 0;
 	var y0 = graphHeight;
-	ctx.fillStyle = graphConfig["ogive_chart_color"];
+	if (opaque) {
+		ctx.fillStyle = color;
+	}
+	else {
+		ctx.strokeStyle = color;
+		ctx.lineWidth = 1;
+	}
 	ctx.beginPath();
 	ctx.moveTo(x0, y0);
 	var runningTotal = 0;
@@ -250,8 +267,13 @@ function drawOgive (canvas, chartData) {
 		var y = Math.round(y0 - (runningTotal / total) * graphHeight);
 		ctx.lineTo(x, y);
 	}
-	ctx.lineTo(graphWidth, graphHeight);
-	ctx.fill();
+	if (opaque) {
+		ctx.lineTo(graphWidth, graphHeight);
+		ctx.fill();
+	}
+	else {
+		ctx.stroke();
+	}
 }
 
 function extractChartData (dl) {
