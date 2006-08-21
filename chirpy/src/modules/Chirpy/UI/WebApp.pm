@@ -1907,9 +1907,11 @@ sub _output_xml {
 
 sub _to_xml {
 	my ($elem, $key) = @_;
-	return '' if (!defined $elem);
 	my $content;
-	if (my $ref = ref $elem) {
+	if (!defined $elem) {
+		$content = '';
+	}
+	elsif (my $ref = ref $elem) {
 		if ($ref eq 'ARRAY') {
 			return join('', map { &_to_xml($_, $key) } @$elem);
 		}
