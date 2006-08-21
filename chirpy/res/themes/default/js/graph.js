@@ -223,29 +223,48 @@ function createOgive (chartData, samples) {
 	var div = document.createElement("div");
 	div.className = "chart ogive";
 	graph.className = "ogive-graph";
-	var total = 0;
-	var chartAvgData = new Array();
-	for (var i = 0; i < chartData.length; i++) {
-		total += chartData[i][1];
-		chartAvgData[i] = new Array();
-		chartAvgData[i][1] = total * chartData.length / (i + 1);
+	var ignoreFirst = (graphConfig["ogive_average_ignore_first"]
+		&& graphConfig["ogive_average_ignore_first"] > 0
+		? graphConfig["ogive_average_ignore_first"] : 0);
+	var x1 = 0;
+	var x3 = chartData.length - ignoreFirst - 1;
+	var x2 = Math.round(x3 / 2);
+	var ignoreTotal = 0;
+	for (var i = 0; i < ignoreFirst; i++) {
+		ignoreTotal += chartData[i][1];
 	}
+	var total = ignoreTotal;
+	var y2;
+	for (var i = ignoreFirst; i < chartData.length; i++) {
+		total += chartData[i][1];
+		if (i == x2) {
+			y2 = total - ignoreTotal;
+		}
+	}
+	var y1 = chartData[ignoreFirst + x1];
+	var y3 = total - ignoreTotal;
+	// TODO: interpolate (x1, y1), (x2, y2) and (x3, y3)
+	// var chartAvgData = new Array();
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
 	div.appendChild(graph);
-	drawOgive(cnv, chartData, graphConfig["ogive_chart_color"], true);
-	drawOgive(cnv, chartAvgData, graphConfig["ogive_average_color"], false);
+	var scale = drawOgive(cnv, chartData, graphConfig["ogive_chart_color"], true);
+	// drawOgive(cnv, chartAvgData, graphConfig["ogive_average_color"], false, scale);
 	return div;
 }
 
-function drawOgive (canvas, chartData, color, opaque) {
+function drawOgive (canvas, chartData, color, opaque, yScale) {
 	var ctx = canvas.getContext("2d");
-	var total = 0;
-	for (var i = 0; i < chartData.length; i++) {
-		total += chartData[i][1];
-	}
 	var graphWidth = graphConfig["ogive_chart_width"];
 	var graphHeight = graphConfig["ogive_chart_height"];
+	if (!yScale) {
+		var total = 0;
+		for (var i = 0; i < chartData.length; i++) {
+			if (!chartData[i]) continue;
+			total += chartData[i][1];
+		}
+		yScale = graphHeight / total;
+	}
 	var x0 = 0;
 	var y0 = graphHeight;
 	if (opaque) {
@@ -256,24 +275,31 @@ function drawOgive (canvas, chartData, color, opaque) {
 		ctx.lineWidth = 1;
 	}
 	ctx.beginPath();
-	ctx.moveTo(x0, y0);
 	var runningTotal = 0;
 	for (var i = 0; i < chartData.length; i++) {
+		if (!chartData[i]) continue;
 		var name = chartData[i][0];
 		var value = chartData[i][1];
 		var label = chartData[i][2];
 		runningTotal += value;
 		var x = Math.round(x0 + (i / (chartData.length - 1)) * graphWidth);
-		var y = Math.round(y0 - (runningTotal / total) * graphHeight);
-		ctx.lineTo(x, y);
+		var y = Math.round(y0 - runningTotal * yScale);
+		if (runningTotal == value) {
+			ctx.moveTo(x, y);
+		}
+		else {
+			ctx.lineTo(x, y);
+		}
 	}
 	if (opaque) {
 		ctx.lineTo(graphWidth, graphHeight);
+		ctx.lineTo(x0, y0);
 		ctx.fill();
 	}
 	else {
 		ctx.stroke();
 	}
+	return yScale;
 }
 
 function extractChartData (dl) {
