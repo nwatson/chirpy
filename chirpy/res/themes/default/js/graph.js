@@ -39,6 +39,7 @@ graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
 graphConfig["ogive_chart_color"] = "#DCDCDC";
 graphConfig["ogive_average_color"] = "#BCBCBC";
+graphConfig["ogive_average_samples"] = 3;
 
 function checkForGraphs () {
 	var dls = document.getElementsByTagName("dl");
@@ -226,30 +227,32 @@ function createOgive (chartData, samples) {
 	var ignoreFirst = (graphConfig["ogive_average_ignore_first"]
 		&& graphConfig["ogive_average_ignore_first"] > 0
 		? graphConfig["ogive_average_ignore_first"] : 0);
-	var x1 = 0;
-	var x3 = chartData.length - ignoreFirst - 1;
-	var x2 = Math.round(x3 / 2);
+	var points = sampleOgiveData(chartData,
+		graphConfig["ogive_average_samples"], ignoreFirst);
 	var ignoreTotal = 0;
 	for (var i = 0; i < ignoreFirst; i++) {
 		ignoreTotal += chartData[i][1];
 	}
 	var total = ignoreTotal;
-	var y2;
 	for (var i = ignoreFirst; i < chartData.length; i++) {
 		total += chartData[i][1];
-		if (i == x2) {
-			y2 = total - ignoreTotal;
-		}
 	}
-	var y1 = chartData[ignoreFirst + x1];
-	var y3 = total - ignoreTotal;
-	// TODO: interpolate (x1, y1), (x2, y2) and (x3, y3)
-	// var chartAvgData = new Array();
+	var chartAvgData = new Array();
+	var prev = 0;
+	for (var i = ignoreFirst; i < chartData.length; i++) {
+		var v = lagrangeInterpolate(i, points);
+		chartAvgData[i] = new Array();
+		chartAvgData[i][1] = v - prev;
+		prev = v;
+	}
+	if (ignoreFirst) {
+		chartAvgData[ignoreFirst][1] += ignoreTotal;
+	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
 	div.appendChild(graph);
 	var scale = drawOgive(cnv, chartData, graphConfig["ogive_chart_color"], true);
-	// drawOgive(cnv, chartAvgData, graphConfig["ogive_average_color"], false, scale);
+	drawOgive(cnv, chartAvgData, graphConfig["ogive_average_color"], false, scale);
 	return div;
 }
 
@@ -300,6 +303,21 @@ function drawOgive (canvas, chartData, color, opaque, yScale) {
 		ctx.stroke();
 	}
 	return yScale;
+}
+
+function sampleOgiveData (chartData, samples, ignoreFirst) {
+	var segSize = (chartData.length - ignoreFirst) / (samples - 1);
+	var total = chartData[ignoreFirst][1];
+	var points = new Array();
+	points[0] = [ ignoreFirst, total ];
+	for (var i = ignoreFirst + 1; i < chartData.length; i++) {
+		total += chartData[i][1];
+		var seg = Math.floor((i - ignoreFirst) / segSize);
+		if (points[seg]) continue;
+		points[seg] = [ i, total ];
+	}
+	points[samples - 1] = [ chartData.length - 1, total ];
+	return points;
 }
 
 function extractChartData (dl) {
@@ -426,6 +444,25 @@ function createChartLabel (data, position, width, align) {
 	innerLabel.style.textAlign = align;
 	label.appendChild(innerLabel);
 	return label;
+}
+
+// XXX: Speed up lagrange interpolation
+
+function lagrangeInterpolate (x, points) {
+	var sum = 0;
+	for (var i = 0; i < points.length; i++) {
+		sum += points[i][1] * lagrangeBasis(x, points, i);
+	}
+	return sum;
+}
+
+function lagrangeBasis (x, points, index) {
+	var product = 1;
+	for (var i = 0; i < points.length; i++) {
+		if (i == index) continue;
+		product *= (x - points[i][0]) / (points[index][0] - points[i][0]);
+	}
+	return product;
 }
 
 function ensureCanvas (canvas) {
