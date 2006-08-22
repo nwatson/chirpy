@@ -237,12 +237,21 @@ function createOgive (chartData, samples) {
 	for (var i = ignoreFirst; i < chartData.length; i++) {
 		total += chartData[i][1];
 	}
-	// XXX: Graph would look smoother if we determined an equation instead of
-	// data points
 	var chartAvgData = new Array();
+	/*
+	// Old: Value-based, less smooth
 	for (var i = ignoreFirst; i < chartData.length; i++) {
 		chartAvgData[i] = new Array();
 		chartAvgData[i][1] = ignoreTotal + lagrangeInterpolate(i, points);
+	}
+	*/
+	// New: pixel-based
+	var width = graphConfig["ogive_chart_width"];
+	var firstX = Math.round(ignoreFirst / chartData.length * width);
+	for (var x = firstX; x < width; x++) {
+		var i = x / width * chartData.length;
+		chartAvgData[x] = new Array();
+		chartAvgData[x][1] = ignoreTotal + lagrangeInterpolate(i, points);
 	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
@@ -273,6 +282,7 @@ function drawOgive (canvas, chartData, avgScale) {
 		yScale = graphHeight / total;
 		ctx.fillStyle = graphConfig["ogive_chart_color"];
 	}
+	var xScale = graphWidth / chartData.length;
 	var x0 = 0;
 	var y0 = graphHeight;
 	ctx.beginPath();
@@ -284,7 +294,7 @@ function drawOgive (canvas, chartData, avgScale) {
 		var value = chartData[i][1];
 		var label = chartData[i][2];
 		runningTotal = (avg ? value : runningTotal + value);
-		var x = Math.round(x0 + (i / (chartData.length - 1)) * graphWidth);
+		var x = Math.round(x0 + (i + 1) * xScale);
 		var y = Math.round(y0 - runningTotal * yScale);
 		if (notFirst) {
 			ctx.lineTo(x, y);
