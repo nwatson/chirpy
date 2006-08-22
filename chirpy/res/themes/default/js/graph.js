@@ -238,69 +238,67 @@ function createOgive (chartData, samples) {
 		total += chartData[i][1];
 	}
 	var chartAvgData = new Array();
-	var prev = 0;
 	for (var i = ignoreFirst; i < chartData.length; i++) {
-		var v = lagrangeInterpolate(i, points);
 		chartAvgData[i] = new Array();
-		chartAvgData[i][1] = v - prev;
-		prev = v;
-	}
-	if (ignoreFirst) {
-		chartAvgData[ignoreFirst][1] += ignoreTotal;
+		chartAvgData[i][1] = ignoreTotal + lagrangeInterpolate(i, points);
 	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
 	div.appendChild(graph);
-	var scale = drawOgive(cnv, chartData, graphConfig["ogive_chart_color"], true);
-	drawOgive(cnv, chartAvgData, graphConfig["ogive_average_color"], false, scale);
+	var scale = drawOgive(cnv, chartData);
+	drawOgive(cnv, chartAvgData, scale);
 	return div;
 }
 
-function drawOgive (canvas, chartData, color, opaque, yScale) {
+function drawOgive (canvas, chartData, avgScale) {
 	var ctx = canvas.getContext("2d");
 	var graphWidth = graphConfig["ogive_chart_width"];
 	var graphHeight = graphConfig["ogive_chart_height"];
-	if (!yScale) {
+	var avg, yScale;
+	if (avgScale) {
+		avg = true;
+		yScale = avgScale;
+		ctx.strokeStyle = graphConfig["ogive_average_color"];
+		ctx.lineWidth = 1;
+	}
+	else {
+		avg = false;
 		var total = 0;
 		for (var i = 0; i < chartData.length; i++) {
 			if (!chartData[i]) continue;
 			total += chartData[i][1];
 		}
 		yScale = graphHeight / total;
+		ctx.fillStyle = graphConfig["ogive_chart_color"];
 	}
 	var x0 = 0;
 	var y0 = graphHeight;
-	if (opaque) {
-		ctx.fillStyle = color;
-	}
-	else {
-		ctx.strokeStyle = color;
-		ctx.lineWidth = 1;
-	}
 	ctx.beginPath();
 	var runningTotal = 0;
+	var notFirst = false;
 	for (var i = 0; i < chartData.length; i++) {
 		if (!chartData[i]) continue;
 		var name = chartData[i][0];
 		var value = chartData[i][1];
 		var label = chartData[i][2];
-		runningTotal += value;
+		runningTotal = (avg ? value : runningTotal + value);
 		var x = Math.round(x0 + (i / (chartData.length - 1)) * graphWidth);
 		var y = Math.round(y0 - runningTotal * yScale);
-		if (runningTotal == value) {
-			ctx.moveTo(x, y);
-		}
-		else {
+		if (notFirst) {
 			ctx.lineTo(x, y);
 		}
+		else {
+			ctx.moveTo(x, y);
+			notFirst = true;
+		}
 	}
-	if (opaque) {
+	if (avg) {
+		ctx.stroke();
+	}
+	else {
 		ctx.lineTo(graphWidth, graphHeight);
 		ctx.lineTo(x0, y0);
 		ctx.fill();
-	}
-	else {
-		ctx.stroke();
 	}
 	return yScale;
 }
