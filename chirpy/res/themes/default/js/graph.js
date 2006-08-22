@@ -237,6 +237,8 @@ function createOgive (chartData, samples) {
 	for (var i = ignoreFirst; i < chartData.length; i++) {
 		total += chartData[i][1];
 	}
+	// XXX: Graph would look smoother if we determined an equation instead of
+	// data points
 	var chartAvgData = new Array();
 	for (var i = ignoreFirst; i < chartData.length; i++) {
 		chartAvgData[i] = new Array();
@@ -444,7 +446,7 @@ function createChartLabel (data, position, width, align) {
 	return label;
 }
 
-// XXX: Speed up lagrange interpolation
+// XXX: Speed up Lagrange interpolation
 
 function lagrangeInterpolate (x, points) {
 	var sum = 0;
