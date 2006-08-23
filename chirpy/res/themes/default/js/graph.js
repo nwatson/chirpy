@@ -58,14 +58,13 @@ function checkForGraphs () {
 		if (func) {
 			var chartData = extractChartData(dl);
 			var samples = extractChartLabelCount(dl);
-			var chart = func(chartData, samples);
-			chart.id = dl.id;
-			dl.parentNode.replaceChild(chart, dl);
+			var node = func(dl, chartData, samples);
+			node.id = dl.id;
 		}
 	}
 }
 
-function createBarChart (chartData, samples) {
+function createBarChart (sourceNode, chartData, samples) {
 	var div = document.createElement("div");
 	div.className = "chart bar-chart";
 	var graph = document.createElement("div");
@@ -108,14 +107,17 @@ function createBarChart (chartData, samples) {
 	avg.className = "bar-chart-average";
 	avg.style.top = (100 - (100 * (total / chartData.length) / max)) + "%";
 	graph.appendChild(avg);
+	sourceNode.parentNode.replaceChild(div, sourceNode);
 	return div;
 }
 
-function createPieChart (chartData) {
+function createPieChart (sourceNode, chartData) {
 	var cnv = document.createElement("canvas");
 	var rad = graphConfig["pie_chart_radius"];
 	var ext = graphConfig["pie_chart_extrusion"];
-	cnv.width = cnv.height = (rad + ext) * 2;
+	var side = (rad + ext) * 2;
+	cnv.width = cnv.height = side;
+	cnv.style.width = cnv.style.height = side + "px";
 	var graph = document.createElement("div");
 	graph.appendChild(cnv);
 	cnv = ensureCanvas(cnv);
@@ -124,6 +126,7 @@ function createPieChart (chartData) {
 	}
 	var div = document.createElement("div");
 	div.className = "chart pie-chart";
+	sourceNode.parentNode.replaceChild(div, sourceNode);
 	graph.className = "pie-chart-graph";
 	var legend = document.createElement("dl");
 	legend.className = "pie-chart-legend";
@@ -179,6 +182,12 @@ function drawPieChart (canvas, legend, data) {
 			ctx.closePath();
 			ctx.fill();
 			if (stroke) {
+				// Safari doesn't like it when we don't recreate the path
+				ctx.beginPath();
+				ctx.moveTo(x, y);
+				ctx.arc(x, y, radius, startAngle, endAngle, false);
+				ctx.lineTo(x, y);
+				ctx.closePath();
 				ctx.stroke();
 			}
 		}
@@ -205,10 +214,12 @@ function drawPieChart (canvas, legend, data) {
 	}
 }
 
-function createOgive (chartData, samples) {
+function createOgive (sourceNode, chartData, samples) {
 	var cnv = document.createElement("canvas");
 	cnv.width = graphConfig["ogive_chart_width"];
 	cnv.height = graphConfig["ogive_chart_height"];
+	cnv.style.width = graphConfig["ogive_chart_width"] + "px";
+	cnv.style.height = graphConfig["ogive_chart_height"] + "px";
 	var graph = document.createElement("div");
 	graph.appendChild(cnv);
 	cnv = ensureCanvas(cnv);
@@ -223,6 +234,8 @@ function createOgive (chartData, samples) {
 	}
 	var div = document.createElement("div");
 	div.className = "chart ogive";
+	div.appendChild(graph);
+	sourceNode.parentNode.replaceChild(div, sourceNode);
 	graph.className = "ogive-graph";
 	var ignoreFirst = (graphConfig["ogive_average_ignore_first"]
 		&& graphConfig["ogive_average_ignore_first"] > 0
@@ -255,7 +268,6 @@ function createOgive (chartData, samples) {
 	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
-	div.appendChild(graph);
 	var scale = drawOgive(cnv, chartData);
 	drawOgive(cnv, chartAvgData, scale);
 	return div;
