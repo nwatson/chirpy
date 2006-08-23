@@ -662,11 +662,13 @@ sub _generate_feed {
 			'QUOTE_IS_FLAGGED' => $quote->is_flagged()
 		};
 	}
+	my $act = $self->_action();
 	$template->param(
 		'SITE_TITLE' => $site_title,
 		'PAGE_TITLE' => $page_title,
 		'FEED_SUBTITLE' => $site_description,
-		'FEED_URL' => $self->_feed_url($self->_action(), $type),
+		'FEED_URL' => $self->_feed_url($act, $type),
+		'PAGE_URL' => $self->_url($act),
 		'SITE_URL' => $self->_url(),
 		'WEBMASTER_NAME' => $name,
 		'WEBMASTER_EMAIL' => $email,

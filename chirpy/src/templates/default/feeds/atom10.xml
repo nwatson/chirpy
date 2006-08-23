@@ -3,8 +3,9 @@
 <title><TMPL_VAR NAME="SITE_TITLE">: <TMPL_VAR NAME="PAGE_TITLE"></title>
 <subtitle><TMPL_VAR NAME="FEED_SUBTITLE"></subtitle>
 <id><TMPL_VAR NAME="SITE_URL"></id>
-<link href="<TMPL_VAR NAME="SITE_URL">"/>
+<link href="<TMPL_VAR NAME="PAGE_URL">"/>
 <link href="<TMPL_VAR NAME="FEED_URL">" rel="self"/>
+<link href="<TMPL_VAR NAME="SITE_URL">" rel="related"/>
 <updated><TMPL_VAR NAME="FEED_DATE_ISO8601"></updated>
 <author>
 <name><TMPL_VAR NAME="WEBMASTER_NAME"></name>

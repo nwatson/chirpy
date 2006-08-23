@@ -3,7 +3,7 @@
 <channel>
 <title><TMPL_VAR NAME="SITE_TITLE">: <TMPL_VAR NAME="PAGE_TITLE"></title>
 <description><TMPL_VAR NAME="FEED_SUBTITLE"></description>
-<link><TMPL_VAR NAME="SITE_URL"></link>
+<link><TMPL_VAR NAME="PAGE_URL"></link>
 <lastBuildDate><TMPL_VAR NAME="FEED_DATE_RFC822"></lastBuildDate>
 <managingEditor><TMPL_VAR NAME="WEBMASTER_EMAIL"></managingEditor>
 <generator><TMPL_VAR NAME="CHIRPY_URL"></generator>
