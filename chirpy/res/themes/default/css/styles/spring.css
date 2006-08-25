@@ -28,7 +28,7 @@ a:hover, a:active {
 	color: #36F;
 }
 
-h1 a, h1 a:visited {
+h1 a, h1 a:link, h1 a:visited {
 	background: #BFC;
 	border-top-color: #C6FFD6;
 	border-bottom-color: #B9F9C9;
