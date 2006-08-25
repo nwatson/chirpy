@@ -839,6 +839,20 @@ ul.tabbed-pane-contents > li {
 	text-align: center;
 }
 
+.statistics-section {
+	display: inline;
+	float: left;
+	margin-right: 1.5em;
+}
+
+.statistics-section h3 {
+	margin-bottom: 0.75em;
+}
+
+#after-statistics {
+	clear: both;
+}
+
 .chart, .chart * {
 	cursor: default;
 }

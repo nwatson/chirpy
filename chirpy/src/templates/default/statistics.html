@@ -12,60 +12,79 @@
 	<h2>
 		<TMPL_VAR NAME="PAGE_TITLE">
 	</h2>
+	<div id="statistics-sections">
+	<div id="quotes-by-date" class="statistics-section">
 	<h3><TMPL_VAR NAME="QUOTES_BY_DATE_TITLE"></h3>
-	<dl class="ogive-data label-count-7" id="quotes-by-date">
+	<dl class="ogive-data label-count-7">
 	<TMPL_LOOP NAME="QUOTES_BY_DATE">
 		<dt><TMPL_VAR NAME="DATE"></dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	<div id="quotes-by-hour" class="statistics-section">
 	<h3><TMPL_VAR NAME="QUOTES_BY_HOUR_TITLE"></h3>
-	<dl class="bar-chart-data" id="quotes-by-hour">
+	<dl class="bar-chart-data">
 	<TMPL_LOOP NAME="QUOTES_BY_HOUR">
 		<dt title="<TMPL_VAR NAME="START_HOUR">"><TMPL_VAR NAME="START_HOUR">:00&ndash;<TMPL_VAR NAME="END_HOUR">:00</dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	<div id="quotes-by-weekday" class="statistics-section">
 	<h3><TMPL_VAR NAME="QUOTES_BY_WEEKDAY_TITLE"></h3>
-	<dl class="bar-chart-data" id="quotes-by-weekday">
+	<dl class="bar-chart-data">
 	<TMPL_LOOP NAME="QUOTES_BY_WEEKDAY">
 		<dt><TMPL_VAR NAME="WEEKDAY"></dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	<div id="quotes-by-day" class="statistics-section">
 	<h3><TMPL_VAR NAME="QUOTES_BY_DAY_TITLE"></h3>
-	<dl class="bar-chart-data" id="quotes-by-day">
+	<dl class="bar-chart-data">
 	<TMPL_LOOP NAME="QUOTES_BY_DAY">
 		<dt><TMPL_VAR NAME="DAY"></dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	<div id="quotes-by-month" class="statistics-section">
 	<h3><TMPL_VAR NAME="QUOTES_BY_MONTH_TITLE"></h3>
-	<dl class="bar-chart-data" id="quotes-by-month">
+	<dl class="bar-chart-data">
 	<TMPL_LOOP NAME="QUOTES_BY_MONTH">
 		<dt title="<TMPL_VAR NAME="MONTH_NAME_SHORT">"><TMPL_VAR NAME="MONTH_NAME"></dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	<div id="quotes-by-rating" class="statistics-section">
 	<h3><TMPL_VAR NAME="QUOTES_BY_RATING_TITLE"></h3>
-	<dl class="bar-chart-data label-count-13" id="quotes-by-rating">
+	<dl class="bar-chart-data label-count-13">
 	<TMPL_LOOP NAME="QUOTES_BY_RATING">
 		<dt><TMPL_VAR NAME="RATING"></dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	<div id="quotes-by-vote-count" class="statistics-section">
 	<h3><TMPL_VAR NAME="QUOTES_BY_VOTE_COUNT_TITLE"></h3>
-	<dl class="bar-chart-data label-count-17" id="quotes-by-vote-count">
+	<dl class="bar-chart-data label-count-17">
 	<TMPL_LOOP NAME="QUOTES_BY_VOTE_COUNT">
 		<dt><TMPL_VAR NAME="VOTE_COUNT"></dt>
 		<dd><TMPL_VAR NAME="QUOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	<div id="votes-by-rating" class="statistics-section">
 	<h3><TMPL_VAR NAME="VOTES_BY_RATING_TITLE"></h3>
-	<dl class="pie-chart-data" id="votes-by-rating">
+	<dl class="pie-chart-data">
 	<TMPL_LOOP NAME="VOTES_BY_RATING">
 		<dt><TMPL_VAR NAME="RATING"></dt>
 		<dd><TMPL_VAR NAME="VOTE_COUNT"></dd>
 	</TMPL_LOOP>
 	</dl>
+	</div>
+	</div>
+	<div id="after-statistics"></div>
 <TMPL_INCLUDE NAME="_foot.html">
