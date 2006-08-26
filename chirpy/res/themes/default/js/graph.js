@@ -39,7 +39,6 @@ graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
 graphConfig["ogive_chart_color"] = "#DCDCDC";
 graphConfig["ogive_average_color"] = "#BCBCBC";
-graphConfig["ogive_average_samples"] = 3;
 
 function checkForGraphs () {
 	var dls = document.getElementsByTagName("dl");
@@ -239,7 +238,7 @@ function createOgive (sourceNode, chartData, samples) {
 	graph.className = "ogive-graph";
 	var ignoreFirst = extractOgiveIgnoreCount(sourceNode);
 	var points = sampleOgiveData(chartData,
-		graphConfig["ogive_average_samples"], ignoreFirst);
+		extractOgiveAverageSampleCount(sourceNode), ignoreFirst);
 	var ignoreTotal = 0;
 	for (var i = 0; i < ignoreFirst; i++) {
 		ignoreTotal += chartData[i][1];
@@ -369,6 +368,12 @@ function extractChartLabelCount (dl) {
 function extractOgiveIgnoreCount (dl) {
 	var result = extractChartParameter(dl, "ignore-first");
 	if (result == null) return 0;
+	return result;
+}
+
+function extractOgiveAverageSampleCount (dl) {
+	var result = extractChartParameter(dl, "average-sample-count");
+	if (result == null) return 3;
 	return result;
 }
 
