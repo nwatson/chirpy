@@ -3,9 +3,11 @@
 <title><TMPL_VAR NAME="SITE_TITLE">: <TMPL_VAR NAME="PAGE_TITLE"></title>
 <subtitle><TMPL_VAR NAME="FEED_SUBTITLE"></subtitle>
 <id><TMPL_VAR NAME="SITE_URL"></id>
-<link href="<TMPL_VAR NAME="PAGE_URL">"/>
-<link href="<TMPL_VAR NAME="FEED_URL">" rel="self"/>
-<link href="<TMPL_VAR NAME="SITE_URL">" rel="related"/>
+<link rel="self" href="<TMPL_VAR NAME="FEED_URL">"/>
+<link rel="alternate" href="<TMPL_VAR NAME="PAGE_URL">"
+title="<TMPL_VAR NAME="SITE_TITLE">: <TMPL_VAR NAME="PAGE_TITLE">"/>
+<link rel="related" href="<TMPL_VAR NAME="SITE_URL">"
+title="<TMPL_VAR NAME="SITE_TITLE">"/>
 <updated><TMPL_VAR NAME="FEED_DATE_ISO8601"></updated>
 <author>
 <name><TMPL_VAR NAME="WEBMASTER_NAME"></name>
