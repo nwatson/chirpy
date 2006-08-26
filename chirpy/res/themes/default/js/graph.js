@@ -237,9 +237,7 @@ function createOgive (sourceNode, chartData, samples) {
 	div.appendChild(graph);
 	sourceNode.parentNode.replaceChild(div, sourceNode);
 	graph.className = "ogive-graph";
-	var ignoreFirst = (graphConfig["ogive_average_ignore_first"]
-		&& graphConfig["ogive_average_ignore_first"] > 0
-		? graphConfig["ogive_average_ignore_first"] : 0);
+	var ignoreFirst = extractOgiveIgnoreCount(sourceNode);
 	var points = sampleOgiveData(chartData,
 		graphConfig["ogive_average_samples"], ignoreFirst);
 	var ignoreTotal = 0;
@@ -363,15 +361,27 @@ function extractChartData (dl) {
 }
 
 function extractChartLabelCount (dl) {
+	var result = extractChartParameter(dl, "label-count");
+	if (result == null) return 0;
+	return result;
+}
+
+function extractOgiveIgnoreCount (dl) {
+	var result = extractChartParameter(dl, "ignore-first");
+	if (result == null) return 0;
+	return result;
+}
+
+function extractChartParameter (dl, name) {
+	name += "-";
 	var classNames = dl.className.split(/\s+/);
-	var prefix = "label-count-";
 	for (var i = 0; i < classNames.length; i++) {
 		var className = classNames[i];
-		if (className.indexOf(prefix) == 0) {
-			return parseInt(className.substring(prefix.length));
+		if (className.indexOf(name) == 0) {
+			return parseInt(className.substring(name.length));
 		}
 	}
-	return 0;
+	return null;
 }
 
 function createChartPane (div, graph, chartData, samples, values, min, max) {
