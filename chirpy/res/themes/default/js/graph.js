@@ -39,6 +39,8 @@ graphConfig["ogive_chart_width"] = 660;
 graphConfig["ogive_chart_height"] = 360;
 graphConfig["ogive_chart_color"] = "#DCDCDC";
 graphConfig["ogive_average_color"] = "#BCBCBC";
+graphConfig["decimal_point_is_comma"] = false;
+graphConfig["average_decimal_count"] = 2;
 
 function checkForGraphs () {
 	var dls = document.getElementsByTagName("dl");
@@ -102,10 +104,18 @@ function createBarChart (sourceNode, chartData, samples) {
 		graph.appendChild(column);
 		total += value;
 	}
-	var avg = document.createElement("div");
-	avg.className = "bar-chart-average";
-	avg.style.top = (100 - (100 * (total / chartData.length) / max)) + "%";
-	graph.appendChild(avg);
+	var avg = total / chartData.length;
+	var avgDiv = document.createElement("div");
+	avgDiv.className = "bar-chart-average";
+	avgDiv.style.top = (100 - (100 * avg / max)) + "%";
+	var avgTextDiv = document.createElement("div");
+	var avgText = roundToDecimals(avg, graphConfig["average_decimal_count"]);
+	if (graphConfig["decimal_point_is_comma"]) {
+		avgText = ("" + avgText).replace(".", ",");
+	}
+	avgTextDiv.appendChild(document.createTextNode(avgText));
+	avgDiv.appendChild(avgTextDiv);
+	graph.appendChild(avgDiv);
 	sourceNode.parentNode.replaceChild(div, sourceNode);
 	return div;
 }
@@ -515,6 +525,11 @@ function useExCanvas () {
 
 function hasClassName (element, className) {
 	return element.className.match(new RegExp("\\b" + className + "\\b"));
+}
+
+function roundToDecimals (number, decimals) {
+	var factor = Math.pow(10, decimals);
+	return Math.round(number * factor) / factor;
 }
 
 function addOnloadFunction (f) {

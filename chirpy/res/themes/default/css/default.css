@@ -955,6 +955,12 @@ ul.tabbed-pane-contents > li {
 	width: 100%;
 	height: 0;
 	border-top: 1px solid #BCBCBC;
+	color: #999;
+}
+
+.bar-chart-average div {
+	float: right;
+	padding: 2px 5px;
 }
 
 .pie-chart-graph {
