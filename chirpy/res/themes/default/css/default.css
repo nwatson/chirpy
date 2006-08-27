@@ -949,7 +949,7 @@ ul.tabbed-pane-contents > li {
 	background: #D6D6D6;
 }
 
-.bar-chart-average {
+.bar-chart-average-container {
 	position: absolute;
 	left: 0;
 	width: 100%;
@@ -958,7 +958,7 @@ ul.tabbed-pane-contents > li {
 	color: #999;
 }
 
-.bar-chart-average div {
+.bar-chart-average-container div {
 	float: right;
 	padding: 2px 5px;
 }

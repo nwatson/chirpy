@@ -106,10 +106,8 @@ function createBarChart (sourceNode, chartData, samples) {
 	}
 	var avg = total / chartData.length;
 	var avgDiv = document.createElement("div");
-	avgDiv.className = "bar-chart-average";
+	avgDiv.className = "bar-chart-average-container";
 	avgDiv.style.top = (100 - (100 * avg / max)) + "%";
-	var avgTextDiv = document.createElement("div");
-	var avgText = roundToDecimals(avg, graphConfig["average_decimal_count"]);
 	var stdDevTotal = 0;
 	for (var i = 0; i < chartData.length; i++) {
 		var temp = chartData[i][1] - avg;
@@ -118,6 +116,7 @@ function createBarChart (sourceNode, chartData, samples) {
 	var stdDev = roundToDecimals(
 		Math.sqrt(stdDevTotal / chartData.length),
 		graphConfig["average_decimal_count"]);
+	var avgText = roundToDecimals(avg, graphConfig["average_decimal_count"]);
 	if (graphConfig["decimal_point_is_comma"]) {
 		avgText = ("" + avgText).replace(".", ",");
 		stdDev = ("" + stdDev).replace(".", ",");
@@ -129,6 +128,7 @@ function createBarChart (sourceNode, chartData, samples) {
 	stdDevSpan.appendChild(
 		document.createTextNode(String.fromCharCode(0x00B1) + " " + stdDev));
 	stdDevSpan.className = "bar-chart-standard-deviation";
+	var avgTextDiv = document.createElement("div");
 	avgTextDiv.appendChild(avgSpan);
 	avgTextDiv.appendChild(document.createTextNode(" "));
 	avgTextDiv.appendChild(stdDevSpan);
