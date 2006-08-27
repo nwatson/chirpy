@@ -297,7 +297,7 @@ function createOgive (sourceNode, chartData, samples) {
 		}
 	}
 	createChartPane(div, graph, chartData, samples,
-		graphConfig["ogive_values"], 0, total);
+		graphConfig["ogive_values"], 0, Math.round(max));
 	var scale = graphConfig["ogive_chart_height"] / max;
 	drawOgive(cnv, chartCumulData, false, scale);
 	drawOgive(cnv, chartAvgData, true, scale);
