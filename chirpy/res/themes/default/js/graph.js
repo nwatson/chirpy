@@ -110,10 +110,26 @@ function createBarChart (sourceNode, chartData, samples) {
 	avgDiv.style.top = (100 - (100 * avg / max)) + "%";
 	var avgTextDiv = document.createElement("div");
 	var avgText = roundToDecimals(avg, graphConfig["average_decimal_count"]);
+	var stdDevTotal = 0;
+	for (var i = 0; i < chartData.length; i++) {
+		var temp = chartData[i][1] - avg;
+		stdDevTotal += temp * temp;
+	}
+	var stdDev = roundToDecimals(
+		Math.sqrt(stdDevTotal / chartData.length),
+		graphConfig["average_decimal_count"]);
 	if (graphConfig["decimal_point_is_comma"]) {
 		avgText = ("" + avgText).replace(".", ",");
+		stdDev = ("" + stdDev).replace(".", ",");
 	}
-	avgTextDiv.appendChild(document.createTextNode(avgText));
+	var avgSpan = document.createTextNode(avgText);
+	avgSpan.className = "bar-chart-average";
+	var stdDevSpan = document.createTextNode(
+		String.fromCharCode(0x00B1) + " " + stdDev);
+	stdDevSpan.className = "bar-chart-standard-deviation";
+	avgTextDiv.appendChild(avgSpan);
+	avgTextDiv.appendChild(document.createTextNode(" "));
+	avgTextDiv.appendChild(stdDevSpan);
 	avgDiv.appendChild(avgTextDiv);
 	graph.appendChild(avgDiv);
 	sourceNode.parentNode.replaceChild(div, sourceNode);
