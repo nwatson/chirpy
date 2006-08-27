@@ -297,7 +297,7 @@ function createOgive (sourceNode, chartData, samples) {
 		}
 	}
 	createChartPane(div, graph, chartData, samples,
-		graphConfig["ogive_values"], 0, Math.round(max));
+		graphConfig["ogive_values"], 0, max);
 	var scale = graphConfig["ogive_chart_height"] / max;
 	drawOgive(cnv, chartCumulData, false, scale);
 	drawOgive(cnv, chartAvgData, true, scale);
@@ -446,7 +446,7 @@ function createChartValues (min, max, count, graph) {
 function createChartValue (value) {
 	var v = document.createElement("div");
 	v.className = "chart-value";
-	v.appendChild(document.createTextNode(value));
+	v.appendChild(document.createTextNode(Math.round(value)));
 	return v;
 }
 
