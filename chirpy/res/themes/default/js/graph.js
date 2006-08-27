@@ -122,10 +122,12 @@ function createBarChart (sourceNode, chartData, samples) {
 		avgText = ("" + avgText).replace(".", ",");
 		stdDev = ("" + stdDev).replace(".", ",");
 	}
-	var avgSpan = document.createTextNode(avgText);
+	var avgSpan = document.createElement("span");
+	avgSpan.appendChild(document.createTextNode(avgText));
 	avgSpan.className = "bar-chart-average";
-	var stdDevSpan = document.createTextNode(
-		String.fromCharCode(0x00B1) + " " + stdDev);
+	var stdDevSpan = document.createElement("span");
+	stdDevSpan.appendChild(
+		document.createTextNode(String.fromCharCode(0x00B1) + " " + stdDev));
 	stdDevSpan.className = "bar-chart-standard-deviation";
 	avgTextDiv.appendChild(avgSpan);
 	avgTextDiv.appendChild(document.createTextNode(" "));
