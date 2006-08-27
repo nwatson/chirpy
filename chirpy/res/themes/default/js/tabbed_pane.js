@@ -40,6 +40,9 @@ function initializeTab (tab) {
 		displayTab(tab);
 		return false;
 	};
+	tab.onmousedown = tab.onselectstart = function () {
+		return false;
+	};
 	tab.removeAttribute('href');
 }
 
