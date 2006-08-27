@@ -267,72 +267,63 @@ function createOgive (sourceNode, chartData, samples) {
 	var ignoreFirst = extractOgiveIgnoreCount(sourceNode);
 	var points = sampleOgiveData(chartData,
 		extractOgiveAverageSampleCount(sourceNode), ignoreFirst);
+	var chartCumulData = new Array();
 	var ignoreTotal = 0;
 	for (var i = 0; i < ignoreFirst; i++) {
 		ignoreTotal += chartData[i][1];
+		chartCumulData[i] = ignoreTotal;
 	}
 	var total = ignoreTotal;
 	for (var i = ignoreFirst; i < chartData.length; i++) {
 		total += chartData[i][1];
+		chartCumulData[i] = total;
 	}
 	var chartAvgData = new Array();
 	/*
 	// Old: Value-based, less smooth
 	for (var i = ignoreFirst; i < chartData.length; i++) {
-		chartAvgData[i] = new Array();
-		chartAvgData[i][1] = ignoreTotal + lagrangeInterpolate(i, points);
+		chartAvgData[i] = ignoreTotal + lagrangeInterpolate(i, points);
 	}
 	*/
 	// New: pixel-based
 	var width = graphConfig["ogive_chart_width"];
 	var firstX = Math.round(ignoreFirst / chartData.length * width);
+	var max = chartCumulData[chartCumulData.length - 1];
 	for (var x = firstX; x < width; x++) {
 		var i = x / width * chartData.length;
-		chartAvgData[x] = new Array();
-		chartAvgData[x][1] = ignoreTotal + lagrangeInterpolate(i, points);
+		chartAvgData[x] = ignoreTotal + lagrangeInterpolate(i, points);
+		if (chartAvgData[x] > max) {
+			max = chartAvgData[x];
+		}
 	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, total);
-	var scale = drawOgive(cnv, chartData);
-	drawOgive(cnv, chartAvgData, scale);
+	var scale = graphConfig["ogive_chart_height"] / max;
+	drawOgive(cnv, chartCumulData, false, scale);
+	drawOgive(cnv, chartAvgData, true, scale);
 	return div;
 }
 
-function drawOgive (canvas, chartData, avgScale) {
+function drawOgive (canvas, chartData, avg, yScale) {
 	var ctx = canvas.getContext("2d");
 	var graphWidth = graphConfig["ogive_chart_width"];
 	var graphHeight = graphConfig["ogive_chart_height"];
-	var avg, yScale;
-	if (avgScale) {
-		avg = true;
-		yScale = avgScale;
+	if (avg) {
 		ctx.strokeStyle = graphConfig["ogive_average_color"];
 		ctx.lineWidth = 1;
 	}
 	else {
-		avg = false;
-		var total = 0;
-		for (var i = 0; i < chartData.length; i++) {
-			if (!chartData[i]) continue;
-			total += chartData[i][1];
-		}
-		yScale = graphHeight / total;
 		ctx.fillStyle = graphConfig["ogive_chart_color"];
 	}
 	var xScale = graphWidth / chartData.length;
 	var x0 = 0;
 	var y0 = graphHeight;
 	ctx.beginPath();
-	var runningTotal = 0;
 	var notFirst = false;
 	for (var i = 0; i < chartData.length; i++) {
-		if (!chartData[i]) continue;
-		var name = chartData[i][0];
-		var value = chartData[i][1];
-		var label = chartData[i][2];
-		runningTotal = (avg ? value : runningTotal + value);
+		if (chartData[i] == null) continue;
 		var x = Math.round(x0 + (i + 1) * xScale);
-		var y = Math.round(y0 - runningTotal * yScale);
+		var y = Math.round(y0 - chartData[i] * yScale);
 		if (notFirst) {
 			ctx.lineTo(x, y);
 		}
