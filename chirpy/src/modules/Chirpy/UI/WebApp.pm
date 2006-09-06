@@ -2134,6 +2134,8 @@ sub _whitespaces_to_xhtml {
 	my $str = shift;
 	$str =~ s|\r?\n([ \t]*)|"<br/>\n" . ('&#xA0;' x length($1))|eg;
 	$str =~ s/([ \t]{2,})/'&#xA0;' x length($1)/eg;
+	$str =~ s/^([ \t]*)/'&#xA0;' x length($1)/eg;
+	$str =~ s/([ \t]*)$/'&#xA0;' x length($1)/eg;
 	return $str;
 }
 
