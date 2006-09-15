@@ -862,18 +862,26 @@ sub _provide_tag_cloud {
 	}
 	my $difference = $highest - $lowest;
 	my @tag_info = ();
-	my $max_increase
-		= $self->configuration()->get('ui', 'tag_cloud_percentage_delta')
-			|| 100;
-	my @tags = $self->configuration()->get('ui', 'randomize_tag_cloud')
+	my $conf = $self->configuration();
+	my @tags = $conf->get('ui', 'randomize_tag_cloud')
 		? Chirpy::Util::shuffle_array(keys %$tag_counts)
 		: sort keys %$tag_counts;
 	my @tag_info_list;
+	my $factor = $conf->get('ui', 'tag_cloud_percentage_delta') || 100;
+	my $logarithmic = $conf->get('ui', 'tag_cloud_logarithmic'); 
+	$factor /= log($difference) if ($logarithmic && $difference);
 	foreach my $tag (@tags) {
 		my $cnt = $tag_counts->{$tag};
-		my $delta = ($difference > 0
-			? ($max_increase * ($cnt - $lowest) / $difference)
-			: 0);
+		my $delta;
+		if (!$difference || $cnt == $lowest) {
+			$delta = 0;
+		}
+		elsif ($logarithmic) {
+			$delta = $factor * log($cnt - $lowest);
+		}
+		else {
+			$delta = $factor * ($cnt - $lowest) / $difference;
+		}
 		$tag = [
 			$tag,
 			$cnt,
@@ -1113,7 +1121,7 @@ sub _statistics_cache_file {
 
 sub moderation_queue_is_public {
 	my $self = shift;
-	return $self->configuration()->get('ui', 'public_moderation_queue');
+	return $self->configuration()->get('ui', 'moderation_queue_public');
 }
 
 sub get_news_posters {

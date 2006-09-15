@@ -231,10 +231,16 @@ The maximum number of quotes to display per page.
 
 How many news items to display on the home page.
 
-=item public_moderation_queue
+=item moderation_queue_public
 
 Set this to 1 if you want to make the list of unmoderated quotes available to
 the public. To hide the list from everybody except moderators, set it to 0.
+
+=item tag_cloud_logarithmic
+
+Set this to 1 if you want to determine the tag cloud's font sizes using a
+logarithmic algorithm instead of a linear one. Most people will probably prefer
+this, as it gives better results if some of the tags are used extremely often.
 
 =back
 
