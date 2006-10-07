@@ -59,6 +59,7 @@ function editQuote (id) {
 	dataNode.appendChild(stickInDiv(bodyArea));
 	dataNode.appendChild(stickInDiv(notesArea));
 	dataNode.appendChild(stickInDiv(tagsInput));
+	document.getElementById("a" + id + "-1").checked = true;
 }
 
 function stickInDiv (node) {
