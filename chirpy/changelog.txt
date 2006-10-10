@@ -36,7 +36,7 @@
 * Bugfix: live rating no longer throws a JavaScript error in IE
 * Bugfix: quote rating up log entry now includes quote ID (#1493589)
 * Just for fun, quote IDs can now be in binary and hex notation too, as per
-  <http://quotes.burntelectrons.org/844>.
+  <http://quotes.burntelectrons.org/844>
 
  _____________________________________________________________________________
 /                                                                             \
