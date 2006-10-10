@@ -901,7 +901,10 @@ sub _provide_statistics {
 	if ((!$exists || (
 	$self->statistics_update_allowed()
 	&& (stat($file))[9] + STATISTICS_UPDATE_INTERVAL < time
-	)) && !-e $tag_file) {
+	)) && (!-e $tag_file
+	# If the update seems to be taking longer than the update interval itself,
+	# something probably went wrong. In this case, we just try again.
+	|| (stat($tag_file))[9] + STATISTICS_UPDATE_INTERVAL < time)) {
 		local *TAG;
 		open(TAG, '>', $tag_file) and close(TAG);
 		$stats = $self->_compute_statistics();
