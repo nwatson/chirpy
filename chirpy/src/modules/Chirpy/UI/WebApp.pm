@@ -386,6 +386,10 @@ sub get_current_page {
 			unless (defined $quotes_per_feed && $quotes_per_feed > 0);
 		$self->parent()->quotes_per_page($quotes_per_feed);
 	}
+	elsif ($self->_wants_microsummary()
+	&& $self->_page_offers_microsummary($page)) {
+		$self->parent()->quotes_per_page(1);
+	}
 	$self->{'page'} = $page;
 	return $page;
 }
