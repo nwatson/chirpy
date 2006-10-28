@@ -10,6 +10,7 @@
 * Added metadata-based logging, including search
 * Made rating and reporting links use POST instead of GET and added
   intermediate confirmation page for non-AJAX users
+* Added microsummaries
 * You can now edit quotes before approving them
 * Added wildcard searching
 * Made tag cloud ignore unapproved quotes

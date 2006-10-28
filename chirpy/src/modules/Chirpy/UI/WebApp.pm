@@ -228,6 +228,26 @@ The alternate text for the captcha image.
 The title for the tag cloud's slider label, i.e. "Minimum Quotes" followed by a
 colon.
 
+=item webapp.top_quote_prefix
+
+The prefix for the "Top Quote" microsummary, i.e. "Top Quote" followed by a
+colon.
+
+=item webapp.bottom_quote_prefix
+
+The prefix for the "Bottom Quote" microsummary, i.e. "Bottom Quote" followed by
+a colon.
+
+=item webapp.latest_quote_prefix
+
+The prefix for the "Latest Quote" microsummary, i.e. "Latest Quote" followed by
+a colon.
+
+=item webapp.latest_unmoderated_quote_prefix
+
+The prefix for the "Latest Unmoderated Quote" microsummary, i.e. "Latest
+Unmoderated Quote" followed by a colon.
+
 =back
 
 =head1 TODO
@@ -479,6 +499,10 @@ sub report_no_quotes_to_display {
 	if (defined $type) {
 		$self->_generate_feed([], $type, $page);
 	}
+	elsif ($self->_wants_microsummary()
+	&& $self->_page_offers_microsummary($page)) {
+		$self->_generate_microsummary(undef, $page);
+	}
 	else {
 		my $name = &_get_page_name($page);
 		my $title = $self->locale()->get_string($name);
@@ -574,9 +598,37 @@ sub browse_quotes {
 	if (defined $type) {
 		$self->_generate_feed($quotes, $type, $page);
 	}
+	elsif ($self->_wants_microsummary()
+	&& $self->_page_offers_microsummary($page)) {
+		$self->_generate_microsummary($quotes->[0], $page);
+	}
 	else {
 		$self->_generate_xhtml($quotes, $page, $previous, $next);
 	}
+}
+
+sub _generate_microsummary {
+	my ($self, $quote, $page) = @_;
+	my $locale = $self->locale();
+	my $prefix;
+	if ($page == Chirpy::UI::TOP_QUOTES) {
+		$prefix = $locale->get_string('webapp.top_quote_prefix');
+	}
+	elsif ($page == Chirpy::UI::BOTTOM_QUOTES) {
+		$prefix = $locale->get_string('webapp.bottom_quote_prefix');
+	}
+	elsif ($page == Chirpy::UI::BOTTOM_QUOTES) {
+		$prefix = $locale->get_string('webapp.latest_unmoderated_quote_prefix');
+	}
+	else {
+		$prefix = $locale->get_string('webapp.latest_quote_prefix');
+	}
+	my $summary = $prefix . ' '
+		. (defined $quote
+			? $quote->get_id()
+			: $locale->get_string('none'));
+	# Don't serve Last-Modified here, since not everything is chronological
+	$self->_maybe_gzip($summary, 'text/plain');
 }
 
 sub _generate_feed {
@@ -2002,9 +2054,9 @@ sub _process_template {
 	$template->param('SITE_URL' => $self->_url());
 	$template->param('WEBMASTER_EMAIL'
 		=> sub { return &_hide_email($self->param('webmaster_email')) });
+	my $page = $self->get_current_page();
 	if ($self->param('enable_feeds')) {
-		my $page = $self->get_current_page();
-		my $page_feed = &_page_feed($page);
+		my $page_feed = $self->_page_feed($page);
 		if (defined $page_feed) {
 			my $ft = &_text_to_xhtml(
 				$locale->get_string(&_get_page_name($page_feed)));
@@ -2026,6 +2078,13 @@ sub _process_template {
 				}
 			]);
 		}
+	}
+	if ($self->_page_offers_microsummary($page)) {
+		$template->param('MICROSUMMARIES' => [
+			{
+				'MICROSUMMARY_URL' => $self->_microsummary_url($self->_action())
+			}
+		]);
 	}
 	$template->param('APPROVED_QUOTE_COUNT' => sub {
 		return $self->parent()->approved_quote_count();
@@ -2356,6 +2415,14 @@ sub _feed_url {
 		: $self->_url($action, undef, 'output' => $type));
 }
 
+sub _microsummary_url {
+	my ($self, $action) = @_;
+	return ($self->param('enable_short_urls')
+		# TODO: Update _url() for microsummaries
+		? $self->_url('ms/' . $action)
+		: $self->_url($action, undef, 'output' => 'ms'));
+}
+
 sub _quote_url {
 	my ($self, $id) = @_;
 	return ($self->param('enable_short_urls')
@@ -2423,6 +2490,11 @@ sub _id {
 	return $id;
 }
 
+sub _wants_microsummary {
+	my $self = shift;
+	return $self->_output_type eq 'ms';
+}
+
 sub _wants_xml {
 	my $self = shift;
 	return $self->_output_type() eq 'xml';
@@ -2441,7 +2513,7 @@ sub _valid_feed_type {
 }
 
 sub _page_feed {
-	my $page = shift;
+	my ($self, $page) = @_;
 	if ($page == Chirpy::UI::START_PAGE
 	|| $page == Chirpy::UI::QUOTE_BROWSER
 	|| $page == Chirpy::UI::QUOTES_OF_THE_WEEK) {
@@ -2455,6 +2527,15 @@ sub _page_feed {
 		return $page;
 	}
 	return undef;
+}
+
+sub _page_offers_microsummary {
+	my ($self, $page) = @_;
+	return ($page == Chirpy::UI::QUOTE_BROWSER
+		|| $page == Chirpy::UI::TOP_QUOTES
+		|| $page == Chirpy::UI::BOTTOM_QUOTES
+		|| $page == Chirpy::UI::MODERATION_QUEUE
+		|| $page == Chirpy::UI::QUOTES_OF_THE_WEEK);
 }
 
 sub _requires_session {

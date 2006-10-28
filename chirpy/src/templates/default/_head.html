@@ -20,6 +20,9 @@
 	<link rel="alternate" type="<TMPL_VAR NAME="FEED_MIME_TYPE">"
 	title="<TMPL_VAR NAME="FEED_TITLE">" href="<TMPL_VAR NAME="FEED_URL">" />
 	</TMPL_LOOP>
+	<TMPL_LOOP NAME="MICROSUMMARIES">
+	<link rel="microsummary" href="<TMPL_VAR NAME="MICROSUMMARY_URL">" type="text/plain" />
+	</TMPL_LOOP>
 	<TMPL_IF NAME="START_URL"><link rel="start" href="<TMPL_VAR NAME="START_URL">" /></TMPL_IF>
 	<TMPL_IF NAME="PREVIOUS_URL"><link rel="prev" href="<TMPL_VAR NAME="PREVIOUS_URL">" /></TMPL_IF>
 	<TMPL_IF NAME="NEXT_URL"><link rel="next" href="<TMPL_VAR NAME="NEXT_URL">" /></TMPL_IF>

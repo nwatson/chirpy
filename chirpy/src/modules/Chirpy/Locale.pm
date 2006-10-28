@@ -598,6 +598,10 @@ username, C<%2%> with his user level.
 Translation of I<Change Password>, for titles and labels in the administrative
 interface.
 
+=item none
+
+Generic translation of the string I<None>.
+
 =item error
 
 Generic translation of the string I<Error>.
