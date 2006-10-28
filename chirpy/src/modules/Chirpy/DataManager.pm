@@ -143,16 +143,29 @@ were submitted.
 Properties of the quote to sort on, represented as a two-dimensional array
 reference. Here is an example:
 
- [ [ 'rating', 0 ], [ 'id', 1 ] ]
+ [ [ 'score', 0 ], [ 'id', 1 ] ]
 
 The boolean value is true if the results should be in descending order. Hence,
-the sorting instruction above means the data manager should sort by rating
+the sorting instruction above means the data manager should sort by score
 first, in ascending order. If the ratings are equal, then it should sort by ID,
 in descending order.
 
-The possible properties to sort on are C<id>, C<rating>, C<approved> and
-C<flagged>. It is assumed that sorting on the date when the quote was submitted
-has the same effect as sorting on quote ID.
+The possible properties to sort on are C<id>, C<rating>, C<approved>, C<score>,
+and C<flagged>. It is assumed that sorting on the date when the quote was
+submitted has the same effect as sorting on quote ID.
+
+Sorting on C<score> was introduced in Chirpy! 0.3 and is used to determine the
+top and bottom quotes. Quotes' scores are calculated as follows:
+
+                                   votes + rating
+                                  ---------------- + 1
+           positive votes + 1             2
+  score = -------------------- = ----------------------
+           negative votes + 1      votes - rating
+                                  ---------------- + 1
+                                          2
+
+Data managers may prefer to cache this value for performance purposes.
 
 =item random
 

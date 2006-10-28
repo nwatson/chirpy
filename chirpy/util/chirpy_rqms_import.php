@@ -119,19 +119,23 @@ $quotes_result = mysql_query('SELECT * FROM `' . $quotetable . '`')
 $count_quotes = 0;
 while ($row = mysql_fetch_array($quotes_result)) {
 	$count_quotes++;
+	$rating = $row['rating'];
+	// We use abs($rating) as the number of votes here, since RQMS doesn't
+	// seem to keep it anywhere.
+	$votes = abs($rating);
+	$score = (($votes + $rating) / 2 + 1) / (($votes - $rating) / 2 + 1);
 	mysql_query('INSERT INTO `' . $chirpy_table_prefix . 'quotes` ('
 		. ($clear_chirpy_tables ? '`id`, ' : '')
-		. '`body`, `rating`, `votes`, `submitted`, `approved`, `flagged`)'
-		. ' VALUES ('
+		. '`body`, `rating`, `votes`, `submitted`, `approved`, `flagged`,'
+		. ' `score`) VALUES ('
 		. ($clear_chirpy_tables ? $row['id'] . ', ' : '')
-		. '"' . addslashes(decode_html($row['quote']))
-		. '", ' . $row['rating']
-		// We use abs($rating) as the number of votes here, since RQMS doesn't
-		// seem to keep it anywhere.
-		. ', ' . abs($row['rating'])
+		. '"' . addslashes(decode_html($row['quote'])) . '"'
+		. ', ' . $rating
+		. ', ' . $votes
 		. ', FROM_UNIXTIME(' . $row['date'] . ')'
 		. ', ' . ($row['approve'] ? 1 : 0)
-		. ', ' . ($row['check'] ? 0 : 1) . ')')
+		. ', ' . ($row['check'] ? 0 : 1)
+		. ', ' . $score . ')')
 			or die('Error importing quote: ' . mysql_error());
 }
 log_event('Quotes imported: ' . $count_quotes, true);

@@ -104,12 +104,15 @@ package Chirpy::DataManager::MySQL;
 use strict;
 use warnings;
 
-use vars qw($VERSION $TARGET_VERSION @ISA);
+use vars qw($VERSION $TARGET_VERSION @ISA $SCORE_EXPR);
 
 $VERSION = '';
 @ISA = qw(Chirpy::DataManager Chirpy::UI::WebApp::Session::DataManager);
 
 $TARGET_VERSION = '';
+
+$SCORE_EXPR = '`score` = ((`votes` + `rating`) / 2 + 1)'
+	. ' / ((`votes` - `rating`) / 2 + 1)';
 
 use Chirpy;
 
@@ -184,6 +187,7 @@ sub set_up {
 	}
 	$table = $prefix . 'quotes';
 	my $determine_votes = 0;
+	my $determine_scores = 0;
 	if ($self->_table_exists($table)) {
 		unless ($self->_column_exists($table, 'votes')) {
 			$handle->do(q|
@@ -191,6 +195,13 @@ sub set_up {
 					ADD `votes` int unsigned NOT NULL default 0 AFTER `rating`
 			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
 			$determine_votes = 1;
+		}
+		unless ($self->_column_exists($table, 'score')) {
+			$handle->do(q|
+				ALTER TABLE `| . $table . q|`
+					ADD `score` double unsigned NOT NULL
+			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
+			$determine_scores = 1;
 		}
 	}
 	else {
@@ -204,6 +215,7 @@ sub set_up {
 				`submitted` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				`approved` tinyint(1) unsigned NOT NULL,
 				`flagged` tinyint(1) unsigned NOT NULL,
+				`score` double unsigned NOT NULL,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
@@ -259,6 +271,7 @@ sub set_up {
 		$self->_remove_table($prefix . 'log');
 	}
 	$self->_determine_votes() if ($determine_votes);
+	$self->_determine_scores() if ($determine_scores);
 	$table = $prefix . 'sessions';
 	unless ($self->_table_exists($table)) {
 		$handle->do(q|
@@ -408,6 +421,14 @@ sub _determine_votes {
 		$rows = $s->execute($votes, $id);
 		$self->_db_error() unless (defined $rows);
 	}
+}
+
+sub _determine_scores {
+	my $self = shift;
+	my $prefix = $self->table_name_prefix();
+	my $query = 'UPDATE `' . $prefix . 'quotes`'
+		. ' SET ' . $SCORE_EXPR;
+	$self->_do($query);
 }
 
 sub _remove_table {
@@ -567,11 +588,11 @@ sub modify_quote {
 
 sub increase_quote_rating {
 	my ($self, $id, $revert) = @_;
+	my ($r, $v) = ($revert
+		? ('`rating` + 2', '`votes`') : ('`rating` + 1', '`votes` + 1'));
 	$self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
-		. ' SET '
-		. ($revert
-			? '`rating` = `rating` + 2'
-			: '`rating` = `rating` + 1, `votes` = `votes` + 1')
+		. ' SET `rating` = ' . $r . ', `votes` = ' . $v . ','
+		. ' ' . $SCORE_EXPR
 		. ' WHERE `id` = ' . $id . ' LIMIT 1')
 			or return undef;
 	return $self->_get_quote_rating_and_vote_count($id);
@@ -579,11 +600,11 @@ sub increase_quote_rating {
 
 sub decrease_quote_rating {
 	my ($self, $id, $revert) = @_;
+	my ($r, $v) = ($revert
+		? ('`rating` - 2', '`votes`') : ('`rating` - 1', '`votes` + 1'));
 	$self->_do('UPDATE `' . $self->table_name_prefix() . 'quotes`'
-		. ' SET '
-		. ($revert
-			? '`rating` = `rating` - 2'
-			: '`rating` = `rating` - 1, `votes` = `votes` + 1')
+		. ' SET `rating` = ' . $r . ', `votes` = ' . $v . ','
+		. ' ' . $SCORE_EXPR
 		. ' WHERE `id` = ' . $id . ' LIMIT 1')
 			or return undef;
 	return $self->_get_quote_rating_and_vote_count($id);

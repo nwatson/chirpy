@@ -470,7 +470,7 @@ sub get_top_quotes {
 	my ($self, $start) = @_;
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
-		'sort'     => [ [ 'rating', 1 ], [ 'id', 1 ] ],
+		'sort'     => [ [ 'score', 1 ], [ 'id', 1 ] ],
 		'first'    => $start,
 		'count'    => $self->quotes_per_page()
 	});
@@ -480,7 +480,7 @@ sub get_bottom_quotes {
 	my ($self, $start) = @_;
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
-		'sort'     => [ [ 'rating', 0 ], [ 'id', 1 ] ],
+		'sort'     => [ [ 'score', 0 ], [ 'id', 1 ] ],
 		'first'    => $start,
 		'count'    => $self->quotes_per_page()
 	});
