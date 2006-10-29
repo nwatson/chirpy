@@ -2023,9 +2023,10 @@ sub _output_template {
 
 sub _maybe_gzip {
 	my ($self, $content, $ctype, %headers) = @_;
+	my $accenc = $self->{'cgi'}->http('Accept-Encoding');
 	if (!defined $self->parent()->debug_events()
 	&& $self->param('enable_gzip')
-	&& $self->{'cgi'}->http('Accept-Encoding') =~ /\bgzip\b/i) {
+	&& defined $accenc && $accenc =~ /\bgzip\b/i) {
 		require Compress::Zlib;
 		$self->_print_http_header($ctype,
 			'Content-Encoding' => 'gzip', %headers);
@@ -2535,12 +2536,14 @@ sub _id {
 
 sub _wants_microsummary {
 	my $self = shift;
-	return $self->_output_type eq 'ms';
+	my $ot = $self->_output_type();
+	return (defined $ot && $ot eq 'ms');
 }
 
 sub _wants_xml {
 	my $self = shift;
-	return $self->_output_type() eq 'xml';
+	my $ot = $self->_output_type();
+	return (defined $ot && $ot eq 'xml');
 }
 
 sub _feed_type {
