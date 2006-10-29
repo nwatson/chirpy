@@ -2331,15 +2331,42 @@ sub _hide_email {
 
 sub _format_news_body {
 	my ($self, $body) = @_;
+	# TODO: Make all this a little more efficient
 	$body = &_quick_style_to_xhtml(
 		$body,
 		$self->_quote_url("\0")
 	);
-	# TODO: Make sure this doesn't cause trouble with elements that accidentally
-	# span multiple paragraphs, i.e. close them before starting a new paragraph,
-	# and remove the obsolete closing tag
-	$body =~ s|(?:<\s*br\s*/\s*>\s*){2,}|</p>\n<p>|sg;
-	return '<p>' . $body . '</p>';
+	my @paragraphs = split(/(?:<\s*br\s*\/\s*>\s*){2,}/, $body);
+	return join("\n", map { '<p>' . &_fix_xml($_) . '</p>' } @paragraphs);
+}
+
+sub _fix_xml {
+	my $xml = shift;
+	my @stack = ();
+	my $out = '';
+	while ($xml =~ s|^([^<]*)<\s*(/?)(\w*)(.*?)(/?)>||sg) {
+		my ($text, $closing, $element, $attributes, $selfclosing)
+			= ($1, $2, $3, $4, $5);
+		if (length($selfclosing)) {
+			$out .= $&;
+		}
+		elsif (!length($closing)) {
+			push @stack, $element;
+			$out .= $&;
+		}
+		elsif ($stack[-1] eq $element) {
+			pop @stack;
+			$out .= $text . '</' . $element . '>';
+		}
+		else {
+			$out .= $text;
+		}
+	}
+	$out .= $xml;
+	while (my $element = pop @stack) {
+		$out .= '</' . $element . '>'; 
+	}
+	return $out;
 }
 
 sub _link_tags {
