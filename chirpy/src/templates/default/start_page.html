@@ -15,7 +15,7 @@
 			<ul id="news-list">
 			<TMPL_LOOP NAME="NEWS">
 				<li>
-					<p class="news-text"><TMPL_VAR NAME="BODY"></p>
+					<div class="news-text"><TMPL_VAR NAME="BODY"></div>
 					<p class="news-footer"><TMPL_IF NAME="AUTHOR">&mdash;<TMPL_VAR NAME="AUTHOR">,</TMPL_IF>
 					<TMPL_VAR NAME="DATE">
 					<TMPL_IF NAME="ALLOW_EDIT">

@@ -2335,6 +2335,11 @@ sub _format_news_body {
 		$body,
 		$self->_quote_url("\0")
 	);
+	# TODO: Make sure this doesn't cause trouble with elements that accidentally
+	# span multiple paragraphs, i.e. close them before starting a new paragraph,
+	# and remove the obsolete closing tag
+	$body =~ s|(?:<\s*br\s*/\s*>\s*){2,}|</p>\n<p>|sg;
+	return '<p>' . $body . '</p>';
 }
 
 sub _link_tags {
