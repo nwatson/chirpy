@@ -87,7 +87,7 @@ Returns the given string with UTF-8 characters decoded.
 
 =item abstract_method()
 
-Aborts execute immediately, stating that the method is abstract and must be
+Aborts execution immediately, stating that the method is abstract and must be
 implemented. Hence, if you have an abstract method C<my_abstract_method()>, you
 may define it as follows:
 
