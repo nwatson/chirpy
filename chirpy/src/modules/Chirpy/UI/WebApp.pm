@@ -1161,27 +1161,31 @@ sub provide_quote_submission_interface {
 		my $captcha = $self->_captcha();
 		my $length = $self->param('captcha_code_length') || 4;
 		my $imgpath = $self->param('captcha_source_image_path');
+		my $imgurl = $self->param('captcha_image_url');
 		my $width = $self->param('captcha_character_width');
 		my $height = $self->param('captcha_character_height');
 		my $expire = $self->param('captcha_expiry_time');
+		$imgurl = $self->param('site_url') . '/res/captcha'
+			unless (defined $imgurl);
 		$captcha->expire($expire) if ($expire);
+		my $set_dimensions = ($width && $height);
+		unless ($set_dimensions) {
+			$width = 25;
+			$height = 35;
+		}
 		if ($imgpath && -d $imgpath) {
 			$captcha->images_folder($imgpath);
-			if ($width && $height) {
+			if ($set_dimensions) {
 				$captcha->width($width);
 				$captcha->height($height);
-			}
-			else {
-				$width = $captcha->width();
-				$height = $captcha->height();
 			}
 		}
 		my $hash = $captcha->generate_code($length);
 		$template->param(
 			'USE_CAPTCHA' => 1,
 			'CAPTCHA_HASH' => $hash,
-			'CAPTCHA_IMAGE_URL'
-				=> $self->param('captcha_image_url') . '/' . $hash . '.png',
+			'CAPTCHA_IMAGE_URL' => &_text_to_xhtml($imgurl)
+				. '/' . $hash . '.png',
 			'CAPTCHA_CODE_LABEL' => &_text_to_xhtml(
 				$locale->get_string('webapp.captcha_code_label')),
 			'CAPTCHA_IMAGE_TEXT' => &_text_to_xhtml(
@@ -2388,9 +2392,12 @@ sub _link_tags {
 sub _captcha {
 	my $self = shift;
 	require Authen::Captcha;
+	my $imgpath = $self->param('captcha_image_path');
+	$imgpath = $self->configuration()->get('general', 'base_path')
+		. '/../res/captcha' unless (defined $imgpath);
 	return new Authen::Captcha(
 		'data_folder' => $self->_captcha_data_path(),
-		'output_folder' => $self->param('captcha_image_path'),
+		'output_folder' => $imgpath
 	);
 }
 
