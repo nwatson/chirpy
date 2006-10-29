@@ -233,14 +233,32 @@ How many news items to display on the home page.
 
 =item moderation_queue_public
 
-Set this to 1 if you want to make the list of unmoderated quotes available to
+Set this to C<1> if you want to make the list of unmoderated quotes available to
 the public. To hide the list from everybody except moderators, set it to 0.
 
 =item tag_cloud_logarithmic
 
-Set this to 1 if you want to determine the tag cloud's font sizes using a
+Set this to C<1> if you want to determine the tag cloud's font sizes using a
 logarithmic algorithm instead of a linear one. Most people will probably prefer
 this, as it gives better results if some of the tags are used extremely often.
+
+=item quote_score_calculation_mode
+
+Since Chirpy! 0.3, quote scores, which are used to order the quotes for the Top
+and Bottom Quotes pages, are calculated using the following formula:
+
+           positive votes + 1
+  score = --------------------
+           negative votes + 1
+
+This results in a fairly decent distribution. However, if you prefer the old
+way, based on a quote's rating, i.e.
+
+  rating = positive votes - negative votes
+
+you can set C<quote_score_calculation_mode> to C<1>. Note that the default way
+corresponds with a value of C<0>; this value may correspond with a different
+formula in future releases.
 
 =back
 
@@ -468,9 +486,10 @@ sub get_random_quotes {
 
 sub get_top_quotes {
 	my ($self, $start) = @_;
+	my $cm = $self->configuration()->get('ui', 'quote_score_calculation_mode');
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
-		'sort'     => [ [ 'score', 1 ], [ 'id', 1 ] ],
+		'sort'     => [ [ ($cm == 1 ? 'rating' : 'score'), 1 ], [ 'id', 1 ] ],
 		'first'    => $start,
 		'count'    => $self->quotes_per_page()
 	});
@@ -478,9 +497,10 @@ sub get_top_quotes {
 
 sub get_bottom_quotes {
 	my ($self, $start) = @_;
+	my $cm = $self->configuration()->get('ui', 'quote_score_calculation_mode');
 	return $self->_data_manager()->get_quotes({
 		'approved' => 1,
-		'sort'     => [ [ 'score', 0 ], [ 'id', 1 ] ],
+		'sort'     => [ [ ($cm == 1 ? 'rating' : 'score'), 0 ], [ 'id', 1 ] ],
 		'first'    => $start,
 		'count'    => $self->quotes_per_page()
 	});
