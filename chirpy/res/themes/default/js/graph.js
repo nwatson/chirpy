@@ -149,7 +149,7 @@ function createPieChart (sourceNode, chartData) {
 	graph.appendChild(cnv);
 	cnv = ensureCanvas(cnv);
 	if (!cnv) {
-		return createBarChart(chartData, samples);
+		return createBarChart(sourceNode, chartData);
 	}
 	var div = document.createElement("div");
 	div.className = "chart pie-chart";
@@ -257,7 +257,7 @@ function createOgive (sourceNode, chartData, samples) {
 			chartData[i][1] += total;
 			total += old;
 		}
-		return createBarChart(chartData, samples);
+		return createBarChart(sourceNode, chartData, samples);
 	}
 	var div = document.createElement("div");
 	div.className = "chart ogive";
