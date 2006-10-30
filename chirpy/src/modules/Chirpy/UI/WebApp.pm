@@ -2034,7 +2034,7 @@ sub _maybe_gzip {
 	}
 	else {
 		$self->_print_http_header($ctype, %headers);
-		binmode(STDOUT, ":utf8");
+		binmode(STDOUT, ':utf8');
 		print $content;
 	}
 }
