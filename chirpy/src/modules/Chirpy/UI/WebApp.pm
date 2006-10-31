@@ -621,7 +621,7 @@ sub _generate_microsummary {
 	elsif ($page == Chirpy::UI::BOTTOM_QUOTES) {
 		$prefix = $locale->get_string('webapp.bottom_quote_prefix');
 	}
-	elsif ($page == Chirpy::UI::BOTTOM_QUOTES) {
+	elsif ($page == Chirpy::UI::MODERATION_QUEUE) {
 		$prefix = $locale->get_string('webapp.latest_unmoderated_quote_prefix');
 	}
 	else {
