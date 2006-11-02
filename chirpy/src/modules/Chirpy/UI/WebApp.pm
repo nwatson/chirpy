@@ -378,6 +378,7 @@ sub get_current_page {
 		$page = ($self->_id()
 			? Chirpy::UI::SINGLE_QUOTE : Chirpy::UI::START_PAGE);
 	}
+	$page = Chirpy::UI::START_PAGE unless (defined $page);
 	$self->_provide_session_if_necessary($page);
 	# XXX: This is sort of hackish. What to do?
 	if (defined $self->_feed_type()) {
