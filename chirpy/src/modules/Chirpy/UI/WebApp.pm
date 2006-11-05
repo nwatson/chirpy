@@ -638,12 +638,18 @@ sub _generate_microsummary {
 
 sub _generate_feed {
 	my ($self, $quotes, $type, $page) = @_;
-	my $date;
-	foreach my $quote (@$quotes) {
-		my $d = $quote->get_date_submitted();
-		$date = $d if (!defined($date) || $d > $date);
+	my $date = $self->get_parameter('webapp.quote_feed_date');
+	unless ($date) {
+		if (@$quotes) {
+			foreach my $quote (@$quotes) {
+				my $d = $quote->get_date_submitted();
+				$date = $d if (!defined($date) || $d > $date);
+			}
+		}
+		else {
+			$date = time;
+		}
 	}
-	$date = time unless (defined $date);
 	my $etag = sprintf('"%X"', $date);
 	require HTTP::Date;
 	my $ims = $self->{'cgi'}->http('If-Modified-Since');
@@ -1201,6 +1207,7 @@ sub provide_quote_submission_interface {
 
 sub confirm_quote_submission {
 	my ($self, $admin) = @_;
+	$self->_trigger_feed_update();
 	my $loc = $self->locale();
 	if ($admin) {
 		$self->_report_message(
@@ -1232,6 +1239,7 @@ sub request_quote_rating_confirmation {
 
 sub confirm_quote_rating {
 	my ($self, $id, $up, $new_rating, $new_vote_count) = @_;
+	$self->_trigger_feed_update();
 	if ($self->_wants_xml()) {
 		$self->_output_xml('result', {
 			'status' => STATUS_OK,
@@ -1302,6 +1310,7 @@ sub request_quote_report_confirmation {
 
 sub confirm_quote_report {
 	my $self = shift;
+	$self->_trigger_feed_update();
 	if ($self->_wants_xml()) {
 		$self->_output_xml('result', { 'status' => STATUS_OK });
 	}
@@ -1419,6 +1428,7 @@ sub get_quote_to_remove {
 
 sub confirm_quote_removal {
 	my $self = shift;
+	$self->_trigger_feed_update();
 	$self->_output_administration_page(
 		'quote_removed' => 1
 	);
@@ -1466,6 +1476,7 @@ sub get_modified_quote_information {
 
 sub confirm_quote_modification {
 	my $self = shift;
+	$self->_trigger_feed_update();
 	$self->_output_administration_page(
 		'quote_modified' => 1
 	);
@@ -1507,6 +1518,9 @@ sub get_quote_flag_management_result {
 				push @remove, $id;
 			}
 		}
+	}
+	if (@unflag || @remove) {
+		$self->_trigger_feed_update();
 	}
 	return (\@unflag, \@remove);
 }
@@ -1800,6 +1814,11 @@ sub get_user_information {
 		'remote_addr' => $cgi->remote_addr(),
 		'user_agent' => $cgi->user_agent()
 	};
+}
+
+sub _trigger_feed_update {
+	my $self = shift;
+	$self->set_parameter('webapp.quote_feed_date', time);
 }
 
 sub _confirmation_form {
