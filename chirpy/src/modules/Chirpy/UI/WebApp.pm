@@ -1207,9 +1207,9 @@ sub provide_quote_submission_interface {
 
 sub confirm_quote_submission {
 	my ($self, $admin) = @_;
-	$self->_trigger_feed_update();
 	my $loc = $self->locale();
 	if ($admin) {
+		$self->_trigger_feed_update();
 		$self->_report_message(
 			$loc->get_string('quote_submitted_no_approval'),
 			$loc->get_string('quote_submission_thanks_no_approval'));
@@ -1554,6 +1554,8 @@ sub get_quote_approval_result {
 			}
 		}
 	}
+	# TODO: Make sure something changed.
+	$self->_trigger_feed_update();
 	return (\@approve, \@remove, \%edited);
 }
 
