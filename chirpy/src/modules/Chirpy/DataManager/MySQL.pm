@@ -199,7 +199,7 @@ sub set_up {
 		unless ($self->_column_exists($table, 'score')) {
 			$handle->do(q|
 				ALTER TABLE `| . $table . q|`
-					ADD `score` double unsigned NOT NULL
+					ADD `score` double unsigned NOT NULL default 1
 			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
 			$determine_scores = 1;
 		}
@@ -215,7 +215,7 @@ sub set_up {
 				`submitted` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				`approved` tinyint(1) unsigned NOT NULL,
 				`flagged` tinyint(1) unsigned NOT NULL,
-				`score` double unsigned NOT NULL,
+				`score` double unsigned NOT NULL default 1,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
