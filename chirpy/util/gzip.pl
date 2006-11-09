@@ -23,6 +23,8 @@
 # gzip.pl                                                                     #
 # Provides compression for certain files, relying on .htaccess directives     #
 ###############################################################################
+# $Id::                                                                     $ #
+###############################################################################
 
 use strict;
 use warnings;

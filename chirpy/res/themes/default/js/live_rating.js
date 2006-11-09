@@ -22,6 +22,8 @@
 # live_rating.js                                                              #
 # Enables rating and reporting of quotes without leaving the page             #
 ###############################################################################
+# $Id::                                                                     $ #
+###############################################################################
 */
 
 var useBlinking = true;
