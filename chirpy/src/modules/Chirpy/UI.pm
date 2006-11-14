@@ -269,7 +269,7 @@ sub run {
 				'id' => $id,
 				'body' => $body,
 				(defined $notes && length($notes) ? ('notes' => $notes) : ()),
-				(@$tags ? ('tags' => join(' ', @$tags)) : ())
+				(@$tags ? ('tags' => join(' ', sort @$tags)) : ())
 			});
 			if ($approved) {
 				$self->_log_event(Chirpy::Event::APPROVE_QUOTE,
