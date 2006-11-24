@@ -859,7 +859,8 @@ sub _serve_event_log_table_data {
 				$username = $acct->get_username();
 			}
 		}
-		my $description = Chirpy::Event::translate_code($event->get_code());
+		my $description = &_text_to_xhtml($locale->get_string(
+			'event_' . $event->get_code() . '_name'));
 		my $data = $event->get_data();
 		my $result = {
 			'id' => $id,

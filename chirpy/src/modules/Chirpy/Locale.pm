@@ -922,6 +922,74 @@ Title for the message indicating that checking for updates has failed.
 Message explaining that Chirpy! failed to check for updates, and indicating
 that an error report follows.
 
+=item event_100_name
+
+Name of the "Login Success" event.
+
+=item event_101_name
+
+Name of the "Login Failure" event.
+
+=item event_102_name
+
+Name of the "Change Password" event.
+
+=item event_200_name
+
+Name of the "Add Quote" event.
+
+=item event_201_name
+
+Name of the "Edit Quote" event.
+
+=item event_202_name
+
+Name of the "Remove Quote" event.
+
+=item event_203_name
+
+Name of the "Quote Rating Up" event.
+
+=item event_204_name
+
+Name of the "Quote Rating Down" event.
+
+=item event_205_name
+
+Name of the "Report Quote" event.
+
+=item event_206_name
+
+Name of the "Approve Quote" event.
+
+=item event_207_name
+
+Name of the "Unflag Quote" event.
+
+=item event_300_name
+
+Name of the "Add News" event.
+
+=item event_301_name
+
+Name of the "Edit News" event.
+
+=item event_302_name
+
+Name of the "Remove News" event.
+
+=item event_400_name
+
+Name of the "Add Account" event.
+
+=item event_401_name
+
+Name of the "Edit Account" event.
+
+=item event_402_name
+
+Name of the "Remove Account" event.
+
 =item date
 
 =item username
