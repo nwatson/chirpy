@@ -202,7 +202,13 @@ sub decode_utf8 {
 }
 
 sub shuffle_array {
-	return sort { rand 2 } @_;
+	my @array = @_;
+	my $len = scalar @array;
+	for (my $i = 0; $i < $len; $i++) {
+		my $j = int rand $len;
+		($array[$i], $array[$j]) = ($array[$j], $array[$i]);
+	}
+	return @array;
 }
 
 sub abstract_method {
