@@ -872,8 +872,9 @@ sub _provide_tag_cloud {
 		: sort keys %$tag_counts;
 	my @tag_info_list;
 	my $factor = $conf->get('ui', 'tag_cloud_percentage_delta') || 100;
-	my $logarithmic = $conf->get('ui', 'tag_cloud_logarithmic'); 
-	$factor /= log($difference) if ($logarithmic && $difference);
+	my $logarithmic = ($difference > 1
+		&& $conf->get('ui', 'tag_cloud_logarithmic')); 
+	$factor /= log($difference) if ($logarithmic);
 	foreach my $tag (@tags) {
 		my $cnt = $tag_counts->{$tag};
 		my $delta;
