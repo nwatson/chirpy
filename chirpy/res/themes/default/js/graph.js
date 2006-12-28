@@ -266,34 +266,21 @@ function createOgive (sourceNode, chartData, samples) {
 	div.appendChild(graph);
 	sourceNode.parentNode.replaceChild(div, sourceNode);
 	graph.className = "ogive-graph";
-	var ignoreFirst = extractOgiveIgnoreCount(sourceNode);
 	var points = sampleOgiveData(chartData,
-		extractOgiveAverageSampleCount(sourceNode), ignoreFirst);
+		extractOgiveAverageSampleCount(sourceNode));
 	var chartCumulData = new Array();
-	var ignoreTotal = 0;
-	for (var i = 0; i < ignoreFirst; i++) {
-		ignoreTotal += chartData[i][1];
-		chartCumulData[i] = ignoreTotal;
-	}
-	var total = ignoreTotal;
-	for (var i = ignoreFirst; i < chartData.length; i++) {
+	var total = 0;
+	for (var i = 0; i < chartData.length; i++) {
 		total += chartData[i][1];
 		chartCumulData[i] = total;
 	}
 	var chartAvgData = new Array();
-	/*
-	// Old: Value-based, less smooth
-	for (var i = ignoreFirst; i < chartData.length; i++) {
-		chartAvgData[i] = ignoreTotal + lagrangeInterpolate(i, points);
-	}
-	*/
-	// New: pixel-based
 	var width = graphConfig["ogive_chart_width"];
-	var firstX = Math.round(ignoreFirst / chartData.length * width);
 	var max = chartCumulData[chartCumulData.length - 1];
-	for (var x = firstX; x < width; x++) {
+	var regrParam = powerRegression(chartCumulData);
+	for (var x = 0; x < width; x++) {
 		var i = x / width * chartData.length;
-		chartAvgData[x] = ignoreTotal + lagrangeInterpolate(i, points);
+		chartAvgData[x] = regrParam.a * Math.pow(x, regrParam.b);
 		if (chartAvgData[x] > max) {
 			max = chartAvgData[x];
 		}
@@ -345,14 +332,14 @@ function drawOgive (canvas, chartData, avg, yScale) {
 	return yScale;
 }
 
-function sampleOgiveData (chartData, samples, ignoreFirst) {
-	var segSize = (chartData.length - ignoreFirst) / (samples - 1);
-	var total = chartData[ignoreFirst][1];
+function sampleOgiveData (chartData, samples) {
+	var segSize = chartData.length / (samples - 1);
+	var total = chartData[0][1];
 	var points = new Array();
-	points[0] = [ ignoreFirst, total ];
-	for (var i = ignoreFirst + 1; i < chartData.length; i++) {
+	points[0] = [ 0, total ];
+	for (var i = 1; i < chartData.length; i++) {
 		total += chartData[i][1];
-		var seg = Math.floor((i - ignoreFirst) / segSize);
+		var seg = Math.floor(i / segSize);
 		if (points[seg]) continue;
 		points[seg] = [ i, total ];
 	}
@@ -382,12 +369,6 @@ function extractChartData (dl) {
 
 function extractChartLabelCount (dl) {
 	var result = extractChartParameter(dl, "label-count");
-	if (result == null) return 0;
-	return result;
-}
-
-function extractOgiveIgnoreCount (dl) {
-	var result = extractChartParameter(dl, "ignore-first");
 	if (result == null) return 0;
 	return result;
 }
@@ -504,25 +485,6 @@ function createChartLabel (data, position, width, align) {
 	return label;
 }
 
-// XXX: Speed up Lagrange interpolation
-
-function lagrangeInterpolate (x, points) {
-	var sum = 0;
-	for (var i = 0; i < points.length; i++) {
-		sum += points[i][1] * lagrangeBasis(x, points, i);
-	}
-	return sum;
-}
-
-function lagrangeBasis (x, points, index) {
-	var product = 1;
-	for (var i = 0; i < points.length; i++) {
-		if (i == index) continue;
-		product *= (x - points[i][0]) / (points[index][0] - points[i][0]);
-	}
-	return product;
-}
-
 function ensureCanvas (canvas) {
 	if (!canvas.getContext && useExCanvas()) {
 		canvas = G_vmlCanvasManager.initElement(canvas);
@@ -536,6 +498,29 @@ function useExCanvas () {
 
 function hasClassName (element, className) {
 	return element.className.match(new RegExp("\\b" + className + "\\b"));
+}
+
+function powerRegression (data) {
+	var n = data.length;
+	var sumX = 0;
+	var sumY = 0;
+	var sumXX = 0;
+	var sumXY = 0;
+	for (var i = 0; i < n; i++) {
+		var x = Math.log(i + 1);
+		var y = Math.log(data[i]);
+		sumX += x;
+		sumY += y;
+		sumXX += x * x;
+		sumXY += x * y;
+	}
+	var sxx = sumXX - (sumX * sumX) / n;
+	var sxy = sumXY - (sumX * sumY) / n;
+	var xbar = sumX / n;
+	var ybar = sumY / n;
+	var b = sxy / sxx;
+	var a = Math.pow(Math.exp(1), ybar - b * xbar);
+	return { a: a, b: b };
 }
 
 function roundToDecimals (number, decimals) {
