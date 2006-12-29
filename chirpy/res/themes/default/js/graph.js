@@ -268,14 +268,16 @@ function createOgive (sourceNode, chartData, samples) {
 	graph.className = "ogive-graph";
 	var ignoreFirst = extractOgiveIgnoreCount(sourceNode);
 	var totalIgnored = 0;
-	for (var i = 0; i < ignoreFirst; i++) {
-		totalIgnored += chartData[i][1];
+	if (ignoreFirst) {
+		for (var i = 0; i < ignoreFirst; i++) {
+			totalIgnored += chartData[i][1];
+		}
+		var newChartData = new Array();
+		for (var i = ignoreFirst; i < chartData.length; i++) {
+			newChartData[i - ignoreFirst] = chartData[i];
+		}
+		chartData = newChartData;
 	}
-	var newChartData = new Array();
-	for (var i = ignoreFirst; i < chartData.length; i++) {
-		newChartData[i - ignoreFirst] = chartData[i];
-	}
-	chartData = newChartData;
 	var chartCumulData = new Array();
 	var total = 0;
 	for (var i = 0; i < chartData.length; i++) {
@@ -301,6 +303,7 @@ function createOgive (sourceNode, chartData, samples) {
 	var scale = graphConfig["ogive_chart_height"] / max;
 	drawOgive(cnv, chartCumulData, false, scale);
 	drawOgive(cnv, chartAvgData, true, scale);
+	// TODO: put y = a*x^b on graph.
 	return div;
 }
 
