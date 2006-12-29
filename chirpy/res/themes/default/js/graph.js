@@ -266,8 +266,16 @@ function createOgive (sourceNode, chartData, samples) {
 	div.appendChild(graph);
 	sourceNode.parentNode.replaceChild(div, sourceNode);
 	graph.className = "ogive-graph";
-	var points = sampleOgiveData(chartData,
-		extractOgiveAverageSampleCount(sourceNode));
+	var ignoreFirst = extractOgiveIgnoreCount(sourceNode);
+	var totalIgnored = 0;
+	for (var i = 0; i < ignoreFirst; i++) {
+		totalIgnored += chartData[i][1];
+	}
+	var newChartData = new Array();
+	for (var i = ignoreFirst; i < chartData.length; i++) {
+		newChartData[i - ignoreFirst] = chartData[i];
+	}
+	chartData = newChartData;
 	var chartCumulData = new Array();
 	var total = 0;
 	for (var i = 0; i < chartData.length; i++) {
@@ -278,15 +286,18 @@ function createOgive (sourceNode, chartData, samples) {
 	var width = graphConfig["ogive_chart_width"];
 	var max = chartCumulData[chartCumulData.length - 1];
 	var regrParam = powerRegression(chartCumulData);
+	var a = regrParam[0];
+	var b = regrParam[1];
 	for (var x = 0; x < width; x++) {
 		var i = x / width * chartData.length;
-		chartAvgData[x] = regrParam.a * Math.pow(x, regrParam.b);
+		// We use i + 1 here because powerRegression() uses 1..n for x
+		chartAvgData[x] = a * Math.pow(i + 1, b);
 		if (chartAvgData[x] > max) {
 			max = chartAvgData[x];
 		}
 	}
 	createChartPane(div, graph, chartData, samples,
-		graphConfig["ogive_values"], 0, max);
+		graphConfig["ogive_values"], 0, max, totalIgnored);
 	var scale = graphConfig["ogive_chart_height"] / max;
 	drawOgive(cnv, chartCumulData, false, scale);
 	drawOgive(cnv, chartAvgData, true, scale);
@@ -332,21 +343,6 @@ function drawOgive (canvas, chartData, avg, yScale) {
 	return yScale;
 }
 
-function sampleOgiveData (chartData, samples) {
-	var segSize = chartData.length / (samples - 1);
-	var total = chartData[0][1];
-	var points = new Array();
-	points[0] = [ 0, total ];
-	for (var i = 1; i < chartData.length; i++) {
-		total += chartData[i][1];
-		var seg = Math.floor(i / segSize);
-		if (points[seg]) continue;
-		points[seg] = [ i, total ];
-	}
-	points[samples - 1] = [ chartData.length - 1, total ];
-	return points;
-}
-
 function extractChartData (dl) {
 	var name, label;
 	var data = new Array();
@@ -373,9 +369,9 @@ function extractChartLabelCount (dl) {
 	return result;
 }
 
-function extractOgiveAverageSampleCount (dl) {
-	var result = extractChartParameter(dl, "average-sample-count");
-	if (result == null) return 3;
+function extractOgiveIgnoreCount (dl) {
+	var result = extractChartParameter(dl, "ignore-first");
+	if (result == null) return 0;
 	return result;
 }
 
@@ -391,8 +387,9 @@ function extractChartParameter (dl, name) {
 	return null;
 }
 
-function createChartPane (div, graph, chartData, samples, values, min, max) {
-	div.appendChild(createChartValues(0, max, values, graph));
+function createChartPane (div, graph, chartData, samples, values, min, max, delta) {
+	if (!delta) delta = 0;
+	div.appendChild(createChartValues(min + delta, max + delta, values, graph));
 	div.appendChild(createChartLabels(chartData, samples));
 }
 
@@ -520,7 +517,10 @@ function powerRegression (data) {
 	var ybar = sumY / n;
 	var b = sxy / sxx;
 	var a = Math.pow(Math.exp(1), ybar - b * xbar);
-	return { a: a, b: b };
+	var result = new Array();
+	result[0] = a;
+	result[1] = b;
+	return result;
 }
 
 function roundToDecimals (number, decimals) {
