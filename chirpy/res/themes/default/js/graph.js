@@ -287,7 +287,11 @@ function createOgive (sourceNode, chartData, samples) {
 	var chartAvgData = new Array();
 	var width = graphConfig["ogive_chart_width"];
 	var max = chartCumulData[chartCumulData.length - 1];
-	var regrParam = powerRegression(chartCumulData);
+	var xy = new Array();
+	for (var i = 0; i < chartCumulData.length; i++) {
+		xy[i + 1] = chartCumulData[i];
+	}
+	var regrParam = powerRegression(xy);
 	var a = regrParam[0];
 	var b = regrParam[1];
 	for (var x = 0; x < width; x++) {
@@ -305,13 +309,17 @@ function createOgive (sourceNode, chartData, samples) {
 	var equation = document.createElement("div");
 	equation.className = "regression-equation";
 	equation.appendChild(document.createTextNode("y = "));
-	var aTxt = document.createElement("span");
-	aTxt.appendChild(document.createTextNode(roundToDecimals(a, 2)));
-	equation.appendChild(aTxt);
+	if (a != 1) {
+		var aTxt = document.createElement("span");
+		aTxt.appendChild(document.createTextNode(roundToDecimals(a, 2)));
+		equation.appendChild(aTxt);
+	}
 	equation.appendChild(document.createTextNode("x"));
-	var bTxt = document.createElement("sup");
-	bTxt.appendChild(document.createTextNode(roundToDecimals(b, 2)));
-	equation.appendChild(bTxt);
+	if (b != 1) {
+		var bTxt = document.createElement("sup");
+		bTxt.appendChild(document.createTextNode(roundToDecimals(b, 2)));
+		equation.appendChild(bTxt);
+	}
 	equation.style.position = "absolute";
 	var xPos = 3/4;
 	var xPad = 15;
@@ -530,8 +538,8 @@ function powerRegression (data) {
 	var sumY = 0;
 	var sumXX = 0;
 	var sumXY = 0;
-	for (var i = 0; i < n; i++) {
-		var x = Math.log(i + 1);
+	for (i in data) {
+		var x = Math.log(i);
 		var y = Math.log(data[i]);
 		sumX += x;
 		sumY += y;
