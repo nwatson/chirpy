@@ -1027,6 +1027,10 @@ ul.tabbed-pane-contents > li {
 	float: right;
 }
 
+.ogive .regression-equation {
+	color: #999;
+}
+
 #tag-cloud-slider-container {
 	float: right;
 	background: #FBFBFB;

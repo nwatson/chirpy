@@ -292,8 +292,7 @@ function createOgive (sourceNode, chartData, samples) {
 	var b = regrParam[1];
 	for (var x = 0; x < width; x++) {
 		var i = x / width * chartData.length;
-		// We use i + 1 here because powerRegression() uses 1..n for x
-		chartAvgData[x] = a * Math.pow(i + 1, b);
+		chartAvgData[x] = a * Math.pow(i, b);
 		if (chartAvgData[x] > max) {
 			max = chartAvgData[x];
 		}
@@ -303,7 +302,32 @@ function createOgive (sourceNode, chartData, samples) {
 	var scale = graphConfig["ogive_chart_height"] / max;
 	drawOgive(cnv, chartCumulData, false, scale);
 	drawOgive(cnv, chartAvgData, true, scale);
-	// TODO: put y = a*x^b on graph.
+	var equation = document.createElement("div");
+	equation.className = "regression-equation";
+	equation.appendChild(document.createTextNode("y = "));
+	var aTxt = document.createElement("span");
+	aTxt.appendChild(document.createTextNode(roundToDecimals(a, 2)));
+	equation.appendChild(aTxt);
+	equation.appendChild(document.createTextNode("x"));
+	var bTxt = document.createElement("sup");
+	bTxt.appendChild(document.createTextNode(roundToDecimals(b, 2)));
+	equation.appendChild(bTxt);
+	equation.style.position = "absolute";
+	var xPos = 3/4;
+	var xPad = 15;
+	var yBase = Math.round(chartAvgData[Math.round(xPos * chartAvgData.length)]
+		/ max * graphConfig["ogive_chart_height"]);
+	/*if (b < 1) {*/
+		equation.style.left = xPad + Math.round(
+			xPos * graphConfig["ogive_chart_width"]) + "px";
+		equation.style.bottom = yBase + "px";
+	/*}
+	else {
+		equation.style.right = xPad + Math.round(
+			(1 - xPos) * graphConfig["ogive_chart_width"]) + "px";
+		equation.style.top = graphConfig["ogive_chart_height"] - yBase + "px";
+	}*/
+	div.appendChild(equation);
 	return div;
 }
 
