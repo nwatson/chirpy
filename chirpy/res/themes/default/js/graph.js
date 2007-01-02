@@ -309,15 +309,17 @@ function createOgive (sourceNode, chartData, samples) {
 	var equation = document.createElement("div");
 	equation.className = "regression-equation";
 	equation.appendChild(document.createTextNode("y = "));
-	if (a != 1) {
+	var aRounded = roundToDecimals(a, 2);
+	if (aRounded != 1) {
 		var aTxt = document.createElement("span");
-		aTxt.appendChild(document.createTextNode(roundToDecimals(a, 2)));
+		aTxt.appendChild(document.createTextNode(aRounded));
 		equation.appendChild(aTxt);
 	}
 	equation.appendChild(document.createTextNode("x"));
-	if (b != 1) {
+	var bRounded = roundToDecimals(b, 2);
+	if (bRounded != 1) {
 		var bTxt = document.createElement("sup");
-		bTxt.appendChild(document.createTextNode(roundToDecimals(b, 2)));
+		bTxt.appendChild(document.createTextNode(bRounded));
 		equation.appendChild(bTxt);
 	}
 	equation.style.position = "absolute";
