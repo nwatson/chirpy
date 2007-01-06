@@ -801,7 +801,10 @@ sub _generate_xhtml {
 	my $query;
 	if ($page == Chirpy::UI::QUOTE_SEARCH) {
 		$query = $self->_cgi_param('query');
-		$template->param('SEARCH_QUERY' => &_text_to_xhtml($query));
+		$template->param(
+			'SEARCHED' => 1,
+			'SEARCH_QUERY' => &_text_to_xhtml($query)
+		);
 	}
 	my $link_desc = &_text_to_xhtml(
 		$locale->get_string('webapp.quote_link_description'));
