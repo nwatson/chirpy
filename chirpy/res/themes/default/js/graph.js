@@ -426,11 +426,11 @@ function extractChartParameter (dl, name) {
 
 function createChartPane (div, graph, chartData, samples, values, min, max, delta) {
 	if (!delta) delta = 0;
-	div.appendChild(createChartValues(min + delta, max + delta, values, graph));
+	div.appendChild(createChartValues(min + delta, max + delta, values, graph, delta));
 	div.appendChild(createChartLabels(chartData, samples));
 }
 
-function createChartValues (min, max, count, graph) {
+function createChartValues (min, max, count, graph, delta) {
 	var values = document.createElement("div");
 	values.className = "chart-values";
 	var top = createChartValue(max);
@@ -442,7 +442,7 @@ function createChartValues (min, max, count, graph) {
 	values.appendChild(top);
 	var step = (max - min) / (count - 1);
 	for (var i = 1; i < count - 1; i++) {
-		var val = Math.round(step * i);
+		var val = Math.round(step * i) + delta;
 		var perc = 100 / (count - 1) * i + "%";
 		var v = createChartValue(val);
 		v.style.bottom = perc;
