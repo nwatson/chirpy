@@ -796,8 +796,13 @@ sub _generate_xhtml {
 		'QUOTE_NOT_FOUND_TEXT' => &_text_to_xhtml(
 			$locale->get_string('rated_quote_not_found_text')),
 		'SESSION_REQUIRED_TEXT' => &_text_to_xhtml(
-			$locale->get_string('webapp.session_required'))
+			$locale->get_string('webapp.session_required')),
 	);
+	my $query;
+	if ($page == Chirpy::UI::QUOTE_SEARCH) {
+		$query = $self->_cgi_param('query');
+		$template->param('SEARCH_QUERY' => &_text_to_xhtml($query));
+	}
 	my $link_desc = &_text_to_xhtml(
 		$locale->get_string('webapp.quote_link_description'));
 	my $rating_up_desc = &_text_to_xhtml(
@@ -912,8 +917,7 @@ sub _generate_xhtml {
 	$self->parent()->mark_debug_event('Quotes parsed');
 	$template->param('QUOTES' => \@quotes_tmpl);
 	if (defined $previous || defined $next) {
-		my $query = $self->_cgi_param('query');
-		my %query = (defined $query && $query ne '' ? ('query' => $query) : ());
+		my %query = (defined $query ? ('query' => $query) : ());
 		$template->param('BROWSER' => 1);
 		$template->param('PREVIOUS_URL' => $self->_url(
 				$self->_action(),
@@ -963,15 +967,7 @@ sub provide_quote_search_interface {
 	my $locale = $self->locale();
 	$template->param(
 		'PAGE_TITLE' => &_text_to_xhtml(
-			$locale->get_string('search_for_quotes')),
-		'SEARCH_FORM_START' => '<form method="get" action="'
-			. $self->_url(ACTIONS->{'QUOTE_SEARCH'})
-			. '">',
-		'SEARCH_FORM_END' => '</form>',
-		'QUERY_LABEL' => &_text_to_xhtml(
-			$locale->get_string('search_query_title')),
-		'SUBMIT_LABEL' => &_text_to_xhtml(
-			$locale->get_string('search_button_label'))
+			$locale->get_string('search_for_quotes'))
 	);
 	$self->_output_template($template);
 }
@@ -2160,6 +2156,16 @@ sub _process_template {
 				'logged_in_as', $account->get_username(),
 				$self->parent()->user_level_name($account->get_level()))));
 	}
+	$template->param(
+		'SEARCH_FORM_START' => '<form method="get" action="'
+			. $self->_url(ACTIONS->{'QUOTE_SEARCH'})
+			. '">',
+		'SEARCH_FORM_END' => '</form>',
+		'SEARCH_QUERY_LABEL' => &_text_to_xhtml(
+			$locale->get_string('search_query_title')),
+		'SUBMIT_SEARCH_LABEL' => &_text_to_xhtml(
+			$locale->get_string('search_button_label'))
+	);
 	$template->param('FOOTER_TEXT' => ($self->parent()->timing_enabled()
 		? sub {
 			(my $str = &_text_to_xhtml(

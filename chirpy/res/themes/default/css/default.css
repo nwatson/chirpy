@@ -438,6 +438,7 @@ ul#news-list .news-footer .news-edit, ul#news-list .news-footer .news-remove {
 
 #search-form {
 	white-space: nowrap;
+	margin-bottom: 1.5em;
 }
 
 #search-form #query-container, #search-form #submit-container {

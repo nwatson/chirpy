@@ -29,6 +29,9 @@
 	<h2>
 		<TMPL_VAR NAME="PAGE_TITLE">
 	</h2>
+	<TMPL_IF NAME="SEARCH_QUERY">
+	<TMPL_INCLUDE NAME="_search_form.html">
+	</TMPL_IF>
 	<ul class="quote-list">
 	<TMPL_LOOP NAME="QUOTES">
 		<li id="quote-<TMPL_VAR NAME="ID">" class="quote <TMPL_UNLESS NAME="IS_APPROVED">unapproved</TMPL_UNLESS> <TMPL_IF NAME="IS_FLAGGED">flagged</TMPL_IF>">

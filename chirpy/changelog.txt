@@ -29,6 +29,8 @@
 * Made templates use HTML::Template's caching feature, which is pretty fast
 * Template parameters are now global, which means you can include parameters
   from outside a loop
+* Renamed template parameters for search form; they are now always available
+  and the default theme includes a search form with search results
 * Optimized template parsing a little
 * Moved administration-related subs to a separate class, speeding up non-admin
   pages somewhat

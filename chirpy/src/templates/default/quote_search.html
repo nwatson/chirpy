@@ -2,17 +2,7 @@
 	<h2>
 		<TMPL_VAR NAME="PAGE_TITLE">
 	</h2>
-	<div id="search-form">
-	<TMPL_VAR NAME="SEARCH_FORM_START">
-		<div id="query-container">
-			<label for="query-field"><TMPL_VAR NAME="QUERY_LABEL"></label>
-			<input name="query" id="query-field" accesskey="s" />
-		</div>
-		<div id="submit-container">
-			<input type="submit" value="<TMPL_VAR NAME="SUBMIT_LABEL">" id="submit-button" />
-		</div>
-	<TMPL_VAR NAME="SEARCH_FORM_END">
-	</div>
+	<TMPL_INCLUDE NAME="_search_form.html">
 	<div id="search-haiku" title="Bash.org quote #14443">
 		<del>&lt;Ria&gt;</del> Type in the search word,<br/>
 		<del>&lt;Ria&gt;</del> apply pressure to button,<br/>
