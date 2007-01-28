@@ -39,6 +39,7 @@
     Surf to <http://chirpy.sourceforge.net/ The Chirpy! web site>!
 * Simplified RSS feed: using HTML in <description> and removing
   <content:encoded> and <xhtml:body>, making feedvalidator.org like it more
+* Added tags as categories in feeds
 * News body on start page is now divided into paragraphs; opening and closing
   tag are included, so update your templates
 * More sensible defaults for captchas: simply webapp.enable_captchas=1 should

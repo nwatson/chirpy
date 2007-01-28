@@ -17,6 +17,9 @@ title="<TMPL_VAR NAME="SITE_TITLE">"/>
 <TMPL_LOOP NAME="QUOTES">
 <entry>
 <title type="text"><TMPL_VAR NAME="QUOTE_TITLE"></title>
+<TMPL_LOOP NAME="QUOTE_TAGS">
+<category term="<TMPL_VAR NAME="TAG">" />
+</TMPL_LOOP>
 <link href="<TMPL_VAR NAME="QUOTE_URL">"/>
 <id><TMPL_VAR NAME="QUOTE_URL"></id>
 <published><TMPL_VAR NAME="QUOTE_DATE_ISO8601"></published>

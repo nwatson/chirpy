@@ -10,6 +10,9 @@
 <TMPL_LOOP NAME="QUOTES">
 <item>
 <title><TMPL_VAR NAME="QUOTE_TITLE"></title>
+<TMPL_LOOP NAME="QUOTE_TAGS">
+<category><TMPL_VAR NAME="TAG"></category>
+</TMPL_LOOP>
 <link><TMPL_VAR NAME="QUOTE_URL"></link>
 <guid><TMPL_VAR NAME="QUOTE_URL"></guid>
 <pubDate><TMPL_VAR NAME="QUOTE_DATE_RFC822"></pubDate>
