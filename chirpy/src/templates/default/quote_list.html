@@ -43,12 +43,12 @@
 					title="<TMPL_VAR NAME="LINK_DESCRIPTION">" class="quote-permalink"><span class="quote-id">#<TMPL_VAR NAME="ID"></span></a>
 					<a href="<TMPL_VAR NAME="RATING_UP_URL">" rel="nofollow"
 					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
-					title="<TMPL_VAR NAME="RATING_UP_DESCRIPTION">" class="quote-rating-up"><TMPL_VAR NAME="UP">&uarr;</a>
+					title="<TMPL_VAR NAME="RATING_UP_DESCRIPTION">" class="quote-rating-up<TMPL_IF NAME="WAS_VOTED_UP"> casted-vote</TMPL_IF>" id="quote-rating-up-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="UP">&uarr;</a>
 					<span id="quote-rating-<TMPL_VAR NAME="ID">" class="quote-rating" title="<TMPL_VAR NAME="RATING_DESCRIPTION">"><TMPL_VAR NAME="RATING_TEXT"></span><span
 					class="quote-vote-count" title="<TMPL_VAR NAME="VOTE_COUNT_DESCRIPTION">">/<span id="quote-vote-count-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="VOTE_COUNT"></span></span>
 					<a href="<TMPL_VAR NAME="RATING_DOWN_URL">" rel="nofollow"
 					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
-					title="<TMPL_VAR NAME="RATING_DOWN_DESCRIPTION">" class="quote-rating-down"><TMPL_VAR NAME="DOWN">&darr;</a>
+					title="<TMPL_VAR NAME="RATING_DOWN_DESCRIPTION">" class="quote-rating-down<TMPL_IF NAME="WAS_VOTED_DOWN"> casted-vote</TMPL_IF>" id="quote-rating-down-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="DOWN">&darr;</a>
 					<TMPL_IF NAME="IS_FLAGGED">
 					<span class="quote-flagged">[<TMPL_VAR NAME="FLAGGED">]</span>
 					<TMPL_ELSE>
@@ -76,12 +76,12 @@
 					title="<TMPL_VAR NAME="LINK_DESCRIPTION">" class="quote-permalink"><span class="quote-id">#<TMPL_VAR NAME="ID"></span></a>
 					<a href="<TMPL_VAR NAME="RATING_UP_URL">" rel="nofollow"
 					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
-					title="<TMPL_VAR NAME="RATING_UP_DESCRIPTION">" class="quote-rating-up"><TMPL_VAR NAME="UP">&uarr;</a>
+					title="<TMPL_VAR NAME="RATING_UP_DESCRIPTION">" class="quote-rating-up<TMPL_IF NAME="WAS_VOTED_UP"> casted-vote</TMPL_IF>" id="quote-rating-up-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="UP">&uarr;</a>
 					<span id="quote-rating-<TMPL_VAR NAME="ID">" class="quote-rating" title="<TMPL_VAR NAME="RATING_DESCRIPTION">"><TMPL_VAR NAME="RATING_TEXT"></span><span
 					class="quote-vote-count" title="<TMPL_VAR NAME="VOTE_COUNT_DESCRIPTION">">/<span id="quote-vote-count-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="VOTE_COUNT"></span></span>
 					<a href="<TMPL_VAR NAME="RATING_DOWN_URL">" rel="nofollow"
 					onclick="return sendRating(this, <TMPL_VAR NAME="ID">)"
-					title="<TMPL_VAR NAME="RATING_DOWN_DESCRIPTION">" class="quote-rating-down"><TMPL_VAR NAME="DOWN">&darr;</a>
+					title="<TMPL_VAR NAME="RATING_DOWN_DESCRIPTION">" class="quote-rating-down<TMPL_IF NAME="WAS_VOTED_DOWN"> casted-vote</TMPL_IF>" id="quote-rating-down-<TMPL_VAR NAME="ID">"><TMPL_VAR NAME="DOWN">&darr;</a>
 					<span class="quote-date" title="<TMPL_VAR NAME="DATE_DESCRIPTION">"><TMPL_VAR NAME="SUBMITTED_TEXT"></span>
 				</TMPL_IF>
 				</h3>

@@ -74,6 +74,15 @@ QuoteActionRequest.prototype.setResult = function (text, blink, timeout) {
 function sendRating (anchor, id) {
 	if (!ajaxSupported()) return true;
 	new QuoteActionRequest(anchor.href, id, false);
+	var other;
+	if (anchor.id.indexOf("down") >= 0) {
+		other = document.getElementById(anchor.id.replace("down", "up"));
+	}
+	else {
+		other = document.getElementById(anchor.id.replace("up", "down"));
+	}
+	addClassName(anchor, "casted-vote");
+	removeClassName(other, "casted-vote");
 	return false;
 }
 
@@ -197,4 +206,25 @@ function setText (element, text) {
 		element.firstChild.nodeValue = text;
 	else
 		element.appendChild(document.createTextNode(text));
+}
+
+function addClassName (element, className) {
+	element.className += " " + className;
+}
+
+function removeClassName (element, className) {
+	var c = getClassNames(element);
+	if (c.length == 0) return;
+	var newCN = c[0];
+	for (var i = 1; i < c.length; c++) {
+		if (c[i] == className) continue;
+		newCN += " " + c[i];
+	}
+	element.className = newCN;
+}
+
+function getClassNames (element) {
+	if (element.className == null || element.className.length == 0)
+		return new Array();
+	return element.className.split(/ +/);
 }

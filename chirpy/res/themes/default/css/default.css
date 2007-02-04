@@ -259,6 +259,11 @@ ul.quote-list li h3.quote-header * * {
 	margin: 0;
 }
 
+ul.quote-list li h3.quote-header a.casted-vote {
+	opacity: 0.2;
+	/*visibility: hidden;*/
+}
+
 blockquote.quote-body {
 	margin: 0.5em 0.75em;
 	padding: 0;

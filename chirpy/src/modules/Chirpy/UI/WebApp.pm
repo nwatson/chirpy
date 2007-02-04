@@ -853,6 +853,10 @@ sub _generate_xhtml {
 		'NOTES_TITLE' => $notes_title,
 		'TAGS_TITLE' => $tags_title
 	);
+	my %previous_rating = ();
+	foreach my $rated ($self->get_rated_quotes()) {
+		$previous_rating{abs($rated)} = ($rated < 0 ? -1 : 1);
+	}
 	my @quotes_tmpl = ();
 	$self->parent()->mark_debug_event('Parse quotes for template');
 	foreach my $quote (@$quotes) {
@@ -888,6 +892,10 @@ sub _generate_xhtml {
 				$self->format_date_time($quote->get_date_submitted())),
 			'IS_APPROVED' => $quote->is_approved(),
 			'IS_FLAGGED' => $quote->is_flagged(),
+			'WAS_VOTED_UP' => ($previous_rating{$id}
+				&& $previous_rating{$id} > 0),
+			'WAS_VOTED_DOWN' => ($previous_rating{$id}
+				&& $previous_rating{$id} < 0),
 			'LINK_URL' => &_text_to_xhtml(
 				$self->_quote_url($quote->get_id())),
 			'RATING_UP_URL' => $up_url,
