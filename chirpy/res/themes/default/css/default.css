@@ -261,8 +261,14 @@ ul.quote-list li h3.quote-header * * {
 
 ul.quote-list li h3.quote-header a.casted-vote {
 	opacity: 0.2;
-	filter: alpha(opacity=20);
-	/*visibility: hidden;*/
+	text-decoration: none;
+	cursor: default;
+}
+
+/* opacity doesn't work in IE, so hide it altogether */
+* html ul.quote-list li h3.quote-header a.casted-vote,
+*:first-child + html ul.quote-list li h3.quote-header a.casted-vote {
+	visibility: hidden;
 }
 
 blockquote.quote-body {
@@ -432,7 +438,7 @@ ul#news-list .news-footer .news-edit, ul#news-list .news-footer .news-remove {
 }
 
 /* IE hates cool CSS */
-* html #search-haiku {
+* html #search-haiku, *:first-child + html #search-haiku {
 	display: none;
 }
 
