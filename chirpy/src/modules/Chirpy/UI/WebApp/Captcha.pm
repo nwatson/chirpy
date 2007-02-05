@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-Chirpy::UpdateChecker - Update checker
+Chirpy::UI::WebApp::Captcha - Captcha provider interface
 
 =head1 AUTHOR
 
@@ -31,7 +31,7 @@ Tim De Pauw E<lt>ceetee@users.sourceforge.netE<gt>
 
 =head1 SEE ALSO
 
-L<Chirpy>, L<http://chirpy.sourceforge.net/>
+L<Chirpy::UI::WebApp>, L<Chirpy>, L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
@@ -48,7 +48,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 =cut
 
-package Chirpy::UpdateChecker;
+package Chirpy::UI::WebApp::Captcha;
 
 use strict;
 use warnings;
@@ -58,88 +58,59 @@ use vars qw($VERSION);
 $VERSION = '';
 
 use Chirpy;
-
-use constant UPDATE_URL => Chirpy::URL . 'update/';
-use constant TIMEOUT => 5;
-use constant KEY_VERSION_NUMBER => 'VersionNumber';
-use constant KEY_RELEASE_DATE => 'ReleaseDate';
-use constant KEY_DETAIL_URL => 'DetailURL';
+use Chirpy::Util;
 
 sub new {
-	my ($class, $parent) = @_;
-	eval 'use LWP::UserAgent';
-	my ($ua, $error);
-	if ($@) {
-		$error = 'LWP::UserAgent not available';
-	}
-	else {
-		$ua = new LWP::UserAgent();
-		$ua->timeout(TIMEOUT);
-		$ua->env_proxy();
-	}
+	my ($class, $parent, $hash) = @_;
 	my $self = {
 		'parent' => $parent,
-		'ua' => $ua,
-		'error' => $error
+		'hash' => $hash
 	};
-	return bless $self, $class;
+	return bless($self, $class);
 }
 
-sub check_for_updates {
+sub parent {
 	my $self = shift;
-	return 1 unless ($self->{'ua'});
-	my $info = $self->get_version_information();
-	if (ref $info ne 'ARRAY') {
-		$self->{'error'} = $info;
-		return 1;
-	}
-	if (shift(@$info)) {
-		return $info;
-	}
-	return 0;
+	return $self->{'parent'};
 }
 
-sub get_error_message {
-	my $self = shift;
-	return $self->{'error'};
+sub hash {
+	my ($self, $hash) = @_;
+	$self->{'hash'} = $hash if (defined $hash);
+	return $self->{'hash'};
 }
 
-sub get_version_information {
+sub data_path {
 	my $self = shift;
-	my $ua = $self->{'ua'};
-	my $url = $self->{'parent'}->configuration()->get('ui', 'webapp.site_url');
-	if (defined $url) {
-		eval 'use URI::Escape';
-		$url = ($@ ? undef : URI::Escape::uri_escape($url));
-	}
-	$url = UPDATE_URL . '?version=' . $Chirpy::VERSION
-		. (defined $url ? '&url=' . $url : '');
-	my $response = $ua->get($url);
-	if ($response->is_success) {
-		my $xml = $response->content;
-		my %info = ();
-		if ($xml =~ m{
-			<CurrentVersion(?:\s+newer="(.*?))?">\s*(.*?)\s*</CurrentVersion>
-		}sx) {
-			my ($newer, $node) = ($1, $2);
-			$newer = (defined $newer && lc $newer eq 'true');
-			my $pattern = join('|', map { quotemeta }
-				(KEY_VERSION_NUMBER, KEY_RELEASE_DATE, KEY_DETAIL_URL));
-			while ($node =~ m!<($pattern)>\s*(.*?)\s*</\1>!sg) {
-				$info{$1} = $2;
-			}
-			$info{KEY_DETAIL_URL} =~ s/&amp;/&/g;
-			return [
-				$newer,
-				$info{KEY_VERSION_NUMBER()},
-				$info{KEY_RELEASE_DATE()},
-				$info{KEY_DETAIL_URL()}
-			];
-		}
-		return 'Unknown response from update server';
-	}
-	return $response->status_line;
+	my $path = $self->parent()->configuration()->get('general', 'base_path')
+		. '/cache/captcha';
+	Chirpy::Util::ensure_writable_directory($path);
+	return $path;
 }
+
+sub base_path {
+	my $self = shift;
+	my $path = $self->param('captcha_path');
+	return $path if (defined $path);
+	return $self->parent()->configuration()->get('general', 'base_path')
+		. '/../res/captcha';
+}
+
+sub base_url {
+	my $self = shift;
+	my $url = $self->param('captcha_url');
+	return $url if (defined $url);
+	return $self->param('site_url') . '/res/captcha';
+}
+
+sub param {
+	my ($self, $name) = @_;
+	return $self->parent()->param($name); 
+}
+
+*create = \&Chirpy::Util::abstract_method;
+
+*verify = \&Chirpy::Util::abstract_method;
 
 1;
 

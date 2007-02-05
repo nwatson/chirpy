@@ -1,6 +1,6 @@
 ###############################################################################
 # Chirpy!, a quote management system                                          #
-# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+# Copyright (C) 2005-2007 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
 # under the terms of the GNU General Public License as published by the Free  #
@@ -1092,7 +1092,7 @@ L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
-Copyright 2005-2006 Tim De Pauw. All rights reserved.
+Copyright 2005-2007 Tim De Pauw. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

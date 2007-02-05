@@ -1,6 +1,6 @@
 ###############################################################################
 # Chirpy!, a quote management system                                          #
-# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+# Copyright (C) 2005-2007 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
 # under the terms of the GNU General Public License as published by the Free  #
@@ -35,7 +35,8 @@ Perl modules:
  URI::Escape
 
 Optionally, for on-the-fly gzip compression, L<Compress::Zlib> is required. If
-you wish to use Captchas, you will need L<Authen::Captcha>.
+you wish to use captchas, you will need either L<Authen::Captcha> or
+L<GD::SecurityImage>.
 
 =head1 CONFIGURATION
 
@@ -109,38 +110,27 @@ Set this value to 1 to enable the RSS and Atom feeds the module offers.
 
 Apply gzip compression on output if possible.
 
-=item webapp.enable_captchas
+=item webapp.captcha_provider
 
-Use captchas to prevent spam on the quote submission interface.
+The captcha provider to use. Either C<Authen_Captcha> or C<GD_SecurityImage>,
+depending on which of the corresponding modules are available. Note that captcha
+providers may offer additional configuration; see
+L<Chirpy::UI::WebApp::Captcha::Authen_Captcha> and
+L<Chirpy::UI::WebApp::Captcha::GD_SecurityImage>. If this parameter is not set,
+captchas will be disabled.
 
-=item webapp.captcha_image_path
+=item webapp.captcha_path
 
-The physical path to the directory where captcha images are to be stored.
+The physical path to the directory where public captcha data is to be stored.
 
-=item webapp.captcha_image_url
+=item webapp.captcha_url
 
-The URL to the captcha image path.
-
-=item webapp.captcha_code_length
-
-The number of characters in the captcha code.
+The URL to the captcha path.
 
 =item webapp.captcha_expiry_time
 
-The number of seconds between the moment when the captcha image was generated
-and the moment when its code expires.
-
-=item webapp.captcha_source_image_path
-
-The physical path to the source images to be used by L<Authen::Captcha>.
-
-=item webapp.captcha_character_width
-
-The pixel width of each character in a captcha image.
-
-=item webapp.captcha_character_height
-
-The pixel height of each character in a captcha image.
+The number of seconds between the moment when the captcha was generated and the
+moment when its code expires.
 
 =item webapp.enable_autolink
 
@@ -269,7 +259,7 @@ L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
-Copyright 2005-2006 Tim De Pauw. All rights reserved.
+Copyright 2005-2007 Tim De Pauw. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -297,6 +287,7 @@ $TARGET_VERSION = '';
 use Chirpy;
 use Chirpy::UI;
 use Chirpy::UI::WebApp::Session;
+use Chirpy::Util;
 
 use HTML::Template;
 use CGI;
@@ -345,8 +336,7 @@ use constant STATUS_SESSION_REQUIRED       => 5;
 sub new {
 	my $class = shift;
 	my $self = $class->SUPER::new(@_);
-	my $path = $self->_template_cache_path(1);
-	$path = $self->_captcha_data_path(1);
+	my $path = $self->_template_cache_path();
 	$self->{'templates_path'}
 		= $self->configuration()->get('general', 'base_path')
 			. '/templates/' . $self->param('theme');
@@ -358,7 +348,7 @@ sub new {
 		$self->_set_cookie($Chirpy::UI::WebApp::Session::NAME,
 			$session->id(), $self->param('session_expiry'));
 	}
-	return bless($self, $class);
+	return $self;
 }
 
 sub get_target_version {
@@ -438,10 +428,8 @@ sub get_submitted_quote {
 	if ($self->_requires_captcha()) {
 		my $code = $self->_cgi_param('captcha_code');
 		my $hash = $self->_cgi_param('captcha_hash');
-		return undef unless (defined $code && defined $hash);
-		my $captcha = $self->_captcha();
-		my $result = $captcha->check_code($code, $hash);
-		return undef if ($result <= 0);
+		return undef unless (defined $code && defined $hash
+			&& $self->_captcha_provider($hash)->verify($code));
 	}
 	return ($self->_cgi_param('quote'),
 		$self->_cgi_param('notes'), $self->_cgi_param('tags'));
@@ -1159,8 +1147,8 @@ sub provide_quote_submission_interface {
 	$template->param(
 		'PAGE_TITLE' => &_text_to_xhtml(
 			$locale->get_string('submit_quote')),
-		'NO_APPROVAL'
-			=> $self->administration_allowed(Chirpy::UI::MANAGE_UNAPPROVED_QUOTES),
+		'NO_APPROVAL' => $self->administration_allowed(
+			Chirpy::UI::MANAGE_UNAPPROVED_QUOTES),
 		'SUBMIT_FORM_START' => '<form method="post" action="'
 			. $self->_url(ACTIONS->{'SUBMIT_QUOTE'}) . '">',
 		'SUBMIT_FORM_END' => '</form>',
@@ -1176,41 +1164,18 @@ sub provide_quote_submission_interface {
 			$locale->get_string('submit_button_label_no_approval'))
 	);
 	if ($self->_requires_captcha()) {
-		my $captcha = $self->_captcha();
-		my $length = $self->param('captcha_code_length') || 4;
-		my $imgpath = $self->param('captcha_source_image_path');
-		my $imgurl = $self->param('captcha_image_url');
-		my $width = $self->param('captcha_character_width');
-		my $height = $self->param('captcha_character_height');
-		my $expire = $self->param('captcha_expiry_time');
-		$imgurl = $self->param('site_url') . '/res/captcha'
-			unless (defined $imgurl);
-		$captcha->expire($expire) if ($expire);
-		my $set_dimensions = ($width && $height);
-		unless ($set_dimensions) {
-			$width = 25;
-			$height = 35;
-		}
-		if ($imgpath && -d $imgpath) {
-			$captcha->images_folder($imgpath);
-			if ($set_dimensions) {
-				$captcha->width($width);
-				$captcha->height($height);
-			}
-		}
-		my $hash = $captcha->generate_code($length);
+		my ($hash, $url, $width, $height) = $self->_captcha_provider()
+			->create(time() + ($self->param('captcha_expiry_time') || 300));
 		$template->param(
 			'USE_CAPTCHA' => 1,
 			'CAPTCHA_HASH' => $hash,
-			'CAPTCHA_IMAGE_URL' => &_text_to_xhtml($imgurl)
-				. '/' . $hash . '.png',
+			'CAPTCHA_IMAGE_URL' => &_text_to_xhtml($url),
 			'CAPTCHA_CODE_LABEL' => &_text_to_xhtml(
 				$locale->get_string('webapp.captcha_code_label')),
 			'CAPTCHA_IMAGE_TEXT' => &_text_to_xhtml(
 				$locale->get_string('webapp.captcha_image_text')),
-			'CAPTCHA_IMAGE_WIDTH' => $length * $width,
-			'CAPTCHA_IMAGE_HEIGHT' => $height,
-			'CAPTCHA_CODE_LENGTH' => $length
+			'CAPTCHA_IMAGE_WIDTH' => $width,
+			'CAPTCHA_IMAGE_HEIGHT' => $height
 		);
 	}
 	$self->_output_template($template);
@@ -2199,37 +2164,8 @@ sub _template_cache_path {
 	my $self = shift;
 	my $path = $self->configuration()->get('general', 'base_path')
 		. '/cache/template';
-	&_ensure_writable_directory($path);
+	Chirpy::Util::ensure_writable_directory($path);
 	return $path;
-}
-
-sub _captcha_data_path {
-	my $self = shift;
-	my $path = $self->configuration()->get('general', 'base_path')
-		. '/cache/captcha';
-	&_ensure_writable_directory($path);
-	return $path;
-}
-
-sub _ensure_writable_directory {
-	my $path = shift;
-	if (-e $path) {
-		if (-d $path) {
-			if (!-w $path) {
-				chmod 0777, $path;
-				if (!-w $path) {
-					Chirpy::die('Directory "' . $path . '" not writable');
-				}
-			}
-		}
-		else {
-			Chirpy::die('Path "' . $path . '" must be a directory');
-		}
-	}
-	else {
-		mkdir $path
-			or die('Cannot create directory "' . $path . '": ' . $!);
-	}
 }
 
 sub _text_to_xhtml {
@@ -2433,18 +2369,6 @@ sub _link_tags {
 	return \@out;
 }
 
-sub _captcha {
-	my $self = shift;
-	require Authen::Captcha;
-	my $imgpath = $self->param('captcha_image_path');
-	$imgpath = $self->configuration()->get('general', 'base_path')
-		. '/../res/captcha' unless (defined $imgpath);
-	return new Authen::Captcha(
-		'data_folder' => $self->_captcha_data_path(),
-		'output_folder' => $imgpath
-	);
-}
-
 sub _cgi_params {
 	my $self = shift;
 	return $self->{'cgi'}->param();
@@ -2487,6 +2411,25 @@ sub _accepts {
 sub _session {
 	my $self = shift;
 	return $self->{'session'};
+}
+
+sub _captcha_provider {
+	my ($self, $hash) = @_;
+	unless ($self->{'captcha'}) {
+		my $p = $self->param('captcha_provider');
+		return undef unless (defined $p);
+		my $class = 'Chirpy::UI::WebApp::Captcha::' . $p;
+		my $provider;
+		eval qq{
+			use $class;
+			\$provider = new $class(\$self);
+		};
+		Chirpy::die('Failed to load captcha provider "' . $p . '": ' . $@)
+			if ($@ || !defined $provider);
+		$self->{'captcha'} = $provider;
+	}
+	$self->{'captcha'}->hash($hash);
+	return $self->{'captcha'};
 }
 
 sub _resources_url {
@@ -2639,7 +2582,7 @@ sub _requires_session {
 
 sub _requires_captcha {
 	my $self = shift;
-	return ($self->param('enable_captchas')
+	return (defined $self->param('captcha_provider')
 		&& !defined $self->get_logged_in_user_account());
 }
 

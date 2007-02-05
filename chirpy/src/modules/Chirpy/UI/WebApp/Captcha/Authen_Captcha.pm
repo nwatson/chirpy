@@ -23,7 +23,28 @@
 
 =head1 NAME
 
-Chirpy::UpdateChecker - Update checker
+Chirpy::UI::WebApp::Captcha::Authen_Captcha - Captcha provider interface using
+L<Authen::Captcha>
+
+=head1 CONFIGURATION
+
+This module uses the following parameters from your configuration file:
+
+=item webapp.authen_captcha_source_image_path
+
+The physical path to the source images to be used by L<Authen::Captcha>.
+
+=item webapp.authen_captcha_character_width
+
+The pixel width of each character in a captcha image.
+
+=item webapp.authen_captcha_character_height
+
+The pixel height of each character in a captcha image.
+
+=item webapp.authen_captcha_code_length
+
+The number of characters in the captcha code.
 
 =head1 AUTHOR
 
@@ -31,7 +52,7 @@ Tim De Pauw E<lt>ceetee@users.sourceforge.netE<gt>
 
 =head1 SEE ALSO
 
-L<Chirpy>, L<http://chirpy.sourceforge.net/>
+L<Chirpy::UI::WebApp::Captcha>, L<Chirpy>, L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
@@ -48,97 +69,58 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 =cut
 
-package Chirpy::UpdateChecker;
+package Chirpy::UI::WebApp::Captcha::Authen_Captcha;
 
 use strict;
 use warnings;
 
-use vars qw($VERSION);
+use vars qw($VERSION @ISA);
 
 $VERSION = '';
+@ISA = qw(Chirpy::UI::WebApp::Captcha);
 
 use Chirpy;
-
-use constant UPDATE_URL => Chirpy::URL . 'update/';
-use constant TIMEOUT => 5;
-use constant KEY_VERSION_NUMBER => 'VersionNumber';
-use constant KEY_RELEASE_DATE => 'ReleaseDate';
-use constant KEY_DETAIL_URL => 'DetailURL';
+use Chirpy::UI::WebApp::Captcha;
+use Authen::Captcha;
 
 sub new {
-	my ($class, $parent) = @_;
-	eval 'use LWP::UserAgent';
-	my ($ua, $error);
-	if ($@) {
-		$error = 'LWP::UserAgent not available';
-	}
-	else {
-		$ua = new LWP::UserAgent();
-		$ua->timeout(TIMEOUT);
-		$ua->env_proxy();
-	}
-	my $self = {
-		'parent' => $parent,
-		'ua' => $ua,
-		'error' => $error
-	};
-	return bless $self, $class;
+	my $class = shift;
+	my $self = $class->SUPER::new(@_);
+	$self->{'ac'} = new Authen::Captcha(
+		'data_folder' => $self->data_path(),
+		'output_folder' => $self->base_path()
+	);
+	return $self;
 }
 
-sub check_for_updates {
-	my $self = shift;
-	return 1 unless ($self->{'ua'});
-	my $info = $self->get_version_information();
-	if (ref $info ne 'ARRAY') {
-		$self->{'error'} = $info;
-		return 1;
+sub create {
+	my ($self, $expire) = @_;
+	my $ac = $self->{'ac'};
+	$ac->expire($expire);
+	my $length = $self->param('authen_captcha_code_length') || 4;
+	my $imgpath = $self->param('authen_captcha_source_image_path');
+	my $width = $self->param('authen_captcha_character_width');
+	my $height = $self->param('authen_captcha_character_height');
+	my $set_dimensions = ($width && $height);
+	unless ($set_dimensions) {
+		$width = 25;
+		$height = 35;
 	}
-	if (shift(@$info)) {
-		return $info;
-	}
-	return 0;
-}
-
-sub get_error_message {
-	my $self = shift;
-	return $self->{'error'};
-}
-
-sub get_version_information {
-	my $self = shift;
-	my $ua = $self->{'ua'};
-	my $url = $self->{'parent'}->configuration()->get('ui', 'webapp.site_url');
-	if (defined $url) {
-		eval 'use URI::Escape';
-		$url = ($@ ? undef : URI::Escape::uri_escape($url));
-	}
-	$url = UPDATE_URL . '?version=' . $Chirpy::VERSION
-		. (defined $url ? '&url=' . $url : '');
-	my $response = $ua->get($url);
-	if ($response->is_success) {
-		my $xml = $response->content;
-		my %info = ();
-		if ($xml =~ m{
-			<CurrentVersion(?:\s+newer="(.*?))?">\s*(.*?)\s*</CurrentVersion>
-		}sx) {
-			my ($newer, $node) = ($1, $2);
-			$newer = (defined $newer && lc $newer eq 'true');
-			my $pattern = join('|', map { quotemeta }
-				(KEY_VERSION_NUMBER, KEY_RELEASE_DATE, KEY_DETAIL_URL));
-			while ($node =~ m!<($pattern)>\s*(.*?)\s*</\1>!sg) {
-				$info{$1} = $2;
-			}
-			$info{KEY_DETAIL_URL} =~ s/&amp;/&/g;
-			return [
-				$newer,
-				$info{KEY_VERSION_NUMBER()},
-				$info{KEY_RELEASE_DATE()},
-				$info{KEY_DETAIL_URL()}
-			];
+	if ($imgpath && -d $imgpath) {
+		$ac->images_folder($imgpath);
+		if ($set_dimensions) {
+			$ac->width($width);
+			$ac->height($height);
 		}
-		return 'Unknown response from update server';
 	}
-	return $response->status_line;
+	my $hash = $ac->generate_code($length);
+	my $imgurl = $self->base_url() . '/' . $hash . '.png';
+	return ($hash, $imgurl, $length * $width, $height);
+}
+
+sub verify {
+	my ($self, $code) = @_;
+	return ($self->{'ac'}->check_code($code, $self->hash()) == 1);
 }
 
 1;

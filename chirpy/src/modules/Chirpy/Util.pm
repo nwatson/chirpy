@@ -1,6 +1,6 @@
 ###############################################################################
 # Chirpy!, a quote management system                                          #
-# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+# Copyright (C) 2005-2007 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
 # under the terms of the GNU General Public License as published by the Free  #
@@ -89,6 +89,12 @@ Returns the given string with UTF-8 characters decoded.
 
 =over 4
 
+=item ensure_writable_directory($path)
+
+Attempts to make the directory specified by C<$path> writable, creating it if it
+does not exist. If, upon completion, C<$path> does represent a writable
+directory, execution is aborted.
+
 =item abstract_method()
 
 Aborts execution immediately, stating that the method is abstract and must be
@@ -112,7 +118,7 @@ L<Chirpy>, L<http://chirpy.sourceforge.net/>
 
 =head1 COPYRIGHT
 
-Copyright 2005-2006 Tim De Pauw. All rights reserved.
+Copyright 2005-2007 Tim De Pauw. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -209,6 +215,27 @@ sub shuffle_array {
 		($array[$i], $array[$j]) = ($array[$j], $array[$i]);
 	}
 	return @array;
+}
+
+sub ensure_writable_directory {
+	my $path = shift;
+	if (-e $path) {
+		if (-d $path) {
+			if (!-w $path) {
+				chmod 0777, $path;
+				if (!-w $path) {
+					Chirpy::die('Directory "' . $path . '" not writable');
+				}
+			}
+		}
+		else {
+			Chirpy::die('Path "' . $path . '" must be a directory');
+		}
+	}
+	else {
+		mkdir $path
+			or die('Cannot create directory "' . $path . '": ' . $!);
+	}
 }
 
 sub abstract_method {

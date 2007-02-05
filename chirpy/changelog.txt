@@ -21,6 +21,9 @@
   appear more even
 * Added dynamic tag cloud pruning based on number of quotes
 * Administrative interface now only displays tabs that are available
+* Improved and simplified captcha support; added preliminary support for
+  GD::SecurityImage as an alternative for Authen::Captcha; to enable captchas,
+  simply webapp.captcha_provider=Authen_Captcha should suffice
 * Made pages point to their own feeds instead of QotW (where applicable)
 * Added description field in chirpy.ini, for use in feeds
 * Made quote titles in feeds more meaningful
@@ -42,8 +45,6 @@
 * Added tags as categories in feeds
 * News body on start page is now divided into paragraphs; opening and closing
   tag are included, so update your templates
-* More sensible defaults for captchas: simply webapp.enable_captchas=1 should
-  now work in most cases
 * Bugfix: live rating no longer throws a JavaScript error in IE
 * Bugfix: quote rating up log entry now includes quote ID (#1493589)
 * Just for fun, quote IDs can now be in binary and hex notation too, as per

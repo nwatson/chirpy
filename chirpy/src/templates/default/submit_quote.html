@@ -21,9 +21,10 @@
 			<input type="hidden" name="captcha_hash" value="<TMPL_VAR NAME="CAPTCHA_HASH">" />
 			<img src="<TMPL_VAR NAME="CAPTCHA_IMAGE_URL">"
 			alt="<TMPL_VAR NAME="CAPTCHA_IMAGE_TEXT">" id="captcha-image"
-			width="<TMPL_VAR NAME="CAPTCHA_IMAGE_WIDTH">" height="<TMPL_VAR NAME="CAPTCHA_IMAGE_HEIGHT">" />
+			<TMPL_IF NAME="CAPTCHA_IMAGE_WIDTH">width="<TMPL_VAR NAME="CAPTCHA_IMAGE_WIDTH">"</TMPL_IF>
+			<TMPL_IF NAME="CAPTCHA_IMAGE_HEIGHT">height="<TMPL_VAR NAME="CAPTCHA_IMAGE_HEIGHT">"</TMPL_IF> />
 			<label for="captcha-code-field"><TMPL_VAR NAME="CAPTCHA_CODE_LABEL"></label>
-			<input type="text" name="captcha_code" value="" id="captcha-code-field" maxlength="<TMPL_VAR NAME="CAPTCHA_CODE_LENGTH">" />
+			<input type="text" name="captcha_code" value="" id="captcha-code-field" />
 		</div>
 		</TMPL_IF>
 		<div id="submit-container">

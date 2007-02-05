@@ -1,6 +1,6 @@
 ###############################################################################
 # Chirpy!, a quote management system                                          #
-# Copyright (C) 2005-2006 Tim De Pauw <ceetee@users.sourceforge.net>          #
+# Copyright (C) 2005-2007 Tim De Pauw <ceetee@users.sourceforge.net>          #
 ###############################################################################
 # This program is free software; you can redistribute it and/or modify it     #
 # under the terms of the GNU General Public License as published by the Free  #
@@ -238,7 +238,6 @@ webapp.enable_short_urls=0
 webapp.enable_feeds=0
 webapp.quotes_per_feed=50
 webapp.enable_gzip=0
-webapp.enable_captchas=0
 webapp.enable_autolink=0
 -------------------------------------------------------------------------------
 
@@ -307,50 +306,22 @@ webapp.quotes_per_feed
 webapp.enable_gzip  Chirpy! can greatly decrease bandwidth usage by compressing
                     output on the fly if the browser supports it. Set this to 1
                     to enable that. It requires the Compress::Zlib Perl module.
-webapp.enable_captchas
-                    If you wish to prevent malicious users from spamming the
-                    quote submission page, you will want to use captcha images.
-                    Setting this value to 1 enables them. This feature requires
-                    the Authen::Captcha Perl module.
 webapp.enable_autolink
                     Change this to 1 to automatically turn URLs and e-mail
                     addresses in quote bodies into hyperlinks. This feature is
                     still sort of experimental, but should work fine.
+webapp.captcha_provider
+                    If you wish to prevent malicious users from spamming the
+                    quote submission page, you will want to use captcha images.
+                    This parameter sets the captcha provider, which will be
+                    Authen_Captcha in most cases. Then Authen_Captcha provider
+                    relies on Authen::Captcha being installed.
 
-If you enable the captcha feature, you may need to define some of the following
-values as well. You may want to turn the feature off at first, so you can
-test-drive Chirpy!'s other features before trying captcha support.
-
-webapp.captcha_image_path
-                    The physical path to the directory where captcha images are
-                    to be stored. Since visitors will need to view these images,
-                    the directory must be accessible via HTTP. Typically, it is
-                    "res/captcha". Make sure the directory is world-writable,
-                    i.e. drwxrwxrwx.
-webapp.captcha_image_url
-                    The URL to the captcha image path, i.e. where visitors will
-                    access captcha images. Hence, it must be the URL to the
-                    directory you set webapp.captcha_image_path to.
-webapp.captcha_code_length
-                    The number of characters in the captcha code. Defaults to 4.
-webapp.captcha_expiry_time
-                    The number of seconds between the moment when the captcha
-                    image was generated and the moment when its code expires.
-                    Defaults to 300.
-webapp.captcha_source_image_path
-                    The physical path to the source images to be used by the
-                    Authen::Captcha module. Check the Authen::Captcha package
-                    for an examples of this image pack. Defaults to the path of
-                    the images bundled with Authen::Captcha.
-webapp.captcha_character_width
-                    The pixel width of each character in a captcha image. The
-                    total image width will be the number of characters,
-                    multiplied by this value. Defaults to the width of images
-                    bundled with Authen::Captcha.
-webapp.captcha_character_height
-                    The pixel height of each character in a captcha image. The
-                    image height will be equal to this value. Defaults to the
-                    height of images bundled with Authen::Captcha.
+You may want to turn the captcha feature off at first, so you can test-drive
+Chirpy!'s other features. Configuring the captcha feature should be easy in the
+case of Authen_Captcha. The alternative is to use GD_SecurityImage. Support for
+that one is preliminary for now. If you are interested in using it, please
+consult the appropriate documentation.
 
 That covers the configuration file. Save it as chirpy.ini and, as stressed
 before, try to store it at a location on the server which cannot be accessed
