@@ -30,6 +30,8 @@ L<Authen::Captcha>
 
 This module uses the following parameters from your configuration file:
 
+=over 4
+
 =item webapp.authen_captcha_source_image_path
 
 The physical path to the source images to be used by L<Authen::Captcha>.
@@ -45,6 +47,8 @@ The pixel height of each character in a captcha image.
 =item webapp.authen_captcha_code_length
 
 The number of characters in the captcha code.
+
+=back
 
 =head1 AUTHOR
 
