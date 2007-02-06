@@ -261,7 +261,7 @@ ul.quote-list li h3.quote-header * * {
 
 ul.quote-list li h3.quote-header a.casted-vote {
 	opacity: 0.2;
-	text-decoration: none;
+	text-decoration: line-through;
 	cursor: default;
 }
 
