@@ -279,13 +279,19 @@ sub set_up {
 	$table = $prefix . 'sessions';
 	if ($self->_table_exists($table)) {
 		unless ($self->_column_exists($table, 'expires')) {
+			# XXX: Maybe unserialize session data to get the right expiry time.
+			# It's not really worth the effort though.
+			my $exp = time() + 3 * 24 * 60 * 60;
 			$handle->do(q|
 				ALTER TABLE `| . $table . q|`
-					ADD `expires` int unsigned NULL AFTER `id`
+					ADD `expires` int unsigned NOT NULL AFTER `id`
 			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
 			$handle->do(q|
 				ALTER TABLE `| . $table . q|` ADD INDEX (`expires`)
 			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
+			$handle->do(q|
+				UPDATE `| . $table . q|`SET `expires` = | . $exp
+			) or Chirpy::die('Cannot update ' . $table . ': ' . DBI->errstr());
 		}
 	}
 	else {
@@ -1051,10 +1057,8 @@ sub remove_sessions {
 # Overrides Chirpy::UI::WebApp::Session::DataManager's default implementation
 sub remove_expired_sessions {
 	my $self = shift;
-	# XXX: This removes sessions that were already there when upgrading Chirpy!
-	# Users will have to log in again.
 	$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'sessions`'
-		. ' WHERE `expires` IS NULL OR `expires` < ' . time());
+		. ' WHERE `expires` < ' . time());
 }
 
 sub get_parameter {

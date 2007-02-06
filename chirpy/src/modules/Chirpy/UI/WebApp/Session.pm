@@ -82,7 +82,7 @@ sub new {
 
 	my $time = time();
 	my $expire = $parent->param('session_expiry');
-	$expire = ($expire ? &_parse_time($expire) : 0);
+	$expire = ($expire ? &_parse_time($expire) : 3 * 24 * 60 * 60);
 	
 	my $cgi = $parent->{'cgi'};
 	my $ip = $cgi->remote_addr();
