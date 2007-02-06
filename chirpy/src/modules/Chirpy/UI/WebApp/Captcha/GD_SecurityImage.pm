@@ -127,55 +127,15 @@ use Chirpy::UI::WebApp::Captcha;
 use GD::SecurityImage;
 use Digest::MD5 qw(md5_hex);
 
-sub new {
-	my $class = shift;
-	my $self = $class->SUPER::new(@_);
-	my @params = qw(width height ptsize lines font gd_font bgcolor send_ctobg
-		frame scramble angle thickness);
-	my %config = ();
-	foreach my $param (@params) {
-		my $value = $self->param('gd_securityimage_' . $param);
-		$config{$param} = $value if (defined $value);
-	}
-	my $rnd_data = $self->param('gd_securityimage_rnd_data');
-	if (defined $rnd_data) {
-		$config{'rnd_data'} = [ split(//, $rnd_data) ];
-	}
-	$self->{'gdsi'} = new GD::SecurityImage(%config);
-	return $self;
-}
-
 sub create {
 	my ($self, $expire) = @_;
-	my $gdsi = $self->{'gdsi'};
-	my $method = $self->param('gd_securityimage_method');
-	my $style = $self->param('gd_securityimage_style');
-	my $text_color = $self->param('gd_securityimage_text_color');
-	my $line_color = $self->param('gd_securityimage_line_color');
-	my $density = $self->param('gd_securityimage_particle_density');
-	my $maxdots = $self->param('gd_securityimage_particle_maxdots');
-	my ($image, $type, $rnd) = $gdsi->random()
-		->create($method, $style, $text_color, $line_color)
-		->particle($density, $maxdots)
-		->out('force' => 'png', 'compress' => 1);
-	my $hash = md5_hex($rnd);
-	my $path = $self->_img_path($hash);
+	my ($image, $hash) = $self->_generate();
+	$self->_write_img($hash, $image);
+	$self->_add_entry($hash, $expire);
 	my $url = $self->_img_url($hash);
-	local *FILE;
-	open(FILE, '>', $path)
-		or Chirpy::die('Failed to open "' . $path . '" for writing: ' . $!);
-	binmode FILE;
-	print FILE $image;
-	close FILE;
-	my $list = $self->_list_file();
-	local *LIST;
-	open(LIST, '>>', $list)
-		or Chirpy::die('Failed to open "' . $list . '" for writing: ' . $!);
-	print LIST $expire, '::', $hash, $/;
-	close(LIST);
-	return ($hash, $url,
-		$self->param('gd_securityimage_width'),
-		$self->param('gd_securityimage_height'));
+	my $width = $self->param('gd_securityimage_width');
+	my $height = $self->param('gd_securityimage_height');
+	return ($hash, $url, $width, $height);
 }
 
 sub verify {
@@ -183,11 +143,11 @@ sub verify {
 	my $hash = $self->hash();
 	return 0 unless (defined $hash);
 	my $list_file = $self->_list_file();
-	my @data;
+	return 0 unless (-f $list_file);
+	my @data = ();
 	my $now = time();
 	my $update = 0;
 	my $ok = 0;
-	return 0 unless (-f $list_file);
 	local *LIST;
 	open(LIST, '<', $list_file)
 		or Chirpy::die('Failed to read from "' . $list_file . '": ' . $!);
@@ -208,14 +168,68 @@ sub verify {
 	close(LIST);
 	if ($update) {
 		open(LIST, '>', $list_file)
-			or Chirpy::die('Failed to open "' . $list_file
-				. '" for writing: ' . $!);
+			or Chirpy::die('Failed to open "'
+				. $list_file . '" for writing: ' . $!);
 		foreach my $line (@data) {
 			print LIST $line, $/;
 		}
 		close LIST;
 	}
 	return $ok;
+}
+
+sub _generate {
+	my $self = shift;
+	my $gdsi = $self->_gdsi();
+	my $method = $self->param('gd_securityimage_method');
+	my $style = $self->param('gd_securityimage_style');
+	my $text_color = $self->param('gd_securityimage_text_color');
+	my $line_color = $self->param('gd_securityimage_line_color');
+	my $density = $self->param('gd_securityimage_particle_density');
+	my $maxdots = $self->param('gd_securityimage_particle_maxdots');
+	my ($image, $type, $rnd) = $gdsi->random()
+		->create($method, $style, $text_color, $line_color)
+		->particle($density, $maxdots)
+		->out('force' => 'png', 'compress' => 1);
+	my $hash = md5_hex($rnd);
+	return ($image, $hash);
+}
+
+sub _gdsi {
+	my $self = shift;
+	my @params = qw(width height ptsize lines font gd_font bgcolor send_ctobg
+		frame scramble angle thickness);
+	my %config = ();
+	foreach my $param (@params) {
+		my $value = $self->param('gd_securityimage_' . $param);
+		$config{$param} = $value if (defined $value);
+	}
+	my $rnd_data = $self->param('gd_securityimage_rnd_data');
+	if (defined $rnd_data) {
+		$config{'rnd_data'} = [ split(//, $rnd_data) ];
+	}
+	return new GD::SecurityImage(%config);
+}
+
+sub _write_img {
+	my ($self, $hash, $image) = @_;
+	my $path = $self->_img_path($hash);
+	local *FILE;
+	open(FILE, '>', $path)
+		or Chirpy::die('Failed to open "' . $path . '" for writing: ' . $!);
+	binmode FILE;
+	print FILE $image;
+	close FILE;
+}
+
+sub _add_entry {
+	my ($self, $hash, $expire) = @_;
+	my $list = $self->_list_file();
+	local *LIST;
+	open(LIST, '>>', $list)
+		or Chirpy::die('Failed to open "' . $list . '" for writing: ' . $!);
+	print LIST $expire, '::', $hash, $/;
+	close(LIST);
 }
 
 sub _list_file {
