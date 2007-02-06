@@ -142,12 +142,44 @@ sub verify {
 	my ($self, $code) = @_;
 	my $hash = $self->hash();
 	return 0 unless (defined $hash);
+	return $self->_check_entry($hash, $code);
+}
+
+sub _add_entry {
+	my ($self, $hash, $expire) = @_;
+	my ($list, $update) = $self->_get_list();
 	my $list_file = $self->_list_file();
-	return 0 unless (-f $list_file);
-	my @data = ();
-	my $now = time();
+	local *LIST;
+	if ($update) {
+		open(LIST, '>', $list_file)
+			or Chirpy::die('Failed to open "' . $list . '" for writing: ' . $!);
+		foreach my $line (@$list) {
+			print LIST $line, $/;
+		}
+	}
+	else {
+		open(LIST, '>>', $list_file)
+			or Chirpy::die('Failed to open "' . $list . '" for writing: ' . $!);
+	}
+	print LIST $expire, '::', $hash, $/;
+	close(LIST);
+}
+
+sub _check_entry {
+	my ($self, $hash, $code) = @_;
+	my ($list, $update, $found) = $self->_get_list($hash);
+	$self->_write_list($list) if ($update);
+	return ($found && md5_hex($code) eq $hash);
+}
+
+sub _get_list {
+	my ($self, $hash) = @_;
+	my $list_file = $self->_list_file();
+	return ([], 0, 0) unless (-f $list_file);
+	my @list = ();
 	my $update = 0;
-	my $ok = 0;
+	my $found = 0;
+	my $now = time();
 	local *LIST;
 	open(LIST, '<', $list_file)
 		or Chirpy::die('Failed to read from "' . $list_file . '": ' . $!);
@@ -156,26 +188,30 @@ sub verify {
 		my ($exp, $h) = split /::/;
 		if ($exp < $now) {
 			$update = 1;
+			unlink $self->_img_path($hash);
 		}
-		elsif ($h eq $hash) {
-			$ok = ($hash eq md5_hex($code));
+		elsif (defined $hash && $hash eq $h) {
+			$found = 1;
+			$update = 1;
 			unlink $self->_img_path($hash);
 		}
 		else {
-			push @data, $_;
+			push @list, $_;
 		}
 	}
 	close(LIST);
-	if ($update) {
-		open(LIST, '>', $list_file)
-			or Chirpy::die('Failed to open "'
-				. $list_file . '" for writing: ' . $!);
-		foreach my $line (@data) {
-			print LIST $line, $/;
-		}
-		close LIST;
+	return (\@list, $update, $found);
+}
+
+sub _write_list {
+	my ($self, $list) = @_;
+	my $list_file = $self->_list_file();
+	open(LIST, '>', $list_file)
+		or Chirpy::die('Failed to open "' . $list_file . '" for writing: ' . $!);
+	foreach my $line (@$list) {
+		print LIST $line, $/;
 	}
-	return $ok;
+	close LIST;
 }
 
 sub _generate {
@@ -220,16 +256,6 @@ sub _write_img {
 	binmode FILE;
 	print FILE $image;
 	close FILE;
-}
-
-sub _add_entry {
-	my ($self, $hash, $expire) = @_;
-	my $list = $self->_list_file();
-	local *LIST;
-	open(LIST, '>>', $list)
-		or Chirpy::die('Failed to open "' . $list . '" for writing: ' . $!);
-	print LIST $expire, '::', $hash, $/;
-	close(LIST);
 }
 
 sub _list_file {
