@@ -234,7 +234,7 @@ sub _generate {
 sub _gdsi {
 	my $self = shift;
 	my @params = qw(width height ptsize lines font gd_font bgcolor send_ctobg
-		frame scramble angle thickness);
+		frame scramble angle thickness rndmax);
 	my %config = ();
 	foreach my $param (@params) {
 		my $value = $self->param('gd_securityimage_' . $param);
