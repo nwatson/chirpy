@@ -43,6 +43,8 @@
 * Simplified RSS feed: using HTML in <description> and removing
   <content:encoded> and <xhtml:body>, making feedvalidator.org like it more
 * Added tags as categories in feeds
+* Made check for expired sessions a lot faster; after the update, existing
+  sessions will be lost upon the first check, sorry
 * News body on start page is now divided into paragraphs; opening and closing
   tag are included, so update your templates
 * Bugfix: live rating no longer throws a JavaScript error in IE

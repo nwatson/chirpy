@@ -277,7 +277,18 @@ sub set_up {
 	$self->_determine_votes() if ($determine_votes);
 	$self->_determine_scores() if ($determine_scores);
 	$table = $prefix . 'sessions';
-	unless ($self->_table_exists($table)) {
+	if ($self->_table_exists($table)) {
+		unless ($self->_column_exists($table, 'expires')) {
+			$handle->do(q|
+				ALTER TABLE `| . $table . q|`
+					ADD `expires` int unsigned NULL AFTER `id`
+			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
+			$handle->do(q|
+				ALTER TABLE `| . $table . q|` ADD INDEX (`expires`)
+			|) or Chirpy::die('Cannot alter ' . $table . ': ' . DBI->errstr());
+		}
+	}
+	else {
 		$handle->do(q|
 			CREATE TABLE `| . $table . q|` (
 				`id` varchar(32) NOT NULL,
@@ -998,7 +1009,8 @@ sub add_session {
 	my ($self, $id, $data) = @_;
 	my $string = &_serialize($data);
 	$self->_do('INSERT INTO `' . $self->table_name_prefix() . 'sessions`'
-		. ' (`id`, `data`) VALUES (?, ?)', $id, $string);
+		. ' (`id`, `expires`, `data`) VALUES (?, ?, ?)', $id,
+		$data->{'_SESSION_ATIME'} + $data->{'_SESSION_ETIME'}, $string);
 	return 1;
 }
 
@@ -1023,8 +1035,9 @@ sub modify_session {
 	my ($self, $id, $data) = @_;
 	my $string = &_serialize($data);
 	my $sql = 'UPDATE `' . $self->table_name_prefix()
-		. 'sessions` SET `data` = ? WHERE `id` = ? LIMIT 1';
-	$self->_do($sql, $string, $id);
+		. 'sessions` SET `expires` = ?, `data` = ? WHERE `id` = ? LIMIT 1';
+	$self->_do($sql,
+		$data->{'_SESSION_ATIME'} + $data->{'_SESSION_ETIME'}, $string, $id);
 }
 
 sub remove_sessions {
@@ -1033,6 +1046,15 @@ sub remove_sessions {
 	$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'sessions`'
 		. ' WHERE `id` IN (?' . (',?' x (scalar(@ids) - 1)) . ')'
 		. ' LIMIT ' . scalar(@ids), @ids);
+}
+
+# Overrides Chirpy::UI::WebApp::Session::DataManager's default implementation
+sub remove_expired_sessions {
+	my $self = shift;
+	# XXX: This removes sessions that were already there when upgrading Chirpy!
+	# Users will have to log in again.
+	$self->_do('DELETE FROM `' . $self->table_name_prefix() . 'sessions`'
+		. ' WHERE `expires` IS NULL OR `expires` < ' . time());
 }
 
 sub get_parameter {
