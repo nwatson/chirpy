@@ -188,12 +188,12 @@ sub _get_list {
 		my ($exp, $h) = split /::/;
 		if ($exp < $now) {
 			$update = 1;
-			unlink $self->_img_path($hash);
+			unlink $self->_img_path($h);
 		}
 		elsif (defined $hash && $hash eq $h) {
 			$found = 1;
 			$update = 1;
-			unlink $self->_img_path($hash);
+			unlink $self->_img_path($h);
 		}
 		else {
 			push @list, $_;
