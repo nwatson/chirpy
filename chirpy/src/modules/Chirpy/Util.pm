@@ -162,6 +162,8 @@ sub clean_up_submission {
 		s/\s+$//;
 		s/\n{3,}/\n\n/g;
 		s/\t/  /g;
+		# Remove low ASCII chars (\12 = \n)
+		s/[\0-\11\13-\37]//g;
 	}
 	return $text;
 }
