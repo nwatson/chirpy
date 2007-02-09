@@ -793,7 +793,7 @@ sub get_event_log_html {
 	my $url = $self->parent()->_url(
 		Chirpy::UI::WebApp::ADMIN_ACTIONS->{'VIEW_EVENT_LOG'},
 		1);
-	$url .= ($url =~ /\?/ ? '&' : '?');
+	$url .= ($url =~ /\?/ ? '&amp;' : '?');
 	my $html = '<script type="text/javascript" src="'
 		. $resurl . '/js/ajax.js"></script>' . $/
 		. '<script type="text/javascript" src="'
