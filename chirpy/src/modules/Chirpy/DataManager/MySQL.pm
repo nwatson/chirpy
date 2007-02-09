@@ -217,8 +217,8 @@ sub set_up {
 				`rating` int NOT NULL default 0,
 				`votes` int unsigned NOT NULL default 0,
 				`submitted` timestamp NOT NULL default CURRENT_TIMESTAMP,
-				`approved` tinyint(1) unsigned NOT NULL,
-				`flagged` tinyint(1) unsigned NOT NULL,
+				`approved` tinyint(1) unsigned NOT NULL default 0,
+				`flagged` tinyint(1) unsigned NOT NULL default 0,
 				`score` double unsigned NOT NULL default 1,
 				PRIMARY KEY (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
@@ -298,6 +298,7 @@ sub set_up {
 		$handle->do(q|
 			CREATE TABLE `| . $table . q|` (
 				`id` varchar(32) NOT NULL,
+				`expires` int unsigned NOT NULL,
 				`data` text NOT NULL,
 				UNIQUE KEY `id` (`id`)
 			) TYPE=MyISAM DEFAULT CHARSET=utf8
