@@ -237,7 +237,7 @@ function drawPieChart (canvas, legend, data) {
 		var p = document.createElement("span");
 		p.className = "percentage";
 		p.appendChild(document.createTextNode(
-			Math.round(100 * value / total) + "%"));
+			(value == 0 ? 0 : Math.round(100 * value / total)) + "%"));
 		dd.appendChild(p);
 		legend.appendChild(dd);
 	}
@@ -284,7 +284,6 @@ function createOgive (sourceNode, chartData, samples) {
 		total += chartData[i][1];
 		chartCumulData[i] = total;
 	}
-	var chartAvgData = new Array();
 	var width = graphConfig["ogive_chart_width"];
 	var max = chartCumulData[chartCumulData.length - 1];
 	var xy = new Array();
@@ -294,54 +293,64 @@ function createOgive (sourceNode, chartData, samples) {
 	var regrParam = powerRegression(xy);
 	var a = regrParam[0];
 	var b = regrParam[1];
-	for (var x = 0; x < width; x++) {
-		var i = x / width * chartData.length;
-		chartAvgData[x] = a * Math.pow(i, b);
-		if (chartAvgData[x] > max) {
-			max = chartAvgData[x];
+	var drawAvg;
+	if (!isNaN(a) && !isNaN(b)) {
+		var chartAvgData = new Array();
+		for (var x = 0; x < width; x++) {
+			var i = x / width * chartData.length;
+			chartAvgData[x] = a * Math.pow(i, b);
+			if (chartAvgData[x] > max) {
+				max = chartAvgData[x];
+			}
 		}
+		drawAvg = true;
+	}
+	else {
+		drawAvg = false;
 	}
 	createChartPane(div, graph, chartData, samples,
 		graphConfig["ogive_values"], 0, max, totalIgnored);
-	var scale = graphConfig["ogive_chart_height"] / max;
+		var scale = graphConfig["ogive_chart_height"] / max;
 	drawOgive(cnv, chartCumulData, false, scale);
-	drawOgive(cnv, chartAvgData, true, scale);
-	var equation = document.createElement("div");
-	equation.className = "regression-equation";
-	equation.appendChild(document.createTextNode("y = "));
-	var aRounded = roundToDecimals(a, 2);
-	var bRounded = roundToDecimals(b, 2);
-	if (graphConfig["decimal_point_is_comma"]) {
-		aRounded = ("" + aRounded).replace(".", ",");
-		bRounded = ("" + bRounded).replace(".", ",");
+	if (drawAvg) {
+		drawOgive(cnv, chartAvgData, true, scale);
+		var equation = document.createElement("div");
+		equation.className = "regression-equation";
+		equation.appendChild(document.createTextNode("y = "));
+		var aRounded = roundToDecimals(a, 2);
+		var bRounded = roundToDecimals(b, 2);
+		if (graphConfig["decimal_point_is_comma"]) {
+			aRounded = ("" + aRounded).replace(".", ",");
+			bRounded = ("" + bRounded).replace(".", ",");
+		}
+		if (aRounded != 1) {
+			var aTxt = document.createElement("span");
+			aTxt.appendChild(document.createTextNode(aRounded));
+			equation.appendChild(aTxt);
+		}
+		equation.appendChild(document.createTextNode("x"));
+		if (bRounded != 1) {
+			var bTxt = document.createElement("sup");
+			bTxt.appendChild(document.createTextNode(bRounded));
+			equation.appendChild(bTxt);
+		}
+		equation.style.position = "absolute";
+		var xPos = 3/4;
+		var xPad = 15;
+		var yBase = Math.round(chartAvgData[Math.round(xPos * chartAvgData.length)]
+			/ max * graphConfig["ogive_chart_height"]);
+		/*if (b < 1) {*/
+			equation.style.left = xPad + Math.round(
+				xPos * graphConfig["ogive_chart_width"]) + "px";
+			equation.style.bottom = yBase + "px";
+		/*}
+		else {
+			equation.style.right = xPad + Math.round(
+				(1 - xPos) * graphConfig["ogive_chart_width"]) + "px";
+			equation.style.top = graphConfig["ogive_chart_height"] - yBase + "px";
+		}*/
+		div.appendChild(equation);
 	}
-	if (aRounded != 1) {
-		var aTxt = document.createElement("span");
-		aTxt.appendChild(document.createTextNode(aRounded));
-		equation.appendChild(aTxt);
-	}
-	equation.appendChild(document.createTextNode("x"));
-	if (bRounded != 1) {
-		var bTxt = document.createElement("sup");
-		bTxt.appendChild(document.createTextNode(bRounded));
-		equation.appendChild(bTxt);
-	}
-	equation.style.position = "absolute";
-	var xPos = 3/4;
-	var xPad = 15;
-	var yBase = Math.round(chartAvgData[Math.round(xPos * chartAvgData.length)]
-		/ max * graphConfig["ogive_chart_height"]);
-	/*if (b < 1) {*/
-		equation.style.left = xPad + Math.round(
-			xPos * graphConfig["ogive_chart_width"]) + "px";
-		equation.style.bottom = yBase + "px";
-	/*}
-	else {
-		equation.style.right = xPad + Math.round(
-			(1 - xPos) * graphConfig["ogive_chart_width"]) + "px";
-		equation.style.top = graphConfig["ogive_chart_height"] - yBase + "px";
-	}*/
-	div.appendChild(equation);
 	return div;
 }
 
