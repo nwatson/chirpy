@@ -2133,9 +2133,12 @@ sub _process_template {
 				$self->parent()->user_level_name($account->get_level()))));
 	}
 	$template->param(
-		'SEARCH_FORM_START' => '<form method="get" action="'
-			. $self->_url(ACTIONS->{'QUOTE_SEARCH'})
-			. '">',
+		'SEARCH_FORM_START' => ($self->param('enable_short_urls')
+			? '<form method="get" action="'
+				. $self->_url(ACTIONS->{'QUOTE_SEARCH'}) . '">'
+			: '<form method="get" action="' . $self->_url() . '">'
+				. '<input type="hidden" name="action" value="'
+				. ACTIONS->{'QUOTE_SEARCH'} . '" />'),
 		'SEARCH_FORM_END' => '</form>',
 		'SEARCH_QUERY_LABEL' => &_text_to_xhtml(
 			$locale->get_string('search_query_title')),
