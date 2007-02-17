@@ -430,19 +430,16 @@ there. If anything goes wrong, try the Support Tracker.
 4. UPGRADING
 ============
 
-If you are upgrading from Chirpy! version 0.1 or 0.2, you should just move the
-updated setup.pl script from the "util" directory into Chirpy!'s root directory
-for a second, make it executable, and surf to it. Chirpy! will then ask you if
-you want to perform a fresh installation or an upgrade. Now, DO *NOT* CLICK ON
-"FRESH INSTALLATION," because you would lose all your quotes, accounts, etc.
-Instead, click the "UPGRADE" button, wait for the page to load, watch Chirpy!
-inform you of the successful upgrade, and remove setup.pl again.
-
-Additionally, as Chirpy! 0.3 offers quite a couple of new features, you will
-probably want to play with those. Most of them just come down to adding a line
-in the configuration file. For captchas, you will need to create a couple of
-directories; just scroll back to section 3.2, where the configuration file is
-explained--it's all there. Enjoy!
+If you are upgrading from any previous version of Chirpy!, you should just move
+the (updated) setup.pl script from the "util" directory into Chirpy!'s root
+directory for a second, make it executable, and surf to it. Chirpy! will then
+ask you if you want to perform a fresh installation or an upgrade. Now, DO *NOT*
+CLICK ON "FRESH INSTALLATION," because you would lose all your quotes, accounts,
+etc. Instead, click the "UPGRADE" button, wait for the page to load, watch
+Chirpy! inform you of the successful upgrade, and remove setup.pl again.
+Obviously, newer versions of Chirpy! usually offer some new features which are
+fun to play with. After the upgrade, most new features will still be disabled,
+but you can easily enable them in your configuration file, as described above.
 
 
 5. RUN CHIRPY!

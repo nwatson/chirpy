@@ -53,7 +53,8 @@ Locales use the following values for storing information about the locale:
 
 =item chirpy_version
 
-The version of Chirpy! that the locale was made for.
+The version of Chirpy! that the locale was made for. This uses Chirpy!'s
+internal version numbering scheme, similar to Perl itself's.
 
 =item full_name
 
