@@ -867,9 +867,13 @@ sub _provide_tag_cloud {
 	my $difference = $highest - $lowest;
 	my @tag_info = ();
 	my $conf = $self->configuration();
-	my @tags = $conf->get('ui', 'randomize_tag_cloud')
-		? Chirpy::Util::shuffle_array(keys %$tag_counts)
-		: sort keys %$tag_counts;
+	my @tags = keys %$tag_counts;
+	if ($conf->get('ui', 'randomize_tag_cloud')) {
+		Chirpy::Util::shuffle_array(\@tags);
+	}
+	else {
+		@tags = sort @tags;
+	}
 	my @tag_info_list;
 	my $factor = $conf->get('ui', 'tag_cloud_percentage_delta') || 100;
 	my $logarithmic = ($difference > 1

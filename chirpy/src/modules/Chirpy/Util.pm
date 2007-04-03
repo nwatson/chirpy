@@ -210,13 +210,11 @@ sub decode_utf8 {
 }
 
 sub shuffle_array {
-	my @array = @_;
-	my $len = scalar @array;
-	for (my $i = 0; $i < $len; $i++) {
-		my $j = int rand $len;
-		($array[$i], $array[$j]) = ($array[$j], $array[$i]);
+	my $array = shift;
+	for (my $i = scalar(@$array) - 1; $i > 0; $i--) {
+		my $j = int rand $i;
+		($array->[$i], $array->[$j]) = ($array->[$j], $array->[$i]);
 	}
-	return @array;
 }
 
 sub ensure_writable_directory {
