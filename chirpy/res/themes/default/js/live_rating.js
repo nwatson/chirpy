@@ -185,11 +185,11 @@ function checkRequestTime (req) {
 }
 
 function processXML (xml) {
-	if (!xml || !xml.childNodes
-	|| xml.childNodes[xml.childNodes.length - 1].nodeName != "result")
+	if (!xml || !xml.documentElement
+	|| xml.documentElement.nodeName != "result")
 		return null;
 	var a = new Array();
-	var root = xml.childNodes[xml.childNodes.length - 1];
+	var root = xml.documentElement;
 	for (var i = 0; i < root.childNodes.length; i++) {
 		var node = root.childNodes[i];
 		a[node.nodeName] = node.firstChild.nodeValue;

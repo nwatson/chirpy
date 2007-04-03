@@ -353,23 +353,20 @@ function parseEventLogXML (xml) {
 	var leading = false;
 	var trailing = false;
 	var events = new Array();
-	for (var i = 0; i < xml.childNodes.length; i++) {
-		var root = xml.childNodes[i];
-		if (root.nodeType != 1) continue;
-		for (var j = 0; j < root.childNodes.length; j++) {
-			var child = root.childNodes[j];
-			if (child.nodeType == 1) {
-				switch (child.nodeName) {
-					case "event":
-						events.push(parseLogEventNode(child));
-						break;
-					case "leading":
-						leading = true;
-						break;
-					case "trailing":
-						trailing = true;
-						break;
-				}
+	var root = xml.documentElement;
+	for (var j = 0; j < root.childNodes.length; j++) {
+		var child = root.childNodes[j];
+		if (child.nodeType == 1) {
+			switch (child.nodeName) {
+				case "event":
+					events.push(parseLogEventNode(child));
+					break;
+				case "leading":
+					leading = true;
+					break;
+				case "trailing":
+					trailing = true;
+					break;
 			}
 		}
 	}
