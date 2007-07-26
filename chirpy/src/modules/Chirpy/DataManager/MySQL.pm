@@ -174,7 +174,7 @@ sub set_up {
 				`level` tinyint(1) unsigned NOT NULL,
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `username` (`username`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'news';
@@ -186,7 +186,7 @@ sub set_up {
 				`poster` int unsigned default NULL,
 				`date` timestamp NOT NULL default CURRENT_TIMESTAMP,
 				PRIMARY KEY (`id`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'quotes';
@@ -221,7 +221,7 @@ sub set_up {
 				`flagged` tinyint(1) unsigned NOT NULL default 0,
 				`score` double unsigned NOT NULL default 1,
 				PRIMARY KEY (`id`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'tags';
@@ -232,7 +232,7 @@ sub set_up {
 				`tag` varchar(255) NOT NULL,
 				PRIMARY KEY (`id`),
 				INDEX (`tag`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'quote_tag';
@@ -243,7 +243,7 @@ sub set_up {
 				`tag_id` int unsigned NOT NULL,
 				INDEX (`quote_id`),
 				INDEX (`tag_id`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'events';
@@ -255,7 +255,7 @@ sub set_up {
 				`code` int unsigned NOT NULL,
 				`user` int unsigned,
 				PRIMARY KEY (`id`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'event_metadata';
@@ -267,7 +267,7 @@ sub set_up {
 				`value` text NOT NULL,
 				INDEX (`id`),
 				INDEX (`name`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	if ($self->_table_exists($prefix . 'log')) {
@@ -301,7 +301,7 @@ sub set_up {
 				`expires` int unsigned NOT NULL,
 				`data` text NOT NULL,
 				UNIQUE KEY `id` (`id`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	$table = $prefix . 'vars';
@@ -311,7 +311,7 @@ sub set_up {
 				`name` varchar(32) NOT NULL,
 				`value` varchar(255) NOT NULL,
 				PRIMARY KEY (`name`)
-			) TYPE=MyISAM DEFAULT CHARSET=utf8
+			) TYPE=MyISAM DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci
 		|) or Chirpy::die('Cannot create ' . $table . ': ' . DBI->errstr());
 	}
 	if (defined $accounts) {
