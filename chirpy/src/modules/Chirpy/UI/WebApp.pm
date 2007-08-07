@@ -1794,6 +1794,20 @@ sub get_user_information {
 	};
 }
 
+sub finalize {
+	my $self = shift;
+	$self->_save_session();
+}
+
+sub _save_session {
+	my $self = shift;
+	my $session = $self->_session(); 
+	if (defined $session && !$session->read_only()) {
+		$session->atime(time);
+		$session->update();
+	}
+}
+
 sub _trigger_feed_update {
 	my $self = shift;
 	$self->set_parameter('webapp.quote_feed_date', time);
@@ -1900,6 +1914,7 @@ sub _provide_session_if_necessary {
 				-cookie => $self->{'cookies'}
 			);
 		}
+		$self->_save_session();
 		exit;
 	}
 	else {

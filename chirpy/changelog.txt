@@ -3,7 +3,9 @@
 | Chirpy! v0.4                                                     YYYY-MM-DD |
 \_____________________________________________________________________________/
 
-* ...
+* Made session manager not rely on Perl's flaky destructor implementation
+* Added finalize() procedure to UI interface
+* Added UTF-8 table collations to MySQL data manager 
 
  _____________________________________________________________________________
 /                                                                             \

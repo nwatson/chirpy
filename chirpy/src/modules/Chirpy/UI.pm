@@ -376,6 +376,7 @@ sub run {
 	else {
 		$self->report_unknown_action();
 	}
+	$self->finalize();
 }
 
 sub statistics_update_allowed {
@@ -1228,6 +1229,9 @@ sub parent {
 sub param {
 	my ($self, $name) = @_;
 	return defined $self->{'params'} ? $self->{'params'}{$name} : undef;
+}
+
+sub finalize {
 }
 
 *get_target_version = \&Chirpy::Util::abstract_method;
