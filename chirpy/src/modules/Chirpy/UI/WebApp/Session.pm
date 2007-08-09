@@ -170,10 +170,6 @@ sub remote_addr {
 
 sub update {
 	my $self = shift;
-	if ($self->id() eq '71c6a6ea3720a637dfb8fd703cc2553a') {
-		require Data::Dumper;
-		print "\n", Data::Dumper::Dumper($self->data());
-	}
 	$self->{'dm'}->modify_session($self->id(), $self->data());
 }
 
