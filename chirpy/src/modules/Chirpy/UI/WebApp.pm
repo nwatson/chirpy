@@ -2299,7 +2299,7 @@ sub _auto_link {
 	$html =~ s/&amp;/\0/ig;
 	$html =~ s{
 		\b
-		((?:https?|ftp|irc)://[^\s&<>()\[\]\{\}]+)
+		((?:https?|ftp|irc)://[^\s&<>()\[\]\{\},]+)
 		|([a-z0-9._\-\+]+\@[a-z0-9][a-z0-9\-.]+\.[a-z0-9]+)
 	}{
 		my ($href, $text);
