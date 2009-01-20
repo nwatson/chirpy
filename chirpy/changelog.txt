@@ -3,6 +3,7 @@
 | Chirpy! v0.4                                                     YYYY-MM-DD |
 \_____________________________________________________________________________/
 
+* Allowing UTF-8 in quote tags--thanks, Hao
 * Made session manager not rely on Perl's flaky destructor implementation
 * Added finalize() procedure to UI interface
 * Added UTF-8 table collations to MySQL data manager 

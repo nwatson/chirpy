@@ -2490,8 +2490,8 @@ sub _url {
 	if (%params) {
 		require URI::Escape;
 		$string = join '&', map {
-			URI::Escape::uri_escape($_)
-				. '=' . URI::Escape::uri_escape($params{$_})
+			URI::Escape::uri_escape_utf8($_)
+				. '=' . URI::Escape::uri_escape_utf8($params{$_})
 		} keys %params;
 	}
 	my $url = &_text_to_xhtml($self->param('site_url')

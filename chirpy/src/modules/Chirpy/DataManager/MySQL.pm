@@ -1119,7 +1119,7 @@ sub _quote_tags {
 	}
 	my @result = ();
 	while (my $row = $sth->fetchrow_arrayref()) {
-		push @result, $row->[0];
+		push @result, Chirpy::Util::decode_utf8($row->[0]);
 	}
 	return \@result;
 }

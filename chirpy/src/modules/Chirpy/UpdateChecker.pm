@@ -110,7 +110,7 @@ sub get_version_information {
 	my $url = $self->{'parent'}->configuration()->get('ui', 'webapp.site_url');
 	if (defined $url) {
 		eval 'use URI::Escape';
-		$url = ($@ ? undef : URI::Escape::uri_escape($url));
+		$url = ($@ ? undef : URI::Escape::uri_escape_utf8($url));
 	}
 	$url = UPDATE_URL . '?version=' . $Chirpy::VERSION
 		. (defined $url ? '&url=' . $url : '');
