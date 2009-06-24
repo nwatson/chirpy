@@ -1102,3 +1102,7 @@ ul.tabbed-pane-contents > li {
 .dynamic-slider-control .line div {
 	display: none;
 }
+
+* {
+	-moz-border-radius: 0 !important;
+}
