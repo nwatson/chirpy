@@ -96,7 +96,7 @@ sub new {
 		or Chirpy::die('Failed to read from ' . $file . ': ' . $!);
 	my $section;
 	while (<FILE>) {
-		chomp;
+		s/(?:\r?\n|\r)$//s;
 		next if (/^;/);
 		if (/^\s*\[([^\]]+)\]\s*$/) {
 			$section = $1;
