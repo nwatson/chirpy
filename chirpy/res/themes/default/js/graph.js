@@ -285,71 +285,156 @@ function createOgive (sourceNode, chartData, samples) {
 		chartCumulData[i] = total;
 	}
 	var width = graphConfig["ogive_chart_width"];
-	var max = chartCumulData[chartCumulData.length - 1];
 	var xy = new Array();
 	for (var i = 0; i < chartCumulData.length; i++) {
 		xy[i + 1] = chartCumulData[i];
 	}
-	var regrParam = powerRegression(xy);
-	var a = regrParam[0];
-	var b = regrParam[1];
-	var drawAvg;
-	if (!isNaN(a) && !isNaN(b)) {
-		var chartAvgData = new Array();
-		for (var x = 0; x < width; x++) {
-			var i = x / width * chartData.length;
-			chartAvgData[x] = a * Math.pow(i, b);
-			if (chartAvgData[x] > max) {
-				max = chartAvgData[x];
+	var useLinearRegression = true;
+	if (useLinearRegression) {
+		var regrParam = simpleLinearRegression(xy);
+		var a = regrParam[0];
+		var b = regrParam[1];
+		var drawTrend = (!isNaN(a) && !isNaN(b));
+		var max = chartCumulData[chartCumulData.length - 1];
+		var x1, y1, x2, y2;
+		if (drawTrend) {
+			x1 = 0, x2 = chartData.length - 1;
+			y1 = a + b * x1, y2 = a + b * x2;
+			if (y1 < 0) {
+				y1 = 0;
+				x1 = -a / b;
+			} else if (y2 < 0) {
+				y2 = 0;
+				x2 = -a / b;
 			}
+			if (y1 > max) max = y1;
+			if (y2 > max) max = y2;
 		}
-		drawAvg = true;
-	}
-	else {
-		drawAvg = false;
-	}
-	createChartPane(div, graph, chartData, samples,
-		graphConfig["ogive_values"], 0, max, totalIgnored);
 		var scale = graphConfig["ogive_chart_height"] / max;
-	drawOgive(cnv, chartCumulData, false, scale);
-	if (drawAvg) {
-		drawOgive(cnv, chartAvgData, true, scale);
-		var equation = document.createElement("div");
-		equation.className = "regression-equation";
-		equation.appendChild(document.createTextNode("y = "));
-		var aRounded = roundToDecimals(a, 2);
-		var bRounded = roundToDecimals(b, 2);
-		if (graphConfig["decimal_point_is_comma"]) {
-			aRounded = ("" + aRounded).replace(".", ",");
-			bRounded = ("" + bRounded).replace(".", ",");
-		}
-		if (aRounded != 1) {
-			var aTxt = document.createElement("span");
-			aTxt.appendChild(document.createTextNode(aRounded));
-			equation.appendChild(aTxt);
-		}
-		equation.appendChild(document.createTextNode("x"));
-		if (bRounded != 1) {
-			var bTxt = document.createElement("sup");
-			bTxt.appendChild(document.createTextNode(bRounded));
-			equation.appendChild(bTxt);
-		}
-		equation.style.position = "absolute";
-		var xPos = 3/4;
-		var xPad = 15;
-		var yBase = Math.round(chartAvgData[Math.round(xPos * chartAvgData.length)]
-			/ max * graphConfig["ogive_chart_height"]);
-		/*if (b < 1) {*/
+		createChartPane(div, graph, chartData, samples,
+			graphConfig["ogive_values"], 0, max, totalIgnored);
+		drawOgive(cnv, chartCumulData, false, scale);
+		if (drawTrend) {
+			var w = graphConfig["ogive_chart_width"],
+				h = graphConfig["ogive_chart_height"];
+			var xScale = w / chartData.length;
+			var xc1 = Math.round(x1 * xScale),
+				xc2 = Math.round(x2 * xScale),
+				yc1 = Math.round(h - y1 * scale),
+				yc2 = Math.round(h - y2 * scale);
+			var ctx = cnv.getContext("2d");
+			ctx.strokeStyle = graphConfig["ogive_average_color"];
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(xc1, yc1);
+			ctx.lineTo(xc2, yc2);
+			ctx.stroke();
+			var equation = document.createElement("div");
+			equation.className = "regression-equation";
+			equation.appendChild(document.createTextNode("y = "));
+			var aRounded = roundToDecimals(a, 2);
+			var bRounded = roundToDecimals(b, 2);
+			if (graphConfig["decimal_point_is_comma"]) {
+				aRounded = ("" + aRounded).replace(".", ",");
+				bRounded = ("" + bRounded).replace(".", ",");
+			}
+			if (aRounded != 0) {
+				var aTxt = document.createElement("span");
+				aTxt.appendChild(document.createTextNode(
+					graphConfig["decimal_point_is_comma"]
+						? ("" + aRounded).replace(".", ",")
+						: aRounded));
+				equation.appendChild(aTxt);
+				if (bRounded > 0) {
+					equation.appendChild(document.createTextNode(" + "));
+				}
+			}
+			if (bRounded != 0) {
+				if (bRounded < 0) {
+					equation.appendChild(document.createTextNode(
+						" " + String.fromCharCode(0x2212) + " "));
+				}
+				var bTxt = document.createElement("span");
+				bTxt.appendChild(document.createTextNode(
+					graphConfig["decimal_point_is_comma"]
+						? ("" + bRounded).replace(".", ",")
+						: bRounded));
+				equation.appendChild(bTxt);
+				equation.appendChild(document.createTextNode("x"));
+			}
+			equation.style.position = "absolute";
+			var xPos = 3/4;
+			var xPad = 15;
+			var yBase = Math.round(
+				(a + b * xPos * chartData.length)
+				/ max * graphConfig["ogive_chart_height"]);
 			equation.style.left = xPad + Math.round(
 				xPos * graphConfig["ogive_chart_width"]) + "px";
 			equation.style.bottom = yBase + "px";
-		/*}
-		else {
-			equation.style.right = xPad + Math.round(
-				(1 - xPos) * graphConfig["ogive_chart_width"]) + "px";
-			equation.style.top = graphConfig["ogive_chart_height"] - yBase + "px";
-		}*/
-		div.appendChild(equation);
+			div.appendChild(equation);
+		}
+	}
+	else {
+		var regrParam = powerRegression(xy);
+		var a = regrParam[0];
+		var b = regrParam[1];
+		var max = chartCumulData[chartCumulData.length - 1];
+		var drawTrend = (!isNaN(a) && !isNaN(b));
+		var chartTrendData = new Array();
+		if (drawTrend) {
+			for (var x = 0; x < width; x++) {
+				var i = x / width * chartData.length;
+				chartTrendData[x] = a * Math.pow(i, b);
+				if (chartTrendData[x] > max) {
+					max = chartTrendData[x];
+				}
+			}
+		}
+		var scale = graphConfig["ogive_chart_height"] / max;
+		createChartPane(div, graph, chartData, samples,
+			graphConfig["ogive_values"], 0, max, totalIgnored);
+		drawOgive(cnv, chartCumulData, false, scale);
+		if (drawTrend) {
+			drawOgive(cnv, chartTrendData, true, scale);
+			var equation = document.createElement("div");
+			equation.className = "regression-equation";
+			equation.appendChild(document.createTextNode("y = "));
+			var aRounded = roundToDecimals(a, 2);
+			var bRounded = roundToDecimals(b, 2);
+			if (aRounded != 1) {
+				var aTxt = document.createElement("span");
+				aTxt.appendChild(document.createTextNode(
+					graphConfig["decimal_point_is_comma"]
+						? ("" + aRounded).replace(".", ",")
+						: aRounded));
+				equation.appendChild(aTxt);
+			}
+			equation.appendChild(document.createTextNode("x"));
+			if (bRounded != 1) {
+				var bTxt = document.createElement("sup");
+				bTxt.appendChild(document.createTextNode(
+					graphConfig["decimal_point_is_comma"]
+						? ("" + bRounded).replace(".", ",")
+						: bRounded));
+				equation.appendChild(bTxt);
+			}
+			equation.style.position = "absolute";
+			var xPos = 3/4;
+			var xPad = 15;
+			var yBase = Math.round(chartTrendData[Math.round(xPos * chartTrendData.length)]
+				/ max * graphConfig["ogive_chart_height"]);
+			/*if (b < 1) {*/
+				equation.style.left = xPad + Math.round(
+					xPos * graphConfig["ogive_chart_width"]) + "px";
+				equation.style.bottom = yBase + "px";
+			/*}
+			else {
+				equation.style.right = xPad + Math.round(
+					(1 - xPos) * graphConfig["ogive_chart_width"]) + "px";
+				equation.style.top = graphConfig["ogive_chart_height"] - yBase + "px";
+			}*/
+			div.appendChild(equation);
+		}
 	}
 	return div;
 }
@@ -567,6 +652,28 @@ function powerRegression (data) {
 	var ybar = sumY / n;
 	var b = sxy / sxx;
 	var a = Math.pow(Math.exp(1), ybar - b * xbar);
+	var result = new Array();
+	result[0] = a;
+	result[1] = b;
+	return result;
+}
+
+function simpleLinearRegression (data) {
+	var n = data.length;
+	var sumX = 0;
+	var sumY = 0;
+	var sumXX = 0;
+	var sumXY = 0;
+	for (i in data) {
+		var x = eval(i);
+		var y = data[i];
+		sumX += x;
+		sumY += y;
+		sumXX += x * x;
+		sumXY += x * y;
+	}
+	var b = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+	var a = sumY / n - b / n * sumX;
 	var result = new Array();
 	result[0] = a;
 	result[1] = b;
