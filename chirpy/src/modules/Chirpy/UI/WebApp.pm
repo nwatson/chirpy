@@ -1788,10 +1788,10 @@ sub confirm_logout {
 sub get_user_information {
 	my $self = shift;
 	my $cgi = $self->{'cgi'};
-	return {
-		'remote_addr' => $cgi->remote_addr(),
-		'user_agent' => $cgi->user_agent()
-	};
+	my $info = { 'remote_addr' => $cgi->remote_addr() };
+	my $ua = $cgi->user_agent();
+	$info->{'user_agent'} = $ua if (defined $ua && $ua ne '');
+	return $info;
 }
 
 sub finalize {
