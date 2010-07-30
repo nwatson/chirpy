@@ -52,10 +52,10 @@ trailing whitespaces, and trimming down sequences of more than 2 line feeds.
 Parses the string C<$tags> into an array of valid tags and returns a reference
 to it. The array may be empty.
 
-=item encrypt($string)
+=item encrypt($string, $salt)
 
-Encrypts the given string using the MD5 algorithm. This function is used for
-password encryption.
+Encrypts the given string using the MD5 algorithm, optionally using the given
+salt string for added security. This function is used for password encryption.
 
 =item format_quote_rating($rating)
 
