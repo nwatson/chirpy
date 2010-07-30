@@ -682,7 +682,7 @@ sub add_account {
 	my $account = new Chirpy::Account(
 		undef,
 		$username,
-		Chirpy::Util::encrypt($password),
+		Chirpy::Util::encrypt($password, $self->salt()),
 		$level
 	);
 	$self->_data_manager()->add_account($account);
@@ -701,7 +701,7 @@ sub modify_account {
 	if (defined $password) {
 		Chirpy::die('Invalid password')
 			unless (Chirpy::Util::valid_password($password));
-		$account->set_password(Chirpy::Util::encrypt($password));
+		$account->set_password(Chirpy::Util::encrypt($password, $self->salt()));
 	}
 	if (defined $level) {
 		$account->set_level($level);
@@ -738,7 +738,9 @@ sub attempt_login {
 	my ($self, $username, $password) = @_;
 	my $account = $self->get_account_by_username($username);
 	return undef unless (defined $account);
-	return ($account->get_password() eq Chirpy::Util::encrypt($password)
+	return ($account->get_password() eq
+				Chirpy::Util::encrypt($password, $self->salt())
+			|| $account->get_password() eq Chirpy::Util::encrypt($password)
 		? $account : undef);
 }
 
@@ -754,6 +756,12 @@ sub quote_score_calculation_mode {
 	my $mode = $self->configuration()->get('general',
 		'quote_score_calculation_mode');
 	return (defined $mode && $mode == 1 ? 1 : 0);
+}
+
+sub salt {
+	my $self = shift;
+	my $salt = $self->configuration()->get('general', 'salt');
+	return (defined $salt ? $salt : 'cH1rPy!');
 }
 
 sub timing_enabled {

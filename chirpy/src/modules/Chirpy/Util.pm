@@ -181,8 +181,13 @@ sub parse_tags {
 }
 
 sub encrypt {
+	my $raw = shift;
+	my $salt = shift;
+	if (defined $salt) {
+		$raw = $salt . "\0" . $raw;
+	}
 	require Digest::MD5;
-	return Digest::MD5::md5_hex(shift);
+	return Digest::MD5::md5_hex($raw);
 }
 
 sub format_quote_rating {
@@ -194,8 +199,8 @@ sub format_quote_rating {
 
 sub format_date_time {
 	my ($timestamp, $format, $gmt) = @_;
-	return strftime($format, ($gmt
-		? gmtime($timestamp) : localtime($timestamp)));
+	return strftime($format,
+		($gmt ? gmtime($timestamp) : localtime($timestamp)));
 }
 
 sub encode_xml_entities {
