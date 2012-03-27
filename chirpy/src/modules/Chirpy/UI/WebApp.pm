@@ -299,6 +299,7 @@ use constant ACTIONS => {
 	'REPORT_QUOTE' => 'report',
 	'QUOTE_BROWSER' => 'browse',
 	'RANDOM_QUOTES' => 'random',
+        'PRANDOM_QUOTES' => 'prandom',
 	'TOP_QUOTES' => 'top',
 	'BOTTOM_QUOTES' => 'bottom',
 	'QUOTES_OF_THE_WEEK' => 'qotw',
@@ -1930,6 +1931,9 @@ sub _get_page_name {
 	elsif ($page == Chirpy::UI::RANDOM_QUOTES) {
 		return 'random_quotes';
 	}
+        elsif ($page == Chirpy::UI::PRANDOM_QUOTES) {
+                return 'prandom_quotes';
+        }
 	elsif ($page == Chirpy::UI::TOP_QUOTES) {
 		return 'top_quotes';
 	}

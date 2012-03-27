@@ -86,6 +86,7 @@ use constant LOGIN                    => 15;
 use constant LOGOUT                   => 16;
 use constant ADMINISTRATION           => 17;
 use constant MODERATION_QUEUE         => 18;
+use constant PRANDOM_QUOTES           => 19;
 
 use constant CHANGE_PASSWORD          => 100;
 use constant MANAGE_UNAPPROVED_QUOTES => 110;
@@ -218,6 +219,12 @@ sub run {
 			? $self->browse_quotes($quotes, $page)
 			: $self->report_no_quotes_to_display($page));
 	}
+        elsif ($page == PRANDOM_QUOTES) {
+                my $quotes = $self->parent()->get_prandom_quotes();
+                (defined $quotes
+                        ? $self->browse_quotes($quotes, $page)
+                        : $self->report_no_quotes_to_display($page));
+        }
 	elsif ($page == TOP_QUOTES) {
 		my $start = $self->get_first_quote_index();
 		$self->_browse_quotes_segmented(

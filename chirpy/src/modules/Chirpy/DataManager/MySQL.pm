@@ -525,6 +525,9 @@ sub get_quotes {
 		delete $params->{'first'};
 		delete $params->{'sort'};
 	}
+        if ($params->{'prandom'}) {
+                push @cond, '`rating` > 0';
+        }
 	if (@cond) {
 		$query .= ' WHERE ' . join(' AND ', @cond);
 	}

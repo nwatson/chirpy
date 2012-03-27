@@ -488,6 +488,16 @@ sub get_random_quotes {
 	});
 }
 
+sub get_prandom_quotes {
+        my $self = shift;
+        return $self->_data_manager()->get_quotes({
+                'approved' => 1,
+                'count'    => $self->quotes_per_page(),
+                'random'   => 1,
+                'prandom'  => 1
+        });
+}
+
 sub get_top_quotes {
 	my ($self, $start) = @_;
 	my $cm = $self->quote_score_calculation_mode();
