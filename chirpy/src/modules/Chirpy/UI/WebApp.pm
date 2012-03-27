@@ -505,7 +505,7 @@ sub report_no_quotes_to_display {
 		my $name = &_get_page_name($page);
 		my $title = $self->locale()->get_string($name);
 		$self->_report_message(
-			&_text_to_xhtml($title),
+			$title,
 			$self->locale()->get_string('no_quotes'));
 	}
 }
